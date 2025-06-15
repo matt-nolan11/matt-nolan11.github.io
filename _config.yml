@@ -1,2 +1,6 @@
-theme: jekyll-theme-cayman
+# theme: minimal-mistakes-jekyll
+remote_theme: "mmistakes/minimal-mistakes"
+plugins:
+  - jekyll-remote-theme
+  - jekyll-include-cache
 title: Matt Nolan's Portfolio
