@@ -659,3 +659,182 @@ Let me know what you find in the generated `_site/index.html` and if the CSS fil
 
 ---
 
+_**User**_
+
+Can I check which accout I am logged into Git with globally?
+
+---
+
+_**Assistant**_
+
+Yes! To check which account you are logged into with Git globally, open your terminal and run:
+
+```
+git config --global user.name
+git config --global user.email
+```
+
+This shows the name and email configured for Git commits.
+
+To see which GitHub account you are authenticated with (for pushing/pulling), run:
+
+```
+gh auth status
+```
+
+*(You need the GitHub CLI installed for this command.)*
+
+You can also check your remote URL with:
+
+```
+git remote -v
+```
+
+This shows which GitHub repository you are pushing to.
+
+---
+
+_**User**_
+
+@terminal /explain #terminalSelection
+
+---
+
+_**Assistant**_
+
+You have configured your Git user name and email, checked your remote, and tried to use the GitHub CLI (gh), but it is not installed.  
+To install the GitHub CLI on Windows, run this command in your terminal:
+
+cmd
+winget install --id GitHub.cli
+
+After installation, you can use gh commands like gh auth login.
+
+---
+
+_**User**_
+
+If the global user name and email are correct, why do I not have permission to push changes?
+
+---
+
+_**Assistant**_
+
+The global Git user name and email only set your identity for commits—they do **not** control push permissions. Push permissions depend on:
+
+- **Which GitHub account you are authenticated with** (via HTTPS or SSH).
+- **Whether that account has write access** to the repository.
+
+Common reasons you can’t push:
+- You cloned the repo using HTTPS and are not logged in as a user with write access.
+- You cloned a repo you don’t own or have not been added as a collaborator.
+- Your SSH key is not added to your GitHub account.
+
+**Solution:**  
+- Make sure you are authenticated as a user with write access.
+- If you use HTTPS, run `git credential-manager-core erase` to clear old credentials, then push again and log in with the correct account.
+- If you use SSH, ensure your SSH key is added to your GitHub account.
+
+Let me know if you need help with any of these steps!
+
+---
+
+_**User**_
+
+git: 'credential-manager-core' is not a git command
+
+---
+
+_**Assistant**_
+
+On Windows, the command may be just `git credential-manager` or you might need to install the [Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager).
+
+Try this command first:
+```
+git credential-manager erase
+```
+
+If that doesn’t work, you can clear your saved credentials via Windows Credential Manager:
+
+1. Open **Control Panel** → **User Accounts** → **Credential Manager**.
+2. Look for any credentials related to `github.com` under "Windows Credentials" or "Generic Credentials".
+3. Remove them.
+
+The next time you push, Git will prompt you to log in again.  
+Let me know if you need more help!
+
+---
+
+_**User**_
+
+I ran git credential-manager erase, and it appears to have hung?
+
+---
+
+_**Assistant**_
+
+If `git credential-manager erase` appears to hang, it may be waiting for input or encountering an issue with the credential manager.
+
+**Try these steps instead:**
+
+1. **Manually clear credentials:**
+   - Open **Control Panel** → **User Accounts** → **Credential Manager**.
+   - Go to **Windows Credentials** and **Generic Credentials**.
+   - Find and remove any entries related to `github.com`.
+
+2. **Restart VS Code and your terminal** to ensure no old credentials are cached.
+
+3. **Try pushing again** with Git. You should be prompted to log in with your GitHub credentials.
+
+If you continue to have issues, let me know what you see or if you get any error messages!
+
+---
+
+_**User**_
+
+025-06-15 12:24:51.351 [info] remote: Permission to matt-nolan11/matt-nolan11.github.io.git denied to matt-thermasat.
+fatal: unable to access 'https://github.com/matt-nolan11/matt-nolan11.github.io.git/': The requested URL returned error: 403
+2025-06-15 12:24:56.453 [info] > git config --get commit.template [67ms]
+2025-06-15 12:24:56.464 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) --ignore-case refs/heads/main refs/remotes/main [73ms]
+2025-06-15 12:24:56.538 [info] > git for-each-ref --sort -committerdate --format %(refname)%00%(objectname)%00%(*objectname) [64ms]
+2025-06-15 12:24:56.540 [info] > git status -z -uall [71ms]
+
+It's clearly trying to use my matt-thermasat account somewhere
+
+---
+
+_**Assistant**_
+
+Correct—your push is being denied because you are authenticated as **matt-thermasat**, who does not have write access to the `matt-nolan11/matt-nolan11.github.io` repository.
+
+**How to fix:**
+
+1. **Remove the old GitHub credentials:**
+   - Open **Control Panel** → **User Accounts** → **Credential Manager**.
+   - Under **Windows Credentials** and **Generic Credentials**, find and remove any entries for `github.com`.
+
+2. **Restart VS Code and your terminal.**
+
+3. **Push again:**  
+   When you push, Git will prompt you to log in.  
+   **Log in with your `matt-nolan11` GitHub account** (the one with write access).
+
+4. *(Optional but recommended)*  
+   If you have multiple GitHub accounts, consider using SSH keys and [GitHub’s SSH config](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh) to manage them.
+
+Let me know if you need step-by-step help with any of these!
+
+---
+
+_**User**_
+
+Why is it trying to use Credential Manager at all?
+
+---
+
+_**Assistant**_
+
+
+
+---
+
