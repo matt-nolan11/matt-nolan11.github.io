@@ -1588,15 +1588,15 @@ th {
   color: #fff;
 }
 .btn--x {
-  background-color: #55acee;
+  background-color: #0f1419;
   color: #fff;
 }
 .btn--x:visited {
-  background-color: #55acee;
+  background-color: #0f1419;
   color: #fff;
 }
 .btn--x:hover {
-  background-color: rgb(68, 137.6, 190.4);
+  background-color: #0c1014;
   color: #fff;
 }
 .btn--block {
@@ -3324,8 +3324,11 @@ body:hover .visually-hidden button {
 .social-icons .fa-tumblr, .social-icons .fa-tumblr-square {
   color: #32506d;
 }
-.social-icons .fa-twitter, .social-icons .fa-twitter-square, .social-icons .fa-x-twitter {
+.social-icons .fa-twitter, .social-icons .fa-twitter-square {
   color: #55acee;
+}
+.social-icons .fa-x-twitter, .social-icons .fa-square-x-twitter {
+  color: #0f1419;
 }
 .social-icons .fa-vimeo, .social-icons .fa-vimeo-square, .social-icons .fa-vimeo-v {
   color: #1ab7ea;
