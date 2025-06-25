@@ -1,0 +1,114 @@
+---
+import { Image } from "astro:assets";
+import logo from "../assets/logo.svg";
+import Search from "astro-pagefind/components/Search";
+import { MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import ThemeToggle from '../components/ThemeToggle.astro';
+---
+
+<header class="shadow-sm bg-base-100">
+  <!-- ********** Mobile (< lg): drawer & navbar ********** -->
+  <div class="drawer lg:hidden">
+    <!-- Hidden checkbox toggles the drawer -->
+    <input id="nav-drawer" type="checkbox" class="drawer-toggle" />
+
+    <div class="drawer-content flex flex-col">
+      <nav class="navbar bg-base-100 w-full lg:px-4 relative px-2">
+        <!-- Hamburger icon on the left -->
+        <div class="flex-none">
+          <label
+            for="nav-drawer"
+            aria-label="Open sidebar"
+            class="btn btn-ghost btn-square"
+          >
+            <Bars3Icon className="h-5 w-5" />
+          </label>
+        </div>
+
+        <!-- Logo centered absolutely -->
+        <a
+          href="/"
+          class="absolute left-1/2 -translate-x-1/2 flex items-center"
+        >
+          <Image src={logo} alt="Stargarden logo" class="h-18 w-auto" />
+        </a>
+        <div class="flex-none ml-auto">
+          <button
+            aria-label="Open search"
+            class="btn btn-ghost btn-square"
+            onclick="search_modal.showModal()"
+          >
+            {/* Magnifying glass icon */}
+            <MagnifyingGlassIcon className="h-5 w-5" />
+          </button>
+          <ThemeToggle />
+        </div>
+      </nav>
+      <dialog id="search_modal" class="modal">
+        <div
+          class="modal-box w-11/12 max-w-2xl h-[90vh] overflow-y-auto flex flex-col relative"
+        >
+          <form method="dialog">
+            <button
+              class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              aria-label="Close search"
+            >
+              <XMarkIcon className="h-5 w-5" />
+            </button>
+          </form>
+          <div class="relative">
+            <Search
+              id="mobile-search"
+              className="pagefind-ui w-full mt-8 mb-2"
+              uiOptions={{ showImages: false }}
+            />
+          </div>
+        </div>
+      </dialog>
+    </div>
+
+    <!-- Slide‑out sidebar -->
+    <div class="drawer-side">
+      <label for="nav-drawer" class="drawer-overlay" aria-label="Close sidebar"
+      ></label>
+      <ul class="menu p-4 w-80 bg-base-100 min-h-full">
+        <li>
+          <a href="/posts" class="normal-case font-bold text-xl">Blog</a>
+        </li>
+        <li>
+          <a href="/about" class="normal-case font-bold text-xl">About</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ********** Desktop (≥ lg): standard navbar ********** -->
+  <nav
+    class="navbar hidden lg:flex w-full bg-base-100"
+    style="--navbar-padding:0;"
+  >
+    <div class="navbar-start">
+      <a href="/" class="flex items-center gap-2">
+        <Image src={logo} alt="Stargarden logo" class="h-18 w-auto" />
+        <span class="text-xl font-bold">Stargarden</span>
+      </a>
+    </div>
+    <div class="navbar-end">
+      <ul class="menu menu-horizontal gap-2">
+        <li>
+          <a href="/posts" class="normal-case font-bold text-lg">Posts</a>
+        </li>
+        <li>
+          <a href="/about" class="normal-case font-bold text-lg">About</a>
+        </li>
+      </ul>
+  
+      <Search
+        id="search"
+        className="pagefind-ui"
+        uiOptions={{ showImages: false }}
+      />    
+      <ThemeToggle />
+    </div>
+  </nav>
+</header>
