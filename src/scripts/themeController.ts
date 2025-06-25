@@ -22,7 +22,7 @@ export function setupThemeController(): void {
     });
   };
 
-  // Initialise from localStorage (or fall back to "business").
+  // Initialise from localStorage (or fall back to "business" for dark mode default).
   let savedTheme: string;
   try {
     savedTheme = localStorage.getItem("theme") ?? "business";
@@ -35,7 +35,7 @@ export function setupThemeController(): void {
   // Listen for user changes.
   controllers.forEach(cb => {
     cb.addEventListener("change", () => {
-      const newTheme = cb.checked ? cb.value : "business";
+      const newTheme = cb.checked ? cb.value : "corporate";
       try {
         localStorage.setItem("theme", newTheme);
       } catch (error) {

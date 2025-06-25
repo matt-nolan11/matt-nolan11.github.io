@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Theme Test</title>
+    <script type="module">
+        import { setupThemeController } from './src/scripts/themeController.ts';
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+            setupThemeController();
+            
+            const controller = document.querySelector('.theme-controller');
+            console.log('Theme controller found:', controller);
+            console.log('Initial theme:', document.documentElement.getAttribute('data-theme'));
+            console.log('Checkbox checked:', controller?.checked);
+        });
+    </script>
+</head>
+<body>
+    <h1>Theme Test</h1>
+    <label class="swap swap-rotate cursor-pointer">
+        <input type="checkbox" class="theme-controller" value="business" />
+        <span>🌞</span>
+        <span>🌙</span>
+    </label>
+    
+    <div id="theme-display"></div>
+    
+    <script type="module">
+        // Monitor theme changes
+        const observer = new MutationObserver(() => {
+            const theme = document.documentElement.getAttribute('data-theme');
+            document.getElementById('theme-display').textContent = `Current theme: ${theme}`;
+        });
+        observer.observe(document.documentElement, { attributes: true });
+    </script>
+</body>
+</html>
