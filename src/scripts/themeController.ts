@@ -22,14 +22,14 @@ export function setupThemeController(): void {
     });
   };
 
-  // Initialise from localStorage (or fall back to "corporate").
-  const savedTheme = localStorage.getItem("theme") ?? "corporate";
+  // Initialise from localStorage (or fall back to "business").
+  const savedTheme = localStorage.getItem("theme") ?? "business";
   applyTheme(savedTheme);
 
   // Listen for user changes.
   controllers.forEach(cb => {
     cb.addEventListener("change", () => {
-      const newTheme = cb.checked ? cb.value : "corporate";
+      const newTheme = cb.checked ? cb.value : "business";
       localStorage.setItem("theme", newTheme);
       applyTheme(newTheme);
     });
