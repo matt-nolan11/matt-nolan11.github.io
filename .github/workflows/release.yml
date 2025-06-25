@@ -1,7 +1,11 @@
 name: release
 on:
+  # Only trigger on version tags
   push:
-    branches: [main]
+    tags:
+      - 'v*'
+  # Allow manual trigger
+  workflow_dispatch:
 
 permissions:
   contents: write             # allow tag + release
