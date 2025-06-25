@@ -13,11 +13,6 @@
 export function setupThemeController(): void {
   // Collect every checkbox that controls the theme.
   const controllers = document.querySelectorAll<HTMLInputElement>(".theme-controller");
-  
-  if (controllers.length === 0) {
-    console.warn("No theme controllers found");
-    return;
-  }
 
   // Helper to apply a theme and keep all checkboxes in sync.
   const applyTheme = (theme: string): void => {
@@ -32,7 +27,6 @@ export function setupThemeController(): void {
   try {
     savedTheme = localStorage.getItem("theme") ?? "business";
   } catch (error) {
-    console.warn("localStorage not available, using default theme");
     savedTheme = "business";
   }
   
@@ -45,7 +39,7 @@ export function setupThemeController(): void {
       try {
         localStorage.setItem("theme", newTheme);
       } catch (error) {
-        console.warn("Could not save theme to localStorage");
+        // Silently fail if localStorage is not available
       }
       applyTheme(newTheme);
     });
@@ -56,19 +50,9 @@ export function setupThemeController(): void {
 /*  Auto‑run when this module is executed in the browser environment. */
 /* ------------------------------------------------------------------ */
 if (typeof window !== "undefined") {
-  // Try multiple times if DOM isn't ready yet
-  const trySetup = () => {
-    if (document.querySelector(".theme-controller")) {
-      setupThemeController();
-    } else {
-      // Retry after a short delay if elements aren't found
-      setTimeout(trySetup, 100);
-    }
-  };
-
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", trySetup);
+    document.addEventListener("DOMContentLoaded", setupThemeController);
   } else {
-    trySetup();
+    setupThemeController();
   }
 }
