@@ -6,4 +6,5 @@ Built with the [StarGarden Astro theme](https://github.com/sustanza/stargarden).
 
 ## License
 
-[MIT License](LICENSE)
+Code: [MIT License](LICENSE)  
+Content & Assets: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
