@@ -28,7 +28,6 @@ const expressiveCode = astroExpressiveCode({
 export default defineConfig({
 
   site: 'https://matt-nolan11.github.io',
-  base: '/My-Portfolio-and-Blog',
   vite: {
     plugins: [tailwindcss()]
   },
