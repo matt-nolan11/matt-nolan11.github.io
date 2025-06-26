@@ -19,23 +19,32 @@ const displayProjects = getFeaturedProjects(projects, 6);
 		<p class="mb-4 text-base-content/70">Explore my latest robotics and engineering projects.</p>
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 		  {displayProjects.map(project => (
-			<a href={`/projects/${project.slug}/`} class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 ease-in-out">
+			<div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl">
 			  <figure>
-				<Image 
-				  src={project.data.cover}
-				  alt={project.data.title}
-				  width={560}
-				  height={315}
-				  class="w-full h-auto object-cover"
-				/>
+				<a href={`/projects/${project.slug}/`}>
+				  <Image 
+					src={project.data.cover}
+					alt={project.data.title}
+					width={560}
+					height={315}
+					class="w-full h-auto object-cover"
+				  />
+				</a>
 			  </figure>
 			  <div class="card-body">
-				<h2 class="card-title">{project.data.title}</h2>
+				<a href={`/projects/${project.slug}/`} class="block">
+				  <h2 class="card-title">{project.data.title}</h2>
+				</a>
 				<p class="text-sm text-base-content/70 mb-2">{project.data.description}</p>
-				<div class="flex flex-wrap gap-1 mb-2">
+				<div class="flex flex-wrap gap-2 mb-4">
 				  {project.data.tags.slice(0, 3).map(tag => (
-					<span class="badge badge-secondary badge-sm">{tag}</span>
+					<a href={`/tags/${tag}/`} class="badge badge-outline badge-sm hover:badge-primary transition-colors">
+					  {tag}
+					</a>
 				  ))}
+				  {project.data.tags.length > 3 && (
+					<span class="badge badge-ghost badge-sm">+{project.data.tags.length - 3} more</span>
+				  )}
 				</div>
 				<div class="flex justify-between items-center">
 				  <span class="text-xs text-base-content/60">
@@ -49,7 +58,7 @@ const displayProjects = getFeaturedProjects(projects, 6);
 				  <div class="badge badge-primary badge-sm">{project.data.status}</div>
 				</div>
 			  </div>
-			</a>
+			</div>
 		  ))}
 		</div>
 		<div class="flex justify-center mt-8">

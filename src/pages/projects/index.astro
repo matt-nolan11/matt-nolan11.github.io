@@ -31,15 +31,17 @@ const publishedProjects = projects
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {publishedProjects.map(project => (
-        <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 h-full">
+        <article class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full rounded-xl">
           <figure class="relative">
-            <Image 
-              src={project.data.cover}
-              alt={project.data.title}
-              width={400}
-              height={300}
-              class="w-full h-64 object-cover"
-            />
+            <a href={`/projects/${project.slug}/`}>
+              <Image 
+                src={project.data.cover}
+                alt={project.data.title}
+                width={560}
+                height={315}
+                class="w-full h-auto object-cover"
+              />
+            </a>
             <div class="absolute top-2 right-2">
               <div class={`badge ${
                 project.data.status === 'completed' ? 'badge-success' : 
@@ -52,11 +54,11 @@ const publishedProjects = projects
           </figure>
           
           <div class="card-body p-6">
-            <h2 class="card-title text-xl mb-2">
-              <a href={`/projects/${project.slug}/`} class="link link-hover">
+            <a href={`/projects/${project.slug}/`} class="block">
+              <h2 class="card-title text-xl mb-2">
                 {project.data.title}
-              </a>
-            </h2>
+              </h2>
+            </a>
             
             <p class="text-sm text-base-content/70 mb-4">
               {project.data.description}
@@ -114,9 +116,6 @@ const publishedProjects = projects
                     Live Demo
                   </a>
                 )}
-                <a href={`/projects/${project.slug}/`} class="btn btn-primary btn-sm">
-                  Read More
-                </a>
               </div>
             </div>
           </div>

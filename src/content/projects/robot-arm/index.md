@@ -4,10 +4,11 @@ description: "A multi-version robotic arm project exploring different control sy
 cover: "./cover.png"
 startDate: "2023-01"
 endDate: "2024-06"
-status: "completed"
+status: "in-progress"
 featured: true
 tags: ["robotics", "mechanical-design", "control-systems", "3d-printing", "arduino", "raspberry-pi", "python", "cad"]
 githubUrl: "https://github.com/matt-nolan11/robot-arm"
+versionsTitle: "Development Timeline"
 
 versions:
   - version: "v0.5"

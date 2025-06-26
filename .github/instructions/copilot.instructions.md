@@ -35,3 +35,36 @@ Coding standards, domain knowledge, and preferences that AI should follow.
 - **DaisyUI themes**: "business" (dark) ↔ "corporate" (light)
 - **Responsive design** - mobile-first approach with Tailwind breakpoints
 - **Performance** - optimize images, minimize bundle size
+
+## Content Schema & Structure
+- **Flexible schemas** - use optional fields and unions to allow content evolution
+- **Version support** - implement versioned content with clear navigation patterns
+- **Tag consistency** - maintain unified tag vocabulary across posts and projects
+- **Customizable headers** - allow hiding/customizing section headers via frontmatter
+- **Rich content types** - support both simple strings and full Markdown for descriptions
+
+## UX & Navigation Patterns
+- **Visual hierarchy** - use consistent card layouts and typography scales
+- **Active state feedback** - clearly highlight active tabs, filters, and navigation items
+- **Smooth transitions** - use CSS transitions for hover, focus, and state changes
+- **Rounded containers** - apply consistent border radius to grouped UI elements
+- **Accessible interactions** - ensure keyboard navigation and screen reader support
+
+## Code Organization & Refactoring
+- **Read before editing** - always understand existing code patterns before making changes
+- **Schema-driven development** - update content schemas first, then components
+- **Incremental validation** - test changes in small increments rather than large refactors
+- **Tool reliability** - use multiple approaches (CSS classes + inline styles) for critical styling
+- **Pattern consistency** - extract reusable patterns into components and utilities
+
+## Content Management
+- **Frontmatter standards** - maintain consistent field naming and typing
+- **Asset organization** - keep images and content co-located for maintainability
+- **Version naming** - use clear, descriptive names for project versions
+- **Markdown quality** - ensure proper heading hierarchy and semantic structure
+
+## Development Workflow
+- **Context gathering** - use semantic search and file reading to understand codebase
+- **Error validation** - check for errors after edits and fix promptly
+- **Theme testing** - verify changes work in both light and dark modes
+- **Responsive testing** - ensure layouts work across device sizes

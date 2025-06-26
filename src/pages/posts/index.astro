@@ -25,23 +25,25 @@ const publishedPosts = posts
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {publishedPosts.map(post => (
-        <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 h-full">
+        <article class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full rounded-xl">
           <figure class="relative">
-            <Image 
-              src={post.data.cover}
-              alt={post.data.title}
-              width={400}
-              height={300}
-              class="w-full h-64 object-cover"
-            />
+            <a href={`/posts/${post.slug}/`}>
+              <Image 
+                src={post.data.cover}
+                alt={post.data.title}
+                width={560}
+                height={315}
+                class="w-full h-auto object-cover"
+              />
+            </a>
           </figure>
           
           <div class="card-body p-6">
-            <h2 class="card-title text-xl mb-2">
-              <a href={`/posts/${post.slug}/`} class="link link-hover">
+            <a href={`/posts/${post.slug}/`} class="block">
+              <h2 class="card-title text-xl mb-2">
                 {post.data.title}
-              </a>
-            </h2>
+              </h2>
+            </a>
             
             <p class="text-sm text-base-content/70 mb-4">
               {post.data.description}
@@ -65,12 +67,6 @@ const publishedPosts = posts
               <time class="text-sm text-base-content/70">
                 {new Date(post.data.date).toLocaleDateString()}
               </time>
-              
-              <div class="flex gap-2">
-                <a href={`/posts/${post.slug}/`} class="btn btn-primary btn-sm">
-                  Read More
-                </a>
-              </div>
             </div>
           </div>
         </article>

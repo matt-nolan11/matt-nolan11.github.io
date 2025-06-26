@@ -102,21 +102,21 @@
   
   /* Ultra-smooth responsive transitions for layout changes */
   .card, .grid > *, .menu > *, .navbar > * {
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     transition-property: transform, width, height, margin, padding, opacity;
     will-change: transform, width, height;
   }
   
   /* Buttery smooth grid container transitions */
   .grid {
-    transition: grid-template-columns 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                gap 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: grid-template-columns 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                gap 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: grid-template-columns, gap;
   }
   
   /* Smooth flexbox transitions */
   .flex, .navbar {
-    transition: flex-direction 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: flex-direction 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: flex-direction;
   }
   
@@ -143,7 +143,10 @@
   .version-section:hover,
   .card:hover.versions,
   .card:hover[class*="version"],
-  .card:hover.project-versions {
+  .card:hover.project-versions,
+  .version-card:hover,
+  div.version-card:hover,
+  .version-card.card:hover {
     transform: none !important;
     scale: none !important;
     box-shadow: inherit !important;
@@ -152,20 +155,20 @@
   
   /* Ultra-smooth responsive typography */
   h1, h2, h3, h4, h5, h6, p, span, a {
-    transition: font-size 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                line-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: font-size 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                line-height 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: font-size, line-height;
   }
   
   /* Enhanced navbar responsive transitions */
   .navbar {
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: transform, background-color;
   }
   
   .navbar-start, .navbar-center, .navbar-end {
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: flex, width;
   }
   
@@ -213,31 +216,31 @@
   
   /* Ultra-smooth container and layout transitions */
   .container {
-    transition: max-width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                padding 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: max-width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                padding 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: max-width, padding;
   }
   
   /* Enhanced smooth responsive spacing */
   section, article, div {
-    transition: padding 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                margin 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: padding 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                margin 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: padding, margin;
   }
   
   /* Ultra-smooth responsive image transitions */
   img, .image {
-    transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                height 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: width, height, transform;
     backface-visibility: hidden;
   }
   
   /* Enhanced grid gap transitions */
   .grid {
-    transition: gap 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                grid-template-columns 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: gap 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                grid-template-columns 0.8s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: gap, grid-template-columns;
   }
   
@@ -294,4 +297,59 @@
   /* Ensure version badges and project indicators are rounded */
   .version-badge, .project-status, .content-tag {
     border-radius: var(--rounded-btn, 0.5rem) !important;
+  }
+  
+  /* Enhanced version selection styling */
+  .version-content {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .version-card {
+    transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.02);
+    transform: none !important;
+    box-shadow: none;
+  }
+  
+  /* Light theme version card */
+  [data-theme="corporate"] .version-card {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
+  /* Prevent any card hover effects on version cards */
+  .version-card:hover {
+    transform: none !important;
+    scale: none !important;
+  }
+  
+  /* Enhanced tab styling */
+  .tabs-boxed {
+    border-radius: var(--rounded-btn, 0.5rem) !important;
+  }
+  
+  .tabs-boxed .tab {
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: background-color, color;
+    border-radius: var(--rounded-btn, 0.5rem);
+  }
+  
+  .tabs-boxed .tab:hover:not(.tab-active) {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+  
+  /* Active tab styling - always highlighted */
+  .tabs-boxed .tab.tab-active {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+    color: rgba(59, 130, 246, 1) !important;
+    border: 1px solid rgba(59, 130, 246, 0.4) !important;
+    font-weight: 600;
+  }
+  
+  /* Ensure active tab stays highlighted on hover */
+  .tabs-boxed .tab.tab-active:hover {
+    background-color: rgba(59, 130, 246, 0.25) !important;
+    color: rgba(59, 130, 246, 1) !important;
+    border: 1px solid rgba(59, 130, 246, 0.5) !important;
   }

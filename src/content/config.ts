@@ -11,6 +11,10 @@ const slug = z.string().regex(/^[a-z0-9-]+$/);
  * - Optional enhancements: content (markdown), achievements, learnings, githubUrl
  * - Supports minimal versions (just basic info) or rich documentation
  * - Markdown content is rendered with prose styling when provided
+ * - versionsTitle: customize or hide the versions section header
+ *   - undefined/null: shows "Project Versions" (default)
+ *   - custom string: shows your custom title
+ *   - empty string "": hides the header completely
  */
 export const collections = {
   posts: defineCollection({
@@ -41,6 +45,7 @@ export const collections = {
         githubUrl: z.string().url().optional(),
         liveUrl: z.string().url().optional(),
         // Version support
+        versionsTitle: z.string().optional(), // Optional: Custom title for versions section (empty string = no header)
         versions: z.array(z.object({
           version: z.string(), // e.g., "v1", "v2", "2.0"
           title: z.string(), // e.g., "Basic Gripper", "Servo Upgrade"

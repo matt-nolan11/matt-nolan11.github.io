@@ -134,14 +134,19 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
     <!-- Project Versions -->
     {project.data.versions && project.data.versions.length > 0 && (
       <div class="mt-12">
-        <h2 class="text-3xl font-bold mb-8">Project Versions</h2>
+        {/* Only show header if versionsTitle is not explicitly set to empty string */}
+        {project.data.versionsTitle !== "" && (
+          <h2 class="text-3xl font-bold mb-8">
+            {project.data.versionsTitle || "Project Versions"}
+          </h2>
+        )}
         
         <!-- Version Selector -->
         <div class="mb-6">
-          <div class="tabs tabs-boxed w-fit">
+          <div class="tabs tabs-boxed w-fit bg-base-200/50">
             {project.data.versions.slice().reverse().map((version, index) => (
               <button 
-                class={`tab ${index === 0 ? 'tab-active' : ''}`}
+                class={`tab transition-all duration-200 ${index === 0 ? 'tab-active' : ''} hover:bg-primary/10`}
                 onclick={`showVersion(${index})`}
                 id={`version-tab-${index}`}
               >
@@ -155,10 +160,10 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
         <div class="relative">
           {project.data.versions.slice().reverse().map((version, index) => (
             <div 
-              class={`version-content ${index === 0 ? 'block' : 'hidden'}`}
+              class={`version-content transition-all duration-300 ${index === 0 ? 'block' : 'hidden'}`}
               id={`version-${index}`}
             >
-              <div class="bg-base-100/50 border border-base-300 rounded-lg p-6">
+              <div class="version-card rounded-lg p-6">
                 <div class="flex flex-col lg:flex-row gap-6">
                     <!-- Version Images -->
                     {version.images && version.images.length > 0 && (
@@ -286,14 +291,19 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
     <script is:inline>
       function showVersion(selectedIndex) {
         // Hide all version content
-        document.querySelectorAll('.version-content').forEach(content => {
+        document.querySelectorAll('.version-content').forEach((content, index) => {
           content.classList.add('hidden');
           content.classList.remove('block');
         });
         
-        // Remove active state from all tabs
+        // Remove active state from all tabs and clear their styling
         document.querySelectorAll('[id^="version-tab-"]').forEach(tab => {
           tab.classList.remove('tab-active');
+          // Clear inline styles
+          tab.style.backgroundColor = '';
+          tab.style.color = '';
+          tab.style.border = '';
+          tab.style.fontWeight = '';
         });
         
         // Show selected version
@@ -307,8 +317,32 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
         
         if (selectedTab) {
           selectedTab.classList.add('tab-active');
+          // Force the active tab styling with inline styles for immediate effect
+          selectedTab.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
+          selectedTab.style.color = 'rgba(59, 130, 246, 1)';
+          selectedTab.style.border = '1px solid rgba(59, 130, 246, 0.4)';
+          selectedTab.style.fontWeight = '600';
         }
       }
+      
+      // Initialize active styling for the first tab immediately
+      function initializeFirstTab() {
+        const firstTab = document.querySelector('#version-tab-0');
+        if (firstTab) {
+          firstTab.classList.add('tab-active');
+          // Apply active styling immediately
+          firstTab.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
+          firstTab.style.color = 'rgba(59, 130, 246, 1)';
+          firstTab.style.border = '1px solid rgba(59, 130, 246, 0.4)';
+          firstTab.style.fontWeight = '600';
+        } else {
+          console.error('First version tab not found!');
+        }
+      }
+      
+      // Run immediately and also on DOMContentLoaded
+      initializeFirstTab();
+      document.addEventListener('DOMContentLoaded', initializeFirstTab);
     </script>
     
     <!-- Navigation -->
