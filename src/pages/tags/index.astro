@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getAllTags } from '../../utils/tagUtils';
+
+const tags = await getAllTags();
+---
+
+<Layout 
+  seo={{
+    title: "Tags",
+    description: "Browse all tags used across projects and blog posts. Discover content by topics like robotics, Arduino, 3D printing, and more."
+  }}
+>
+  <div class="container mx-auto px-4 py-8">
+    <div class="prose prose-lg max-w-none mb-8">
+      <h1 class="text-4xl font-bold mb-4">Tags</h1>
+      <p class="text-lg text-base-content/70">
+        Explore content by topic. Tags are used across both projects and blog posts to help you find related content.
+      </p>
+    </div>
+
+    {tags.length > 0 ? (
+      <div class="grid gap-8">
+        <!-- Tag Cloud -->
+        <section>
+          <h2 class="text-2xl font-semibold mb-4">Browse by Tag</h2>
+          <div class="flex flex-wrap gap-3">
+            {tags.map(tag => (
+              <a 
+                href={`/tags/${tag.name}/`}
+                class={`badge badge-lg hover:badge-primary transition-colors ${
+                  tag.count > 3 ? 'badge-primary' :
+                  tag.count > 1 ? 'badge-secondary' : 
+                  'badge-outline'
+                }`}
+              >
+                {tag.name}
+                <span class="ml-1 opacity-70">({tag.count})</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <!-- Popular Tags -->
+        {tags.filter(tag => tag.count > 1).length > 0 && (
+          <section>
+            <h2 class="text-2xl font-semibold mb-4">Popular Tags</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {tags.filter(tag => tag.count > 1).slice(0, 6).map(tag => (
+                <a 
+                  href={`/tags/${tag.name}/`}
+                  class="stat bg-base-100 shadow rounded-lg hover:shadow-lg transition-shadow duration-200 border border-base-300 hover:border-primary"
+                >
+                  <div class="stat-title text-sm">{tag.name}</div>
+                  <div class="stat-value text-2xl">{tag.count}</div>
+                  <div class="stat-desc">
+                    {tag.count === 1 ? 'item' : 'items'}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    ) : (
+      <div class="text-center py-12">
+        <p class="text-lg text-base-content/60">No tags found yet. Check back once content is added!</p>
+      </div>
+    )}
+  </div>
+</Layout>

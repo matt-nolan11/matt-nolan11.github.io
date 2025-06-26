@@ -6,7 +6,7 @@ import { MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/o
 import ThemeToggle from '../components/ThemeToggle.astro';
 ---
 
-<header class="shadow-sm bg-base-100">
+<header class="sticky top-0 z-50 transition-all duration-300 bg-base-100" id="main-header">
   <!-- ********** Mobile (< lg): drawer & navbar ********** -->
   <div class="drawer lg:hidden">
     <!-- Hidden checkbox toggles the drawer -->
@@ -73,10 +73,16 @@ import ThemeToggle from '../components/ThemeToggle.astro';
       ></label>
       <ul class="menu p-4 w-80 bg-base-100 min-h-full">
         <li>
-          <a href="/posts" class="normal-case font-bold text-xl">Blog</a>
+          <a href="/about" class="normal-case font-bold text-xl">About</a>
         </li>
         <li>
-          <a href="/about" class="normal-case font-bold text-xl">About</a>
+          <a href="/projects" class="normal-case font-bold text-xl">Projects</a>
+        </li>
+        <li>
+          <a href="/posts" class="normal-case font-bold text-xl">Posts</a>
+        </li>
+        <li>
+          <a href="/tags" class="normal-case font-bold text-xl">Tags</a>
         </li>
       </ul>
     </div>
@@ -87,19 +93,25 @@ import ThemeToggle from '../components/ThemeToggle.astro';
     class="navbar hidden lg:flex w-full bg-base-100"
     style="--navbar-padding:0;"
   >
-    <div class="navbar-start">
+    <div class="navbar-start flex-none">
       <a href="/" class="flex items-center gap-2">
         <Image src={logo} alt="Stargarden logo" class="h-18 w-auto" />
         <span class="text-xl font-bold">Stargarden</span>
       </a>
     </div>
-    <div class="navbar-end">
-      <ul class="menu menu-horizontal gap-2">
+    <div class="navbar-end flex-1">
+      <ul class="menu menu-horizontal gap-1">
+        <li>
+          <a href="/about" class="normal-case font-bold text-lg">About</a>
+        </li>
+        <li>
+          <a href="/projects" class="normal-case font-bold text-lg">Projects</a>
+        </li>
         <li>
           <a href="/posts" class="normal-case font-bold text-lg">Posts</a>
         </li>
         <li>
-          <a href="/about" class="normal-case font-bold text-lg">About</a>
+          <a href="/tags" class="normal-case font-bold text-lg">Tags</a>
         </li>
       </ul>
   
@@ -112,3 +124,112 @@ import ThemeToggle from '../components/ThemeToggle.astro';
     </div>
   </nav>
 </header>
+
+<script>
+  // Add scroll-based styling to header with smooth transitions
+  function updateHeaderOnScroll() {
+    const header = document.getElementById('main-header');
+    if (!header) return;
+    
+    const scrollY = window.scrollY;
+    const threshold = 20; // Lower threshold for smoother start
+    const fullThreshold = 60; // Full effect threshold
+    
+    if (scrollY > threshold) {
+      // Calculate opacity based on scroll progress
+      const progress = Math.min((scrollY - threshold) / (fullThreshold - threshold), 1);
+      
+      // Scrolled down - add enhanced separation and directly modify background
+      header.classList.add(
+        'shadow-2xl', 
+        'backdrop-blur-lg', 
+        'header-scrolled'
+      );
+      
+      // Gradually apply border with smooth opacity
+      if (scrollY > fullThreshold) {
+        header.classList.add('border-b-2', 'border-primary/30');
+      } else {
+        header.classList.remove('border-b-2', 'border-primary/30');
+        // Apply a very subtle border that grows with scroll
+        header.style.borderBottom = `1px solid rgba(147, 197, 253, ${0.1 * progress})`;
+      }
+      
+      // Directly set background color via style for immediate effect
+      if (document.documentElement.getAttribute('data-theme') === 'business') {
+        header.style.backgroundColor = `rgba(100, 116, 139, ${0.9 + 0.08 * progress})`;
+      } else {
+        header.style.backgroundColor = `rgba(255, 255, 255, ${0.9 + 0.08 * progress})`;
+      }
+    } else {
+      // At top - remove enhanced separation and reset background
+      header.classList.remove(
+        'shadow-2xl', 
+        'backdrop-blur-lg', 
+        'border-b-2', 
+        'border-primary/30',
+        'header-scrolled'
+      );
+      
+      // Reset to default background and border
+      header.style.backgroundColor = '';
+      header.style.borderBottom = '';
+    }
+  }
+  
+  // Listen for scroll events with throttling for smoother performance
+  let ticking = false;
+  function requestTick() {
+    if (!ticking) {
+      requestAnimationFrame(updateHeaderOnScroll);
+      ticking = true;
+    }
+  }
+  
+  function handleScroll() {
+    ticking = false;
+    requestTick();
+  }
+  
+  window.addEventListener('scroll', handleScroll);
+  
+  // Check initial state
+  updateHeaderOnScroll();
+  
+  // Listen for theme changes
+  const observer = new MutationObserver(updateHeaderOnScroll);
+  observer.observe(document.documentElement, { 
+    attributes: true, 
+    attributeFilter: ['data-theme'] 
+  });
+</script>
+
+<style>
+  /* Enhanced header separation with improved shadow and brightened background */
+  .header-scrolled {
+    /* Clean shadow for light mode - no blue accents */
+    box-shadow: 
+      0 4px 12px -2px rgba(0, 0, 0, 0.15),
+      0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Light mode (corporate theme) - much brighter white background */
+  [data-theme="corporate"] .header-scrolled {
+    background-color: rgba(255, 255, 255, 0.98) !important; /* Pure white */
+  }
+  
+  /* Dark mode (business theme) - much brighter background with blue accents */
+  [data-theme="business"] .header-scrolled {
+    /* Much brighter dark background - significantly lighter */
+    background-color: rgba(100, 116, 139, 0.98) !important; /* Much lighter slate */
+    
+    /* Enhanced shadow with subtle blue accent for dark mode only */
+    box-shadow: 
+      0 4px 12px -2px rgba(0, 0, 0, 0.3),
+      0 2px 4px -1px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(147, 197, 253, 0.15); /* Subtle blue rim */
+      
+    /* Enhanced border in dark mode */
+    border-bottom-color: rgba(147, 197, 253, 0.4);
+  }
+</style>

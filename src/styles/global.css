@@ -1,7 +1,10 @@
 @import "tailwindcss";
-@plugin '@tailwindcss/typography';
-@plugin "daisyui" {
-  themes: corporate --default, business --prefersdark;
+@import "@tailwindcss/typography";
+@import "daisyui";
+
+@theme {
+  --default-theme: business;
+  --light-theme: corporate;
 }
 
 /* Pagefind UI Overrides */
@@ -53,7 +56,188 @@
 
   /* Match Pagefind search box with current DaisyUI input style (input-bordered removed since v5) */
   .pagefind-ui .pagefind-ui__search-input {
-    @apply input w-full border-base-300;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: var(--rounded-btn, 0.5rem);
+    border: 1px solid var(--color-base-300);
+    background-color: var(--color-base-100);
+    color: var(--color-base-content);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .pagefind-ui .pagefind-ui__search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-content);
+  }
+
+  /* Enhanced header styling for better separation */
+  #main-header {
+    /* Ultra-smooth transitions for header changes */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: background-color, box-shadow, border;
+  }
+  
+  /* Ultra-smooth responsive transitions for layout changes */
+  .card, .grid > *, .menu > *, .navbar > * {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition-property: transform, width, height, margin, padding, opacity;
+    will-change: transform, width, height;
+  }
+  
+  /* Buttery smooth grid container transitions */
+  .grid {
+    transition: grid-template-columns 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                gap 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: grid-template-columns, gap;
+  }
+  
+  /* Smooth flexbox transitions */
+  .flex, .navbar {
+    transition: flex-direction 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: flex-direction;
+  }
+  
+  /* Enhanced card hover effects with ultra-smooth transitions */
+  .card {
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform, box-shadow;
+    transform-origin: center center;
+    backface-visibility: hidden; /* Smoother transforms */
+  }
+  
+  .card:hover {
+    transform: translateY(-4px) scale(1.02);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy hover */
+  }
+  
+  /* Ultra-smooth responsive typography */
+  h1, h2, h3, h4, h5, h6, p, span, a {
+    transition: font-size 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                line-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: font-size, line-height;
+  }
+  
+  /* Enhanced navbar responsive transitions */
+  .navbar {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform, background-color;
+  }
+  
+  .navbar-start, .navbar-center, .navbar-end {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: flex, width;
+  }
+  
+  /* Enhanced menu transitions */
+  .menu {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform, opacity;
+  }
+  
+  .menu li a {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: background-color, color, transform;
+  }
+  
+  .menu li a:hover {
+    transform: translateX(4px);
+  }
+  
+  /* Enhanced badge and button transitions */
+  .badge, .btn {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: background-color, color, transform;
+    backface-visibility: hidden;
+  }
+  
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+  
+  /* Enhanced search component transitions */
+  .pagefind-ui {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: width, opacity;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      will-change: auto !important;
+    }
+  }
+  
+  /* Ultra-smooth container and layout transitions */
+  .container {
+    transition: max-width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                padding 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: max-width, padding;
+  }
+  
+  /* Enhanced smooth responsive spacing */
+  section, article, div {
+    transition: padding 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                margin 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: padding, margin;
+  }
+  
+  /* Ultra-smooth responsive image transitions */
+  img, .image {
+    transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: width, height, transform;
+    backface-visibility: hidden;
+  }
+  
+  /* Enhanced grid gap transitions */
+  .grid {
+    transition: gap 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                grid-template-columns 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: gap, grid-template-columns;
+  }
+  
+  /* Global performance optimizations for smoother animations */
+  * {
+    transform-style: preserve-3d; /* Better transform performance */
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Smooth focus transitions */
+  button:focus, input:focus, textarea:focus, select:focus, a:focus {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: box-shadow, border-color;
+  }
+  
+  /* Better backdrop blur support */
+  @supports (backdrop-filter: blur(16px)) {
+    .backdrop-blur-lg {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+  }
+  
+  /* Fallback for browsers without backdrop-filter */
+  @supports not (backdrop-filter: blur(16px)) {
+    .header-scrolled {
+      background-color: var(--color-base-100) !important;
+    }
+    
+    [data-theme="business"] .header-scrolled {
+      background-color: rgb(30, 41, 59) !important; /* Dark fallback */
+    }
   }
 
   /* Ensure Pagefind UI takes full width when displayed inside the mobile search modal */

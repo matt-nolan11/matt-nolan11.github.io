@@ -1,0 +1,133 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { Image } from "astro:assets";
+import { getCollection } from 'astro:content';
+import { formatProjectDate, getSortableDate } from '../../utils/dateUtils';
+
+const projects = await getCollection('projects');
+const publishedProjects = projects
+  .filter(project => !project.data.draft)
+  .sort((a, b) => {
+    // Sort by most recent end date, or start date if no end date
+    const aDate = a.data.endDate || a.data.startDate;
+    const bDate = b.data.endDate || b.data.startDate;
+    return getSortableDate(bDate).getTime() - getSortableDate(aDate).getTime();
+  });
+---
+
+<Layout 
+  seo={{
+    title: "Projects",
+    description: "Explore my robotics and engineering projects, from concept to completion."
+  }}
+>
+  <div class="container mx-auto px-4 py-8">
+    <div class="prose prose-lg max-w-none mb-8">
+      <h1 class="text-4xl font-bold mb-4">Projects</h1>
+      <p class="text-lg text-base-content/70">
+        A collection of my robotics, engineering, and maker projects. Each project showcases multiple aspects of design, development, and problem-solving.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {publishedProjects.map(project => (
+        <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 h-full">
+          <figure class="relative">
+            <Image 
+              src={project.data.cover}
+              alt={project.data.title}
+              width={400}
+              height={300}
+              class="w-full h-64 object-cover"
+            />
+            <div class="absolute top-2 right-2">
+              <div class={`badge ${
+                project.data.status === 'completed' ? 'badge-success' : 
+                project.data.status === 'in-progress' ? 'badge-warning' : 
+                'badge-info'
+              }`}>
+                {project.data.status}
+              </div>
+            </div>
+          </figure>
+          
+          <div class="card-body p-6">
+            <h2 class="card-title text-xl mb-2">
+              <a href={`/projects/${project.slug}/`} class="link link-hover">
+                {project.data.title}
+              </a>
+            </h2>
+            
+            <p class="text-sm text-base-content/70 mb-4">
+              {project.data.description}
+            </p>
+            
+            <!-- Tags -->
+            {project.data.tags && project.data.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2 mb-4">
+                {project.data.tags.slice(0, 4).map(tag => (
+                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm hover:badge-primary transition-colors">
+                    {tag}
+                  </a>
+                ))}
+                {project.data.tags.length > 4 && (
+                  <span class="badge badge-ghost badge-sm">+{project.data.tags.length - 4} more</span>
+                )}
+              </div>
+            )}
+            
+            <div class="card-actions justify-between items-center">
+              <div class="text-sm text-base-content/70">
+                {project.data.status === 'completed' && project.data.endDate ? (
+                  <time>
+                    {formatProjectDate(project.data.endDate)}
+                  </time>
+                ) : project.data.status === 'in-progress' ? (
+                  <time>
+                    Started {formatProjectDate(project.data.startDate)}
+                  </time>
+                ) : (
+                  <time>
+                    Planned {formatProjectDate(project.data.startDate)}
+                  </time>
+                )}
+              </div>
+              
+              <div class="flex gap-2">
+                {project.data.githubUrl && (
+                  <a 
+                    href={project.data.githubUrl} 
+                    class="btn btn-sm btn-outline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub
+                  </a>
+                )}
+                {project.data.liveUrl && (
+                  <a 
+                    href={project.data.liveUrl} 
+                    class="btn btn-sm btn-outline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Live Demo
+                  </a>
+                )}
+                <a href={`/projects/${project.slug}/`} class="btn btn-primary btn-sm">
+                  Read More
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    {publishedProjects.length === 0 && (
+      <div class="text-center py-12">
+        <p class="text-lg text-base-content/60">No projects yet. Check back soon!</p>
+      </div>
+    )}
+  </div>
+</Layout>

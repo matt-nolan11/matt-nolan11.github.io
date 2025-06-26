@@ -1,30 +1,86 @@
 ---
-title: "Posts";
-import { getCollection } from "astro:content";
-import Layout from "../../layouts/Layout.astro";
+import Layout from '../../layouts/Layout.astro';
 import { Image } from "astro:assets";
-const posts = await getCollection("posts");
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts');
+const publishedPosts = posts
+  .filter(post => !post.data.draft)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 ---
 
-<Layout seo={{ title: "Posts", description: "A collection of blog posts about stars and astronomy." }}>
-  <h1 class="text-2xl font-semibold p-4">Posts</h1>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-    {posts
-      .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
-      .map(v => (
-        <a href={`/posts/${v.slug}/`} class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 ease-in-out">
-              <Image 
-                src={v.data.cover}
-                alt={v.data.title}
-                width={560}
-                height={315}
-                class="w-full h-auto object-cover"
-              />
-          <div class="card-body">
-            <h2 class="card-title">{v.data.title}</h2>
-            <p class="text-sm text-base-content/70">{new Date(v.data.date).toLocaleDateString()}</p>
+<Layout 
+  seo={{
+    title: "Posts",
+    description: "A collection of blog posts about stars and astronomy."
+  }}
+>
+  <div class="container mx-auto px-4 py-8">
+    <div class="prose prose-lg max-w-none mb-8">
+      <h1 class="text-4xl font-bold mb-4">Posts</h1>
+      <p class="text-lg text-base-content/70">
+        Insights, tutorials, and thoughts on robotics, engineering, and the art of making. Dive into the technical details and creative processes behind innovative projects.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {publishedPosts.map(post => (
+        <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 h-full">
+          <figure class="relative">
+            <Image 
+              src={post.data.cover}
+              alt={post.data.title}
+              width={400}
+              height={300}
+              class="w-full h-64 object-cover"
+            />
+          </figure>
+          
+          <div class="card-body p-6">
+            <h2 class="card-title text-xl mb-2">
+              <a href={`/posts/${post.slug}/`} class="link link-hover">
+                {post.data.title}
+              </a>
+            </h2>
+            
+            <p class="text-sm text-base-content/70 mb-4">
+              {post.data.description}
+            </p>
+            
+            <!-- Tags -->
+            {post.data.tags && post.data.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2 mb-4">
+                {post.data.tags.slice(0, 4).map(tag => (
+                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm hover:badge-primary transition-colors">
+                    {tag}
+                  </a>
+                ))}
+                {post.data.tags.length > 4 && (
+                  <span class="badge badge-ghost badge-sm">+{post.data.tags.length - 4} more</span>
+                )}
+              </div>
+            )}
+            
+            <div class="card-actions justify-between items-center">
+              <time class="text-sm text-base-content/70">
+                {new Date(post.data.date).toLocaleDateString()}
+              </time>
+              
+              <div class="flex gap-2">
+                <a href={`/posts/${post.slug}/`} class="btn btn-primary btn-sm">
+                  Read More
+                </a>
+              </div>
+            </div>
           </div>
-        </a>
+        </article>
       ))}
+    </div>
+
+    {publishedPosts.length === 0 && (
+      <div class="text-center py-12">
+        <p class="text-lg text-base-content/60">No posts yet. Check back soon!</p>
+      </div>
+    )}
   </div>
 </Layout>

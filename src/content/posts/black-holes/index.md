@@ -8,6 +8,9 @@ tags:
   - black holes
   - astronomy
   - space
+  - autonomous
+  - computer vision
+  - robotics
 ---
 
 # Black Holes: Mysteries of the Universe
