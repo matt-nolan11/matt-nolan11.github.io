@@ -3,6 +3,15 @@ import { defineCollection, z } from "astro:content";
 
 const slug = z.string().regex(/^[a-z0-9-]+$/);
 
+/**
+ * Content collections schema for the portfolio site.
+ * 
+ * Projects support flexible versioned development:
+ * - Core fields: version, title, description, startDate, status
+ * - Optional enhancements: content (markdown), achievements, learnings, githubUrl
+ * - Supports minimal versions (just basic info) or rich documentation
+ * - Markdown content is rendered with prose styling when provided
+ */
 export const collections = {
   posts: defineCollection({
     type: "content",
@@ -36,15 +45,15 @@ export const collections = {
           version: z.string(), // e.g., "v1", "v2", "2.0"
           title: z.string(), // e.g., "Basic Gripper", "Servo Upgrade"
           description: z.string(),
+          content: z.string().optional(), // Optional: Markdown content for detailed technical documentation
           startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]),
           endDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
           status: z.enum(["completed", "in-progress", "planned"]).default("completed"),
-          tags: z.array(z.string()).default([]), // Version-specific tags
           images: z.array(image()).optional(),
-          githubUrl: z.string().url().optional(),
+          githubUrl: z.string().url().optional(), // Optional: Version-specific repository link
           liveUrl: z.string().url().optional(),
-          achievements: z.array(z.string()).optional(),
-          learnings: z.array(z.string()).optional(),
+          achievements: z.array(z.string()).optional(), // Optional: Key accomplishments for this version
+          learnings: z.array(z.string()).optional(), // Optional: Insights gained during this version
         })).optional(),
       }),
   }),
