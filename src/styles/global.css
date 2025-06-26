@@ -1,11 +1,4 @@
 @import "tailwindcss";
-@import "@tailwindcss/typography";
-@import "daisyui";
-
-@theme {
-  --default-theme: business;
-  --light-theme: corporate;
-}
 
 /* Pagefind UI Overrides */
   .pagefind-ui {
