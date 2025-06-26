@@ -93,263 +93,66 @@
   margin-left: 0 !important;
 }
 
-/* Enhanced header styling for better separation */
-  #main-header {
-    /* Ultra-smooth transitions for header changes */
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: background-color, box-shadow, border;
-  }
-  
-  /* Ultra-smooth responsive transitions for layout changes */
-  .card, .grid > *, .menu > *, .navbar > * {
-    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    transition-property: transform, width, height, margin, padding, opacity;
-    will-change: transform, width, height;
-  }
-  
-  /* Buttery smooth grid container transitions */
-  .grid {
-    transition: grid-template-columns 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-                gap 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: grid-template-columns, gap;
-  }
-  
-  /* Smooth flexbox transitions */
-  .flex, .navbar {
-    transition: flex-direction 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: flex-direction;
-  }
-  
-  /* Enhanced card hover effects with ultra-smooth transitions */
-  .card {
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform, box-shadow;
-    transform-origin: center center;
-    backface-visibility: hidden; /* Smoother transforms */
-  }
-  
-  /* Disable card hover animation for version section containers - STRONGEST OVERRIDE */
-  .card:hover {
-    transform: translateY(-4px) scale(1.02);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy hover */
-  }
-  
-  /* Specifically disable for version-related containers with maximum specificity */
-  .card.versions:hover, 
-  .card[class*="version"]:hover,
-  .project-versions:hover, 
-  .version-section:hover,
-  .card:hover.versions,
-  .card:hover[class*="version"],
-  .card:hover.project-versions,
-  .version-card:hover,
-  div.version-card:hover,
-  .version-card.card:hover {
-    transform: none !important;
-    scale: none !important;
-    box-shadow: inherit !important;
-    transition: none !important;
-  }
-  
-  /* Ultra-smooth responsive typography */
-  h1, h2, h3, h4, h5, h6, p, span, a {
-    transition: font-size 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-                line-height 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-                color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: font-size, line-height;
-  }
-  
-  /* Enhanced navbar responsive transitions */
-  .navbar {
-    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: transform, background-color;
-  }
-  
-  .navbar-start, .navbar-center, .navbar-end {
-    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: flex, width;
-  }
-  
-  /* Enhanced menu transitions */
-  .menu {
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform, opacity;
-  }
-  
-  .menu li a {
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: background-color, color, transform;
-  }
-  
-  .menu li a:hover {
-    transform: translateX(4px);
-  }
-  
-  /* Enhanced badge and button transitions */
-  .badge, .btn {
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: background-color, color, transform;
-    backface-visibility: hidden;
-  }
-  
-  .btn:hover {
-    transform: translateY(-1px);
-  }
-  
-  /* Enhanced search component transitions */
-  .pagefind-ui {
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: width, opacity;
-  }
-  
-  /* Reduce motion for users who prefer it */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      transition-duration: 0.01ms !important;
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      will-change: auto !important;
-    }
-  }
-  
-  /* Ultra-smooth container and layout transitions */
-  .container {
-    transition: max-width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-                padding 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: max-width, padding;
-  }
-  
-  /* Enhanced smooth responsive spacing */
-  section, article, div {
-    transition: padding 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-                margin 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: padding, margin;
-  }
-  
-  /* Ultra-smooth responsive image transitions */
-  img, .image {
-    transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-                height 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-                transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: width, height, transform;
-    backface-visibility: hidden;
-  }
-  
-  /* Enhanced grid gap transitions */
-  .grid {
-    transition: gap 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-                grid-template-columns 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: gap, grid-template-columns;
-  }
-  
-  /* Global performance optimizations for smoother animations */
-  * {
-    transform-style: preserve-3d; /* Better transform performance */
-  }
-  
-  html {
-    scroll-behavior: smooth;
-  }
-  
-  /* Smooth focus transitions */
-  button:focus, input:focus, textarea:focus, select:focus, a:focus {
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: box-shadow, border-color;
-  }
-  
-  /* Better backdrop blur support */
-  @supports (backdrop-filter: blur(16px)) {
-    .backdrop-blur-lg {
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-  }
-  
-  /* Fallback for browsers without backdrop-filter */
-  @supports not (backdrop-filter: blur(16px)) {
-    .header-scrolled {
-      background-color: var(--color-base-100) !important;
-    }
-    
-    [data-theme="business"] .header-scrolled {
-      background-color: rgb(30, 41, 59) !important; /* Dark fallback */
-    }
-  }
-  
-  /* Consistent rounded borders for tags and status indicators across themes */
-  .badge {
-    border-radius: var(--rounded-btn, 0.5rem) !important;
-  }
-  
-  /* Ensure project status indicators are consistently rounded */
-  .badge-primary, .badge-secondary, .badge-accent, .badge-neutral,
-  .badge-info, .badge-success, .badge-warning, .badge-error {
-    border-radius: var(--rounded-btn, 0.5rem) !important;
-  }
-  
-  /* Tag-specific styling for consistent appearance */
-  .tag, [class*="tag-"], .status-indicator, [class*="status-"] {
-    border-radius: var(--rounded-btn, 0.5rem) !important;
-  }
-  
-  /* Ensure version badges and project indicators are rounded */
-  .version-badge, .project-status, .content-tag {
-    border-radius: var(--rounded-btn, 0.5rem) !important;
-  }
-  
-  /* Enhanced version selection styling */
-  .version-content {
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-  
-  .version-card {
-    transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: rgba(255, 255, 255, 0.02);
-    transform: none !important;
-    box-shadow: none;
-  }
-  
-  /* Light theme version card */
-  [data-theme="corporate"] .version-card {
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    background-color: rgba(0, 0, 0, 0.02);
-  }
-  
-  /* Prevent any card hover effects on version cards */
-  .version-card:hover {
-    transform: none !important;
-    scale: none !important;
-  }
-  
-  /* Enhanced tab styling */
-  .tabs-boxed {
-    border-radius: var(--rounded-btn, 0.5rem) !important;
-  }
-  
-  .tabs-boxed .tab {
-    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: background-color, color;
-    border-radius: var(--rounded-btn, 0.5rem);
-  }
-  
-  .tabs-boxed .tab:hover:not(.tab-active) {
-    background-color: rgba(59, 130, 246, 0.1) !important;
-  }
-  
-  /* Active tab styling - always highlighted */
-  .tabs-boxed .tab.tab-active {
-    background-color: rgba(59, 130, 246, 0.2) !important;
-    color: rgba(59, 130, 246, 1) !important;
-    border: 1px solid rgba(59, 130, 246, 0.4) !important;
-    font-weight: 600;
-  }
-  
-  /* Ensure active tab stays highlighted on hover */
-  .tabs-boxed .tab.tab-active:hover {
-    background-color: rgba(59, 130, 246, 0.25) !important;
-    color: rgba(59, 130, 246, 1) !important;
-    border: 1px solid rgba(59, 130, 246, 0.5) !important;
-  }
+/* Smooth responsive layout transitions */
+.grid {
+  transition: grid-template-columns 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              gap 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: grid-template-columns, gap;
+}
+
+.flex, .navbar {
+  transition: flex-direction 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              padding 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              margin 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: flex-direction, width, height, padding, margin;
+}
+
+/* Card hover effects - combine theme and responsive transitions */
+.card {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              padding 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              margin 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform, box-shadow, width, height, padding, margin;
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Responsive typography */
+h1, h2, h3, h4, h5, h6, p, span, a {
+  transition: font-size 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              line-height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              margin 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              padding 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: font-size, line-height, width, height, margin, padding;
+}
+
+/* Comprehensive responsive container transitions */
+.container, section, article, div, main, aside, header, footer {
+  transition: width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              max-width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              padding 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              margin 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: width, max-width, padding, margin;
+}
+
+/* Responsive utility classes that actually change with breakpoints */
+[class*="w-"], [class*="max-w-"], [class*="min-w-"],
+[class*="h-"], [class*="max-h-"], [class*="min-h-"],
+[class*="p-"], [class*="px-"], [class*="py-"], [class*="pt-"], [class*="pb-"], [class*="pl-"], [class*="pr-"],
+[class*="m-"], [class*="mx-"], [class*="my-"], [class*="mt-"], [class*="mb-"], [class*="ml-"], [class*="mr-"],
+[class*="gap-"], [class*="space-"],
+[class*="grid-cols-"], [class*="col-span-"],
+[class*="flex-"], [class*="justify-"], [class*="items-"],
+[class*="text-"] {
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: width, height, padding, margin, font-size, line-height, flex-direction, justify-content, align-items;
+}

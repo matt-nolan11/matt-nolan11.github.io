@@ -16,9 +16,12 @@ export function setupThemeController(): void {
 
   // Helper to apply a theme and keep all checkboxes in sync.
   const applyTheme = (theme: string): void => {
-    document.documentElement.setAttribute("data-theme", theme);
-    controllers.forEach(cb => {
-      cb.checked = cb.value === theme;
+    // Add a brief moment for smooth transitions
+    requestAnimationFrame(() => {
+      document.documentElement.setAttribute("data-theme", theme);
+      controllers.forEach(cb => {
+        cb.checked = cb.value === theme;
+      });
     });
   };
 
