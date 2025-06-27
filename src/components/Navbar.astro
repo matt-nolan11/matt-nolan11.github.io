@@ -110,12 +110,11 @@ import ThemeToggle from '../components/ThemeToggle.astro';
     }
   }
 
-  // Add scroll-based styling to header with smooth transitions
-  function updateHeaderOnScroll() {
+  // Function to apply header styling based on scroll position
+  function applyHeaderStyling(scrollY: number) {
     const header = document.getElementById('main-header');
     if (!header) return;
-
-    const scrollY = window.scrollY;
+    
     const threshold = 20; // Lower threshold for smoother start
     const fullThreshold = 60; // Full effect threshold
 
@@ -160,6 +159,21 @@ import ThemeToggle from '../components/ThemeToggle.astro';
       header.style.setProperty('border-bottom-color', 'transparent', 'important');
     }
   }
+
+  // Add scroll-based styling to header with smooth transitions
+  function updateHeaderOnScroll() {
+    const header = document.getElementById('main-header');
+    if (!header) return;
+
+    // Check if drawer is open - if so, don't modify header styling
+    const drawerToggle = document.getElementById('nav-drawer') as HTMLInputElement;
+    if (drawerToggle && drawerToggle.checked) {
+      return; // Skip header updates when drawer is open
+    }
+
+    const scrollY = window.scrollY;
+    applyHeaderStyling(scrollY);
+  }
   
   // Listen for scroll events with throttling for smoother performance
   let ticking = false;
@@ -176,6 +190,28 @@ import ThemeToggle from '../components/ThemeToggle.astro';
   }
   
   window.addEventListener('scroll', handleScroll);
+  
+  // Enhanced window resize handling with smooth content transitions
+  let resizeTimeout: number;
+  let isResizing = false;
+  
+  function handleResizeStart() {
+    if (!isResizing) {
+      isResizing = true;
+      document.body.classList.add('window-resizing');
+    }
+    
+    clearTimeout(resizeTimeout);
+    resizeTimeout = window.setTimeout(() => {
+      isResizing = false;
+      document.body.classList.remove('window-resizing');
+    }, 800);
+  }
+  
+  window.addEventListener('resize', handleResizeStart);
+  
+  // Also add orientationchange for mobile devices
+  window.addEventListener('orientationchange', handleResizeStart);
   
   // Check initial state
   // Border should already be initialized, just need to set correct color based on scroll position
@@ -194,12 +230,90 @@ import ThemeToggle from '../components/ThemeToggle.astro';
     attributeFilter: ['data-theme'] 
   });
 
-  // Fix mobile menu functionality
+  // Fix mobile menu functionality - optimized approach with header management
   document.addEventListener('DOMContentLoaded', () => {
     const drawerToggle = document.getElementById('nav-drawer') as HTMLInputElement;
     const drawerLinks = document.querySelectorAll('.drawer-side a');
+    const header = document.getElementById('main-header');
     
-    // Simply close drawer when clicking menu links - let DaisyUI handle the rest
+    if (drawerToggle && header) {
+      // Listen for drawer state changes
+      drawerToggle.addEventListener('change', () => {
+        if (drawerToggle.checked) {
+          // Drawer opening - switch to fixed positioning to prevent header jump
+          const headerHeight = header.offsetHeight;
+          
+          // Preserve current border and background styling
+          const currentBorderWidth = header.style.borderBottomWidth || '3px';
+          const currentBorderStyle = header.style.borderBottomStyle || 'solid';
+          const currentBorderColor = header.style.borderBottomColor || 'transparent';
+          const currentBgColor = header.style.backgroundColor || '';
+          const hasScrolledClass = header.classList.contains('header-scrolled');
+          
+          header.style.cssText = `
+            position: fixed !important;
+            top: 0px !important;
+            left: 0px !important;
+            right: 0px !important;
+            width: 100% !important;
+            z-index: 40 !important;
+            transform: translateY(0) !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            border-bottom-width: ${currentBorderWidth} !important;
+            border-bottom-style: ${currentBorderStyle} !important;
+            border-bottom-color: ${currentBorderColor} !important;
+            background-color: ${currentBgColor} !important;
+          `;
+          
+          // Re-apply classes that might have been lost
+          if (hasScrolledClass) {
+            header.classList.add('header-scrolled');
+          }
+          
+          // Prevent content shift
+          document.body.style.paddingTop = `${headerHeight}px`;
+        } else {
+          // Drawer closing - restore original positioning while preserving styling
+          
+          // Store current border and background before reset
+          const currentBorderWidth = header.style.borderBottomWidth;
+          const currentBorderStyle = header.style.borderBottomStyle; 
+          const currentBorderColor = header.style.borderBottomColor;
+          const currentBgColor = header.style.backgroundColor;
+          const hasScrolledClass = header.classList.contains('header-scrolled');
+          
+          // Reset positioning styles only
+          header.style.position = '';
+          header.style.top = '';
+          header.style.left = '';
+          header.style.right = '';
+          header.style.width = '';
+          header.style.zIndex = '';
+          header.style.transform = '';
+          header.style.opacity = '';
+          header.style.visibility = '';
+          
+          // Restore border and background immediately
+          if (currentBorderWidth) header.style.borderBottomWidth = currentBorderWidth;
+          if (currentBorderStyle) header.style.borderBottomStyle = currentBorderStyle;
+          if (currentBorderColor) header.style.borderBottomColor = currentBorderColor;
+          if (currentBgColor) header.style.backgroundColor = currentBgColor;
+          
+          // Restore classes
+          if (hasScrolledClass) {
+            header.classList.add('header-scrolled');
+          }
+          
+          document.body.style.paddingTop = '';
+          
+          // Restore scroll-based behavior after animation
+          setTimeout(updateHeaderOnScroll, 150);
+        }
+      });
+    }
+    
+    // Close drawer when clicking menu links
     drawerLinks.forEach(link => {
       link.addEventListener('click', () => {
         if (drawerToggle) {

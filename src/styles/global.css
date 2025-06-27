@@ -93,23 +93,14 @@
   margin-left: 0 !important;
 }
 
-/* Smooth responsive layout transitions */
+/* Smooth responsive layout transitions - targeted approach only */
 .grid {
   transition: grid-template-columns 0.8s cubic-bezier(0.23, 1, 0.32, 1),
               gap 0.8s cubic-bezier(0.23, 1, 0.32, 1);
   will-change: grid-template-columns, gap;
 }
 
-.flex, .navbar {
-  transition: flex-direction 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-              width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-              height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-              padding 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-              margin 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-  will-change: flex-direction, width, height, padding, margin;
-}
-
-/* Card hover effects - combine theme and responsive transitions */
+/* Card hover effects */
 .card {
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
               box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -124,19 +115,19 @@
   transform: translateY(-4px) scale(1.02);
 }
 
-/* Responsive typography */
-h1, h2, h3, h4, h5, h6, p, span, a {
+/* Responsive typography - but only for content areas, not navigation */
+main h1, main h2, main h3, main h4, main h5, main h6, 
+main p, main span, main a,
+article h1, article h2, article h3, article h4, article h5, article h6,
+article p, article span, article a {
   transition: font-size 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-              line-height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-              width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-              height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-              margin 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-              padding 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-  will-change: font-size, line-height, width, height, margin, padding;
+              line-height 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: font-size, line-height;
 }
 
-/* Comprehensive responsive container transitions */
-.container, section, article, div, main, aside, header, footer {
+/* Responsive container transitions - but only for main content areas */
+main .container, main section, main article, main div,
+.container section, .container article, .container div {
   transition: width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
               max-width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
               padding 0.8s cubic-bezier(0.23, 1, 0.32, 1),
@@ -144,15 +135,84 @@ h1, h2, h3, h4, h5, h6, p, span, a {
   will-change: width, max-width, padding, margin;
 }
 
-/* Responsive utility classes that actually change with breakpoints */
-[class*="w-"], [class*="max-w-"], [class*="min-w-"],
-[class*="h-"], [class*="max-h-"], [class*="min-h-"],
-[class*="p-"], [class*="px-"], [class*="py-"], [class*="pt-"], [class*="pb-"], [class*="pl-"], [class*="pr-"],
-[class*="m-"], [class*="mx-"], [class*="my-"], [class*="mt-"], [class*="mb-"], [class*="ml-"], [class*="mr-"],
-[class*="gap-"], [class*="space-"],
-[class*="grid-cols-"], [class*="col-span-"],
-[class*="flex-"], [class*="justify-"], [class*="items-"],
-[class*="text-"] {
-  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+/* Base responsive transitions for common layout elements */
+main [class*="grid"], main [class*="flex"],
+main [class*="w-"], main [class*="max-w-"], main [class*="min-w-"],
+main [class*="h-"], main [class*="max-h-"], main [class*="min-h-"],
+main [class*="p-"], main [class*="px-"], main [class*="py-"], main [class*="pt-"], main [class*="pb-"], main [class*="pl-"], main [class*="pr-"],
+main [class*="m-"], main [class*="mx-"], main [class*="my-"], main [class*="mt-"], main [class*="mb-"], main [class*="ml-"], main [class*="mr-"],
+main [class*="gap-"], main [class*="space-"],
+main [class*="grid-cols-"], main [class*="col-span-"],
+main [class*="justify-"], main [class*="items-"],
+main [class*="text-"],
+section [class*="grid"], section [class*="flex"],
+section [class*="w-"], section [class*="max-w-"], section [class*="min-w-"],
+section [class*="h-"], section [class*="max-h-"], section [class*="min-h-"],
+section [class*="p-"], section [class*="px-"], section [class*="py-"], section [class*="pt-"], section [class*="pb-"], section [class*="pl-"], section [class*="pr-"],
+section [class*="m-"], section [class*="mx-"], section [class*="my-"], section [class*="mt-"], section [class*="mb-"], section [class*="ml-"], section [class*="mr-"],
+section [class*="gap-"], section [class*="space-"],
+section [class*="grid-cols-"], section [class*="col-span-"],
+section [class*="justify-"], section [class*="items-"],
+section [class*="text-"] {
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
   will-change: width, height, padding, margin, font-size, line-height, flex-direction, justify-content, align-items;
+}
+
+/* Enhanced smooth transitions during window resize */
+@media (prefers-reduced-motion: no-preference) {
+  /* Production-ready smooth transitions - optimized for buttery smoothness */
+  body.window-resizing *:not(.drawer):not(.navbar):not(.modal):not(.btn):not(header):not(nav):not(button) {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+  
+  /* Specific targeting for main content areas with slightly longer duration */
+  body.window-resizing main,
+  body.window-resizing main *,
+  body.window-resizing article,
+  body.window-resizing article *,
+  body.window-resizing section,
+  body.window-resizing section *,
+  body.window-resizing .container,
+  body.window-resizing .container *,
+  body.window-resizing .card,
+  body.window-resizing .card * {
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+  
+  /* Ensure navigation elements are NEVER affected during resize - comprehensive exclusions */
+  body.window-resizing .drawer,
+  body.window-resizing .drawer *,
+  body.window-resizing .navbar,
+  body.window-resizing .navbar *,
+  body.window-resizing header,
+  body.window-resizing header *,
+  body.window-resizing #main-header,
+  body.window-resizing #main-header *,
+  body.window-resizing .modal,
+  body.window-resizing .modal *,
+  body.window-resizing dialog,
+  body.window-resizing dialog *,
+  body.window-resizing .pagefind-ui,
+  body.window-resizing .pagefind-ui *,
+  body.window-resizing .drawer-toggle,
+  body.window-resizing .drawer-content,
+  body.window-resizing .drawer-side,
+  body.window-resizing .drawer-overlay,
+  body.window-resizing label[for="nav-drawer"],
+  body.window-resizing label[for="nav-drawer"] *,
+  body.window-resizing .btn,
+  body.window-resizing .btn *,
+  body.window-resizing button,
+  body.window-resizing button *,
+  body.window-resizing [role="button"],
+  body.window-resizing [role="button"] *,
+  body.window-resizing .btn-ghost,
+  body.window-resizing .btn-ghost *,
+  body.window-resizing .btn-square,
+  body.window-resizing .btn-square *,
+  body.window-resizing svg,
+  body.window-resizing svg * {
+    transition: none !important;
+    will-change: auto !important;
+  }
 }
