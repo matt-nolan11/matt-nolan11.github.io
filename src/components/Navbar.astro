@@ -6,7 +6,7 @@ import { MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/o
 import ThemeToggle from '../components/ThemeToggle.astro';
 ---
 
-<header class="sticky top-0 z-50 transition-all duration-300 bg-base-100 border-b border-transparent transition-colors transition-border" id="main-header" style="border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: transparent;">
+<header class="sticky top-0 z-50 bg-base-100 border-b border-transparent" id="main-header" style="border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: transparent; transition: border-bottom-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 300ms, opacity 300ms, box-shadow 300ms;">
   <!-- Mobile nav (toggle global drawer) -->
   <nav class="navbar lg:hidden bg-base-100 w-full px-2">
     <div class="flex-none">
@@ -28,31 +28,32 @@ import ThemeToggle from '../components/ThemeToggle.astro';
 
   <!-- ********** Desktop (≥ lg): standard navbar ********** -->
   <nav
-    class="navbar hidden lg:flex w-full bg-base-100"
+    class="navbar hidden lg:flex w-full bg-base-100 px-4"
     style="--navbar-padding:0;"
   >
-    <div class="navbar-start flex-none">
+    <div class="navbar-start">
       <a href="/" class="flex items-center gap-2">
         <Image src={logo} alt="Stargarden logo" class="h-18 w-auto" />
-        <span class="text-xl font-bold">Stargarden</span>
+        <span class="text-xl font-bold whitespace-nowrap">Stargarden</span>
       </a>
     </div>
-    <div class="navbar-end flex-1">
-      <ul class="menu menu-horizontal gap-1">
+    
+    <div class="navbar-end flex-1 flex justify-end items-center gap-4">
+      <ul class="menu menu-horizontal gap-x-3 flex-nowrap">
         <li>
-          <a href="/about" class="normal-case font-bold text-lg">About</a>
+          <a href="/about" class="normal-case font-bold text-lg whitespace-nowrap">About</a>
         </li>
         <li>
-          <a href="/projects" class="normal-case font-bold text-lg">Projects</a>
+          <a href="/projects" class="normal-case font-bold text-lg whitespace-nowrap">Projects</a>
         </li>
         <li>
-          <a href="/posts" class="normal-case font-bold text-lg">Posts</a>
+          <a href="/posts" class="normal-case font-bold text-lg whitespace-nowrap">Posts</a>
         </li>
         <li>
-          <a href="/tags" class="normal-case font-bold text-lg">Tags</a>
+          <a href="/tags" class="normal-case font-bold text-lg whitespace-nowrap">Tags</a>
         </li>
       </ul>
-  
+      
       <Search
         id="search"
         className="pagefind-ui"
@@ -353,5 +354,28 @@ import ThemeToggle from '../components/ThemeToggle.astro';
     border-bottom-color: rgba(147, 197, 253, 0.4) !important;
   }
 
+  /* Ensure search bar has minimum width and doesn't shrink */
+  .pagefind-ui {
+    min-width: 300px !important;
+    width: 300px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .pagefind-ui input {
+    min-width: 300px !important;
+    width: 300px !important;
+  }
 
+  /* Better spacing for navbar items */
+  .navbar-end > .menu {
+    margin-right: 1rem;
+  }
+
+  /* Prevent text color transitions in header and all descendants, but allow border-bottom-color transition on #main-header */
+  #main-header {
+    transition-property: border-bottom-color, transform, opacity, box-shadow !important;
+  }
+  #main-header * {
+    transition-property: none !important;
+  }
 </style>
