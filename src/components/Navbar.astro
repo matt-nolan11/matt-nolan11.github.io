@@ -6,87 +6,25 @@ import { MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/o
 import ThemeToggle from '../components/ThemeToggle.astro';
 ---
 
-<header class="sticky top-0 z-50 transition-all duration-300 bg-base-100" id="main-header">
-  <!-- ********** Mobile (< lg): drawer & navbar ********** -->
-  <div class="drawer lg:hidden">
-    <!-- Hidden checkbox toggles the drawer -->
-    <input id="nav-drawer" type="checkbox" class="drawer-toggle" />
-
-    <div class="drawer-content flex flex-col">
-      <nav class="navbar bg-base-100 w-full lg:px-4 relative px-2">
-        <!-- Hamburger icon on the left -->
-        <div class="flex-none">
-          <label
-            for="nav-drawer"
-            aria-label="Open sidebar"
-            class="btn btn-ghost btn-square"
-          >
-            <Bars3Icon className="h-5 w-5" />
-          </label>
-        </div>
-
-        <!-- Logo centered absolutely -->
-        <a
-          href="/"
-          class="absolute left-1/2 -translate-x-1/2 flex items-center"
-        >
-          <Image src={logo} alt="Stargarden logo" class="h-18 w-auto" />
-        </a>
-        <div class="flex-none ml-auto">
-          <button
-            aria-label="Open search"
-            class="btn btn-ghost btn-square"
-            onclick="search_modal.showModal()"
-          >
-            {/* Magnifying glass icon */}
-            <MagnifyingGlassIcon className="h-5 w-5" />
-          </button>
-          <ThemeToggle />
-        </div>
-      </nav>
-      <dialog id="search_modal" class="modal">
-        <div
-          class="modal-box w-11/12 max-w-2xl h-[90vh] overflow-y-auto flex flex-col relative"
-        >
-          <form method="dialog">
-            <button
-              class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-              aria-label="Close search"
-            >
-              <XMarkIcon className="h-5 w-5" />
-            </button>
-          </form>
-          <div class="relative">
-            <Search
-              id="mobile-search"
-              className="pagefind-ui w-full mt-8 mb-2"
-              uiOptions={{ showImages: false }}
-            />
-          </div>
-        </div>
-      </dialog>
+<header class="sticky top-0 z-50 transition-all duration-300 bg-base-100 border-b border-transparent transition-colors transition-border" id="main-header" style="border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: transparent;">
+  <!-- Mobile nav (toggle global drawer) -->
+  <nav class="navbar lg:hidden bg-base-100 w-full px-2">
+    <div class="flex-none">
+      <label for="nav-drawer" aria-label="Open sidebar" class="btn btn-ghost btn-square drawer-button">
+        <Bars3Icon className="h-5 w-5" />
+      </label>
     </div>
-
-    <!-- Slide‑out sidebar -->
-    <div class="drawer-side">
-      <label for="nav-drawer" class="drawer-overlay" aria-label="Close sidebar"
-      ></label>
-      <ul class="menu p-4 w-80 bg-base-100 min-h-full">
-        <li>
-          <a href="/about" class="normal-case font-bold text-xl">About</a>
-        </li>
-        <li>
-          <a href="/projects" class="normal-case font-bold text-xl">Projects</a>
-        </li>
-        <li>
-          <a href="/posts" class="normal-case font-bold text-xl">Posts</a>
-        </li>
-        <li>
-          <a href="/tags" class="normal-case font-bold text-xl">Tags</a>
-        </li>
-      </ul>
+    <!-- Logo centered -->
+    <a href="/" class="absolute left-1/2 -translate-x-1/2 flex items-center">
+      <Image src={logo} alt="Stargarden logo" class="h-18 w-auto" />
+    </a>
+    <div class="flex-none ml-auto">
+      <button aria-label="Open search" class="btn btn-ghost btn-square" onclick="search_modal.showModal()">
+        <MagnifyingGlassIcon className="h-5 w-5" />
+      </button>
+      <ThemeToggle />
     </div>
-  </div>
+  </nav>
 
   <!-- ********** Desktop (≥ lg): standard navbar ********** -->
   <nav
@@ -125,16 +63,62 @@ import ThemeToggle from '../components/ThemeToggle.astro';
   </nav>
 </header>
 
+<!-- Search modal for mobile -->
+<dialog id="search_modal" class="modal lg:hidden">
+  <div
+    class="modal-box w-11/12 max-w-2xl h-[90vh] overflow-y-auto flex flex-col relative"
+  >
+    <form method="dialog">
+      <button
+        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+        aria-label="Close search"
+      >
+        <XMarkIcon className="h-5 w-5" />
+      </button>
+    </form>
+    <div class="relative">
+      <Search
+        id="mobile-search"
+        className="pagefind-ui w-full mt-8 mb-2"
+        uiOptions={{ showImages: false }}
+      />
+    </div>
+  </div>
+</dialog>
+
 <script>
+  // Initialize border immediately to prevent any jumps
+  function initializeBorder() {
+    const header = document.getElementById('main-header');
+    if (!header) return false;
+    
+    // Set border immediately with JavaScript control
+    header.style.setProperty('border-bottom-width', '3px', 'important');
+    header.style.setProperty('border-bottom-style', 'solid', 'important');
+    header.style.setProperty('border-bottom-color', 'transparent', 'important');
+    return true;
+  }
+
+  // Try to initialize immediately, then retry if needed
+  if (!initializeBorder()) {
+    // If header not found, try when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeBorder);
+    } else {
+      // DOM is already ready, try again
+      initializeBorder();
+    }
+  }
+
   // Add scroll-based styling to header with smooth transitions
   function updateHeaderOnScroll() {
     const header = document.getElementById('main-header');
     if (!header) return;
-    
+
     const scrollY = window.scrollY;
     const threshold = 20; // Lower threshold for smoother start
     const fullThreshold = 60; // Full effect threshold
-    
+
     if (scrollY > threshold) {
       // Calculate opacity based on scroll progress
       const progress = Math.min((scrollY - threshold) / (fullThreshold - threshold), 1);
@@ -146,14 +130,14 @@ import ThemeToggle from '../components/ThemeToggle.astro';
         'header-scrolled'
       );
       
-      // Gradually apply border with smooth opacity
+      // Always use 3px border, only change color
       if (scrollY > fullThreshold) {
-        header.classList.add('border-b-2', 'border-primary/30');
-      } else {
-        header.classList.remove('border-b-2', 'border-primary/30');
-        // Apply a very subtle border that grows with scroll
-        header.style.borderBottom = `1px solid rgba(147, 197, 253, ${0.1 * progress})`;
-      }
+        if (document.documentElement.getAttribute('data-theme') === 'business') {
+          header.style.setProperty('border-bottom-color', 'rgba(147, 197, 253, 0.4)', 'important');
+        } else {
+          header.style.setProperty('border-bottom-color', 'rgba(30, 41, 59, 0.7)', 'important');
+        }
+      } 
       
       // Directly set background color via style for immediate effect
       if (document.documentElement.getAttribute('data-theme') === 'business') {
@@ -173,7 +157,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
       
       // Reset to default background and border
       header.style.backgroundColor = '';
-      header.style.borderBottom = '';
+      header.style.setProperty('border-bottom-color', 'transparent', 'important');
     }
   }
   
@@ -194,13 +178,35 @@ import ThemeToggle from '../components/ThemeToggle.astro';
   window.addEventListener('scroll', handleScroll);
   
   // Check initial state
-  updateHeaderOnScroll();
+  // Border should already be initialized, just need to set correct color based on scroll position
+  document.addEventListener('DOMContentLoaded', () => {
+    updateHeaderOnScroll();
+    void document.body.offsetHeight; // Force reflow
+    requestAnimationFrame(() => {
+      updateHeaderOnScroll();
+    });
+  });
   
   // Listen for theme changes
   const observer = new MutationObserver(updateHeaderOnScroll);
   observer.observe(document.documentElement, { 
     attributes: true, 
     attributeFilter: ['data-theme'] 
+  });
+
+  // Fix mobile menu functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const drawerToggle = document.getElementById('nav-drawer') as HTMLInputElement;
+    const drawerLinks = document.querySelectorAll('.drawer-side a');
+    
+    // Simply close drawer when clicking menu links - let DaisyUI handle the rest
+    drawerLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (drawerToggle) {
+          drawerToggle.checked = false;
+        }
+      });
+    });
   });
 </script>
 
@@ -216,20 +222,22 @@ import ThemeToggle from '../components/ThemeToggle.astro';
   /* Light mode (corporate theme) - much brighter white background */
   [data-theme="corporate"] .header-scrolled {
     background-color: rgba(255, 255, 255, 0.98) !important; /* Pure white */
+    border-bottom-width: 3px !important;
+    border-bottom-style: solid !important;
+    border-bottom-color: rgba(30, 41, 59, 0.7) !important; /* Thinner, darker border */
   }
   
   /* Dark mode (business theme) - much brighter background with blue accents */
   [data-theme="business"] .header-scrolled {
-    /* Much brighter dark background - significantly lighter */
     background-color: rgba(100, 116, 139, 0.98) !important; /* Much lighter slate */
-    
-    /* Enhanced shadow with subtle blue accent for dark mode only */
     box-shadow: 
       0 4px 12px -2px rgba(0, 0, 0, 0.3),
       0 2px 4px -1px rgba(0, 0, 0, 0.2),
-      0 0 0 1px rgba(147, 197, 253, 0.15); /* Subtle blue rim */
-      
-    /* Enhanced border in dark mode */
-    border-bottom-color: rgba(147, 197, 253, 0.4);
+      0 0 0 1px rgba(147, 197, 253, 0.15);
+    border-bottom-width: 3px !important;
+    border-bottom-style: solid !important;
+    border-bottom-color: rgba(147, 197, 253, 0.4) !important;
   }
+
+
 </style>
