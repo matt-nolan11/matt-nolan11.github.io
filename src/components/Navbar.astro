@@ -28,38 +28,40 @@ import ThemeToggle from '../components/ThemeToggle.astro';
 
   <!-- ********** Desktop (≥ lg): standard navbar ********** -->
   <nav
-    class="navbar hidden lg:flex w-full bg-base-100 px-4"
+    class="navbar hidden lg:flex w-full bg-base-100"
     style="--navbar-padding:0;"
   >
-    <div class="navbar-start">
-      <a href="/" class="flex items-center gap-2">
-        <Image src={logo} alt="Matt Nolan's logo" class="h-10 w-auto" />
-        <span class="text-xl font-bold whitespace-nowrap">Matt Nolan's Portfolio</span>
-      </a>
-    </div>
-    
-    <div class="navbar-end flex-1 flex justify-end items-center gap-4">
-      <ul class="menu menu-horizontal gap-x-3 flex-nowrap">
-        <li>
-          <a href="/about" class="normal-case font-bold text-lg whitespace-nowrap">About</a>
-        </li>
-        <li>
-          <a href="/projects" class="normal-case font-bold text-lg whitespace-nowrap">Projects</a>
-        </li>
-        <li>
-          <a href="/posts" class="normal-case font-bold text-lg whitespace-nowrap">Posts</a>
-        </li>
-        <li>
-          <a href="/tags" class="normal-case font-bold text-lg whitespace-nowrap">Tags</a>
-        </li>
-      </ul>
+    <div class="max-w-7xl mx-auto px-4 w-full flex items-center justify-between">
+      <div class="navbar-start">
+        <a href="/" class="flex items-center gap-2">
+          <Image src={logo} alt="Matt Nolan's logo" class="h-10 w-auto" />
+          <span class="text-xl font-bold whitespace-nowrap">Matt Nolan's Portfolio</span>
+        </a>
+      </div>
       
-      <Search
-        id="search"
-        className="pagefind-ui"
-        uiOptions={{ showImages: false }}
-      />    
-      <ThemeToggle />
+      <div class="navbar-end flex-1 flex justify-end items-center gap-4">
+        <ul class="menu menu-horizontal gap-x-3 flex-nowrap">
+          <li>
+            <a href="/about" class="normal-case font-bold text-lg whitespace-nowrap">About</a>
+          </li>
+          <li>
+            <a href="/projects" class="normal-case font-bold text-lg whitespace-nowrap">Projects</a>
+          </li>
+          <li>
+            <a href="/posts" class="normal-case font-bold text-lg whitespace-nowrap">Posts</a>
+          </li>
+          <li>
+            <a href="/tags" class="normal-case font-bold text-lg whitespace-nowrap">Tags</a>
+          </li>
+        </ul>
+        
+        <Search
+          id="search"
+          className="pagefind-ui"
+          uiOptions={{ showImages: false }}
+        />    
+        <ThemeToggle />
+      </div>
     </div>
   </nav>
 </header>

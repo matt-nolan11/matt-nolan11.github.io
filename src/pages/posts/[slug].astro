@@ -20,7 +20,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
 ---
 
 <Layout seo={{ title: post.data.title, description: post.data.description }}>
-  <article class="max-w-6xl mx-auto">
+  <article class="max-w-7xl mx-auto">
     <div class="prose max-w-2xl mx-auto">
       <h1>{post.data.title}</h1>
       <p class="text-sm text-base-content/70 font-bold mb-4">
@@ -51,7 +51,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
 
   <!-- Related Content -->
   {relatedContent.length > 0 && (
-    <section class="max-w-6xl mx-auto mt-12 pt-8 border-t border-base-300">
+    <section class="max-w-7xl mx-auto mt-12 pt-8 border-t border-base-300">
       <h2 class="text-2xl font-bold mb-6">Related Content</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {relatedContent.map(item => (
@@ -97,7 +97,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
   )}
 
   <!-- Navigation -->
-  <div class="max-w-6xl mx-auto mt-12 pt-8 border-t border-base-300">
+  <div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-base-300">
     <a href="/posts" class="btn btn-outline">
       ← Back to Posts
     </a>
