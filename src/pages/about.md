@@ -58,11 +58,11 @@ This blog serves as both a documentation of my projects and a place to share ins
 
 ## Beyond Engineering
 
-When I'm not working on robots, you'll find me stargazing, exploring the latest developments in space technology, or planning my next making project. I believe that the best engineering solutions often come from diverse perspectives and experiences.
+When I'm not working on engineering projects, you'll find me honing my piano skills, fighting combat robots, playing chess, hiking, and spending time with friends and family.
 
 ## Contact Me
 
-If you'd like to get in touch, please use the form below:
+If you'd like to get in touch, please use the contact form below, reach out to me on LinkedIn, or email me directly.
 
 <div id="contact-form-root" class="mx-auto mt-8">
   <form

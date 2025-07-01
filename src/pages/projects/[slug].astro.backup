@@ -179,20 +179,17 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
                   </div>
                 ) : section.galleryOptions?.layout === 'wrapped' ? (
                   <div>
-                    <div 
-                      class={`gallery-wrapped ${
-                        section.galleryOptions?.float === 'left' ? 'float-left mr-6 mb-4' :
-                        section.galleryOptions?.float === 'right' ? 'float-right ml-6 mb-4' :
-                        'mx-auto mb-6'
-                      } ${
-                        typeof section.galleryOptions?.size === 'number' ? '' :
-                        section.galleryOptions?.size === 'small' ? 'w-64' :
-                        section.galleryOptions?.size === 'large' ? 'w-96' :
-                        section.galleryOptions?.size === 'full' ? 'w-full' :
-                        'w-80'
-                      }`}
-                      style={typeof section.galleryOptions?.size === 'number' ? `width: ${section.galleryOptions.size}px;` : undefined}
-                    >
+                    <div class={`gallery-wrapped ${
+                      section.galleryOptions?.float === 'left' ? 'float-left mr-6 mb-4' :
+                      section.galleryOptions?.float === 'right' ? 'float-right ml-6 mb-4' :
+                      'mx-auto mb-6'
+                    } ${
+                      typeof section.galleryOptions?.size === 'number' ? `w-[${section.galleryOptions.size}px]` :
+                      section.galleryOptions?.size === 'small' ? 'w-64' :
+                      section.galleryOptions?.size === 'large' ? 'w-96' :
+                      section.galleryOptions?.size === 'full' ? 'w-full' :
+                      'w-80'
+                    }`}>
                       <ProjectGallery 
                         images={section.gallery}
                         title={section.title || `Gallery ${index + 1}`}
@@ -237,7 +234,7 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
                     </div>
                   </div>
                 ) : (
-                  /* Default layout */
+                  {/* Default layout */}
                   <div class={`mx-auto ${
                     typeof section.galleryOptions?.size === 'number' ? `max-w-[${section.galleryOptions.size}px]` :
                     section.galleryOptions?.size === 'small' ? 'max-w-md' :
@@ -391,11 +388,8 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
         <ProjectGallery 
           images={project.data.gallery}
           title={project.data.galleryTitle || project.data.title}
-          autoplay={project.data.galleryOptions?.autoplay !== undefined ? project.data.galleryOptions.autoplay : project.data.gallery.length > 1}
-          autoplayInterval={project.data.galleryOptions?.autoplayInterval || 4000}
-          showThumbnails={project.data.galleryOptions?.showThumbnails !== undefined ? project.data.galleryOptions.showThumbnails : true}
-          showIndicators={project.data.galleryOptions?.showIndicators !== false}
-          size={project.data.galleryOptions?.size || 'medium'}
+          autoplay={project.data.gallery.length > 1}
+          autoplayInterval={4000}
           client:load
         />
       </div>
@@ -419,8 +413,7 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
             client:load
           />
         </div>
-      </div>
-    )}
+      </div>    )}
 
     <!-- Gallery: Before Versions -->
     {project.data.gallery && project.data.gallery.length > 0 && project.data.galleryPosition === 'before-versions' && (
@@ -588,19 +581,16 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
                 ) : version.gallery && version.gallery.length > 0 && version.galleryOptions?.layout === 'wrapped' ? (
                   // Wrapped gallery layout
                   <div class="version-content-wrapper">
-                    <div 
-                      class={`gallery-wrapped ${
-                        version.galleryOptions?.float === 'left' ? 'float-left mr-6 mb-4' :
-                        version.galleryOptions?.float === 'right' ? 'float-right ml-6 mb-4' :
-                        'float-left mr-6 mb-4'
-                      } ${
-                        typeof version.galleryOptions?.size === 'number' ? '' :
-                        version.galleryOptions?.size === 'small' ? 'w-64' :
-                        version.galleryOptions?.size === 'large' ? 'w-96' :
-                        'w-80'
-                      }`}
-                      style={typeof version.galleryOptions?.size === 'number' ? `width: ${version.galleryOptions.size}px;` : undefined}
-                    >
+                    <div class={`gallery-wrapped ${
+                      version.galleryOptions?.float === 'left' ? 'float-left mr-6 mb-4' :
+                      version.galleryOptions?.float === 'right' ? 'float-right ml-6 mb-4' :
+                      'float-left mr-6 mb-4'
+                    } ${
+                      typeof version.galleryOptions?.size === 'number' ? `w-[${version.galleryOptions.size}px]` :
+                      version.galleryOptions?.size === 'small' ? 'w-64' :
+                      version.galleryOptions?.size === 'large' ? 'w-96' :
+                      'w-80'
+                    }`}>
                       <ProjectGallery 
                         images={version.gallery}
                         title={`${version.version} Gallery`}
@@ -712,7 +702,11 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
                   </div>
                 ) : (
                   <!-- Standard two-column or side-by-side layout -->
-                  <div class="flex flex-col lg:flex-row gap-6">
+                  <div class={`${
+                    version.gallery && version.gallery.length > 0 && version.galleryOptions?.layout === 'side-by-side' ? 
+                    'flex flex-col lg:flex-row gap-6' :
+                    'flex flex-col lg:flex-row gap-6'
+                  }`}>
                     <!-- Version Info -->
                     <div class={(version.gallery || version.images) && ((version.gallery && version.gallery.length > 0) || (version.images && version.images.length > 0)) && version.galleryOptions?.size !== 'full' ? "lg:w-2/3" : "w-full"}>
                       <div class="flex items-center gap-3 mb-3">
@@ -810,12 +804,10 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
                     <!-- Version Images/Gallery -->
                     {(version.gallery || version.images) && version.galleryOptions?.size !== 'full' && (
                       <div class={`${
-                        typeof version.galleryOptions?.size === 'number' ? 'flex-shrink-0' :
                         version.galleryOptions?.size === 'small' ? 'lg:w-1/4' :
                         version.galleryOptions?.size === 'large' ? 'lg:w-1/2' :
                         'lg:w-1/3'
-                      }`}
-                      style={typeof version.galleryOptions?.size === 'number' ? { width: `${version.galleryOptions.size}px` } : {}}>
+                      }`}>
                         {version.gallery && version.gallery.length > 0 ? (
                           <ProjectGallery 
                             images={version.gallery}

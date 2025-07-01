@@ -2,13 +2,17 @@
 title: "6-DOF Robot Arm"
 description: "A multi-version robotic arm project exploring different control systems, materials, and capabilities through iterative design improvements."
 cover: "./cover.png"
+gallery:
+  - src: "./cover.png"
+    alt: "6-DOF Robot Arm - Current Version"
+    caption: "Latest iteration of the robot arm showing improved joint design and control system"
 startDate: "2023-01"
 endDate: "2024-06"
 status: "in-progress"
 featured: true
 tags: ["robotics", "mechanical-design", "control-systems", "3d-printing", "arduino", "raspberry-pi", "python", "cad"]
 githubUrl: "https://github.com/matt-nolan11/robot-arm"
-versionsTitle: "Development Timeline"
+versionsTitle: "Project Versions"
 
 versions:
   - version: "v0.5"
@@ -25,6 +29,25 @@ versions:
     endDate: "2023-04"
     status: "completed"
     githubUrl: "https://github.com/matt-nolan11/robot-arm/tree/v1.0"
+    gallery:
+      - src: "./cover.png"
+        alt: "V1.0 Full Assembly"
+        caption: "Complete v1.0 robot arm with servo-driven joints"
+      - src: "./cover.png"
+        alt: "Gripper Mechanism"
+        caption: "Parallel jaw gripper with basic position feedback"
+      - src: "./cover.png"
+        alt: "Control Electronics"
+        caption: "Arduino-based control system with servo driver board"
+      - src: "./cover.png"
+        alt: "Joint Detail"
+        caption: "3D-printed modular joint showing servo integration"
+    galleryOptions:
+      size: 500
+      autoplay: false
+      showThumbnails: true
+      layout: "side-by-side"
+      float: "right"
     achievements:
       - "Successfully implemented basic forward kinematics"
       - "Created modular 3D-printed joint system"
@@ -68,6 +91,26 @@ versions:
     status: "completed"
     githubUrl: "https://github.com/matt-nolan11/robot-arm/tree/v2.0"
     liveUrl: "https://youtube.com/watch?v=demo-v2"
+    gallery:
+      - src: "./cover.png"
+        alt: "Stepper Motor Assembly"
+        caption: "High-precision stepper motors with microstepping control"
+      - src: "./cover.png"
+        alt: "Computer Vision Setup"
+        caption: "OpenCV-based object detection and tracking system"
+      - src: "./cover.png"
+        alt: "Force Sensor Integration"
+        caption: "Custom end effector with integrated force feedback"
+      - src: "./cover.png"
+        alt: "Control Electronics"
+        caption: "Upgraded control system with thermal management"
+    galleryOptions:
+      size: 600
+      autoplay: true
+      autoplayInterval: 4000
+      showThumbnails: true
+      layout: "wrapped"
+      float: "left"
     achievements:
       - "10x improvement in positioning accuracy"
       - "Implemented inverse kinematics solver"
@@ -193,6 +236,29 @@ versions:
     startDate: "2024-07"
     status: "in-progress"
     githubUrl: "https://github.com/matt-nolan11/robot-arm/tree/v4.0-dev"
+    gallery:
+      - src: "./cover.png"
+        alt: "AI Training Setup"
+        caption: "Robot arm in training environment with multiple objects for reinforcement learning"
+      - src: "./cover.png"
+        alt: "Neural Network Visualization"
+        caption: "Real-time visualization of the neural network decision-making process"
+      - src: "./cover.png"
+        alt: "Edge Computing Hardware"
+        caption: "NVIDIA Jetson Nano integration for real-time ML inference"
+      - src: "./cover.png"
+        alt: "Autonomous Sorting Demo"
+        caption: "Robot successfully sorting objects by color and shape autonomously"
+      - src: "./cover.png"
+        alt: "Simulation Environment"
+        caption: "Custom Gazebo simulation environment for safe RL training"
+    galleryOptions:
+      size: 500
+      autoplay: true
+      autoplayInterval: 5000
+      showThumbnails: true
+      layout: "wrapped"
+      float: "right"
     achievements:
       - "Implemented basic RL training pipeline"
       - "Created custom simulation environment"

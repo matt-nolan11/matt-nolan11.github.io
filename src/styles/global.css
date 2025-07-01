@@ -182,3 +182,27 @@ body, body * {
     will-change: auto !important;
   }
 }
+
+/* Gallery Layout Styles */
+.gallery-wrapped {
+  clear: none;
+}
+
+.version-content-wrapper {
+  overflow: hidden; /* Contains floating elements */
+}
+
+.clear-both {
+  clear: both;
+}
+
+/* Ensure proper spacing for wrapped content */
+.gallery-wrapped + .prose {
+  margin-top: 0;
+}
+
+.prose::after {
+  content: "";
+  display: table;
+  clear: both;
+}
