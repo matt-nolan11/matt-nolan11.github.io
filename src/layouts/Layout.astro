@@ -43,19 +43,25 @@ const seoConfig = {
       {...seoConfig}
       title={seoConfig.title}
       description={seoConfig.description ??
-        "StarGarden – a customizable Astro theme"}
-      titleTemplate="%s – StarGarden"
-      titleDefault="StarGarden Theme"
+        "Matt Nolan – Robotics Engineer & Maker"}
+      titleTemplate="%s – Matt Nolan"
+      titleDefault="Matt Nolan – Robotics Engineer"
     />
     <script
       type="application/ld+json"
       set:html={JSON.stringify({
         "@context": "https://schema.org",
-        "@type": "Organization",
-        name: "StarGarden",
+        "@type": "Person",
+        name: "Matt Nolan",
+        jobTitle: "Robotics Engineer",
         url: Astro.site,
-        logo: new URL(logo.src, Astro.site).href,
-        sameAs: ["https://www.youtube.com/@StarGarden"],
+        image: new URL(logo.src, Astro.site).href,
+        description: "Robotics engineer and maker passionate about autonomous systems, robotic manipulation, and space technology",
+        sameAs: [
+          "https://github.com/matt-nolan11",
+          "https://linkedin.com/in/matt-nolan11",
+          "https://youtube.com/@matt-nolan11"
+        ],
       })}
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

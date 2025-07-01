@@ -1,48 +1,54 @@
 ---
 title: Privacy Policy
-description: Privacy Policy for Stargarden Theme
-date: "2025-04-28"
+description: Privacy Policy for Matt Nolan's Portfolio & Blog
+date: "2025-06-30"
 layout: "../layouts/Markdown.astro"
 ---
 
-This Privacy Policy page is provided as a starting template for the Stargarden Astro Theme. Stargarden is open-source, and you should fully customize this policy to reflect your site's privacy practices.
+# Privacy Policy
+
+_Last updated: 2025-06-30_
+
+Welcome to Matt Nolan’s personal portfolio and blog. This site is built with [Astro](https://astro.build/) using the open-source [StarGarden](https://github.com/sustanza/stargarden) theme and is focused on robotics, engineering, and making. Your privacy is important, and this page explains what information is (and isn’t) collected when you visit.
 
 ---
 
-## 1. What Is Not Collected
+## 1. Information Collected
 
-This theme, by default, does not:
+- **No Personal Data Collected:**  
+  This site does not collect personal information such as names, email addresses, or account details. There are no user accounts, contact forms, or comment sections.
 
-- Collect personal information
-- Use cookies or tracking scripts
-- Include user registration or forms
-
----
-
-## 2. Automatically Collected Data
-
-Stargarden does not automatically collect personal data. However, if you host your site publicly, your hosting provider might collect visitor data. Review your hosting provider’s policies and update accordingly.
+- **No Cookies or Tracking:**  
+  This site does not use cookies, analytics, or tracking scripts.
 
 ---
 
-## 3. Embedded Third-Party Content
+## 2. Hosting & Server Logs
 
-Any embedded content from third-party platforms (e.g., YouTube videos) may collect user data independently. Refer to those platforms' privacy policies for details.
+- The site is hosted on **GitHub Pages**. GitHub may collect basic, non-personal server logs (such as IP address, browser type, and access times) for security and operational purposes.  
+  Please refer to [GitHub's Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement) for more details.
 
 ---
 
-## 4. No Warranty or Liability
+## 3. Embedded Content
 
-This privacy policy is provided as an example. The creators of Stargarden assume no responsibility or liability for your site's privacy practices. You are solely responsible for ensuring your site complies with applicable privacy laws and regulations.
+Some posts may include embedded content (e.g., YouTube videos, GitHub gists). Embedded content from other websites behaves as if you visited those sites directly and may collect data according to their own privacy policies.
+
+---
+
+## 4. Use of Information
+
+- No personal data is collected, stored, or shared by this site or its owner.
+- Any analytics or data collection is solely handled by GitHub Pages or third-party embeds, not by this site.
 
 ---
 
 ## 5. Changes to This Policy
 
-You must customize and update this Privacy Policy to reflect the specifics of your website and privacy practices.
+This policy may be updated periodically to reflect changes in site functionality or privacy practices. The latest version will always be available on this page.
 
 ---
 
-## 6. Contact Information
+## 6. Contact
 
-For questions about this theme specifically, refer to the project's documentation or repository.
+For questions about this site or its privacy practices, please reach out via the contact information provided in the site’s About page or through the project’s [GitHub repository](https://github.com/matt-nolan11/matt-nolan11.github.io).
