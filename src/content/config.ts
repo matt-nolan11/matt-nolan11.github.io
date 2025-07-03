@@ -13,24 +13,157 @@ import { defineCollection, z } from "astro:content";
  *   - undefined/null: shows "Project Versions" (default)
  *   - custom string: shows your custom title
  *   - empty string "": hides the header completely
+ * 
+ * Nested sections support:
+ * - Sections can contain columns with content, galleries, images, or nested sections
+ * - This enables complex multi-level layouts and nested content structures
  */
+
+// Create nested section schemas
+const createSectionSchemas = () => {
+  // Base column types (non-nested)
+  const baseColumnSchema = z.object({
+    type: z.enum(['content', 'gallery', 'image']),
+    title: z.string().optional(),
+    // For content columns
+    content: z.string().optional(),
+    // For image columns
+    src: z.any().optional(), // Will be typed as image() in collections
+    alt: z.string().optional(),
+    caption: z.string().optional(),
+    // For gallery columns
+    gallery: z.array(z.object({ 
+      src: z.any(), // Will be typed as image() in collections
+      alt: z.string(), 
+      caption: z.string().optional() 
+    })).optional(),
+    galleryOptions: z.object({
+      size: z.union([
+        z.enum(['small','medium','large','full']),
+        z.number().min(200).max(1200)
+      ]).default('medium'),
+      autoplay: z.boolean().default(false),
+      autoplayInterval: z.number().default(4000),
+      showThumbnails: z.boolean().default(true),
+      showIndicators: z.boolean().default(true),
+    }).optional(),
+  });
+
+  // Nested column schema that can contain nested sections
+  const columnSchema: z.ZodType<any> = z.lazy(() => 
+    baseColumnSchema.extend({
+      type: z.enum(['content', 'gallery', 'image', 'sections']),
+      sections: z.array(z.object({
+        columns: z.array(columnSchema).min(1).max(4),
+      })).optional(),
+    })
+  );
+
+  // Section schema using nested columns
+  const sectionSchema = z.array(z.object({
+    columns: z.array(columnSchema).min(1).max(4),
+  }));
+
+  return { columnSchema, sectionSchema };
+};
+
+const { sectionSchema } = createSectionSchemas();
 export const collections = {
   posts: defineCollection({
     type: "content",
-    schema: ({ image }) =>
-      z.object({
+    schema: ({ image }) => {
+      // Create typed column schema for posts
+      const typedColumnSchema: z.ZodType<any> = z.lazy(() => 
+        z.object({
+          type: z.enum(['content', 'gallery', 'image', 'sections']),
+          title: z.string().optional(),
+          // For content columns
+          content: z.string().optional(),
+          // For image columns
+          src: image().optional(),
+          alt: z.string().optional(),
+          caption: z.string().optional(),
+          // For gallery columns
+          gallery: z.array(z.object({ 
+            src: image(), 
+            alt: z.string(), 
+            caption: z.string().optional() 
+          })).optional(),
+          galleryOptions: z.object({
+            size: z.union([
+              z.enum(['small','medium','large','full']),
+              z.number().min(200).max(1200)
+            ]).default('medium'),
+            autoplay: z.boolean().default(false),
+            autoplayInterval: z.number().default(4000),
+            showThumbnails: z.boolean().default(true),
+            showIndicators: z.boolean().default(true),
+          }).optional(),
+          // For nested sections
+          sections: z.array(z.object({
+            columns: z.array(typedColumnSchema).min(1).max(4),
+          })).optional(),
+        })
+      );
+
+      return z.object({
         title: z.string(),
         description: z.string().max(160),
         cover: image(),
         date: z.date(),
         tags: z.array(z.string()).default([]),
         draft: z.boolean().optional(),
-      }),
+        // Gallery support (for header)
+        gallery: z.array(z.object({
+          src: image(),
+          alt: z.string(),
+          caption: z.string().optional(),
+        })).optional(),
+        // Nested modular sections for posts
+        sections: z.array(z.object({
+          columns: z.array(typedColumnSchema).min(1).max(4),
+        })).optional(),
+      });
+    },
   }),
   projects: defineCollection({
     type: "content",
-    schema: ({ image }) =>
-      z.object({
+    schema: ({ image }) => {
+      // Create typed column schema for projects
+      const typedColumnSchema: z.ZodType<any> = z.lazy(() => 
+        z.object({
+          type: z.enum(['content', 'gallery', 'image', 'sections']),
+          title: z.string().optional(),
+          // For content columns
+          content: z.string().optional(),
+          // For image columns
+          src: image().optional(),
+          alt: z.string().optional(),
+          caption: z.string().optional(),
+          // For gallery columns
+          gallery: z.array(z.object({ 
+            src: image(), 
+            alt: z.string(), 
+            caption: z.string().optional() 
+          })).optional(),
+          galleryOptions: z.object({
+            size: z.union([
+              z.enum(['small','medium','large','full']),
+              z.number().min(200).max(1200)
+            ]).default('medium'),
+            autoplay: z.boolean().default(false),
+            autoplayInterval: z.number().default(4000),
+            showThumbnails: z.boolean().default(true),
+            showIndicators: z.boolean().default(true),
+          }).optional(),
+          // For nested sections
+          sections: z.array(z.object({
+            columns: z.array(typedColumnSchema).min(1).max(4),
+          })).optional(),
+        })
+      );
+
+      return z.object({
         title: z.string(),
         description: z.string().max(160),
         cover: image(),
@@ -42,71 +175,33 @@ export const collections = {
         status: z.enum(["completed", "in-progress", "planned"]).default("completed"),
         githubUrl: z.string().url().optional(),
         liveUrl: z.string().url().optional(),
-        // Gallery support
+        // Gallery support (for header)
         gallery: z.array(z.object({
           src: image(),
           alt: z.string(),
           caption: z.string().optional(),
         })).optional(),
-        galleryPosition: z.enum(['replace-cover', 'after-content', 'before-versions', 'dedicated-section']).default('replace-cover'),
-        galleryTitle: z.string().optional(),
-        galleryOptions: z.object({
-          size: z.union([
-            z.enum(['small', 'medium', 'large', 'full']), // Preset sizes
-            z.number().min(200).max(1200)                  // Custom pixel width (200px - 1200px)
-          ]).default('medium'),
-          autoplay: z.boolean().default(false),
-          autoplayInterval: z.number().default(4000),
-          showThumbnails: z.boolean().default(true),
-          showIndicators: z.boolean().default(true),
-          layout: z.enum(['default', 'side-by-side', 'wrapped', 'stacked']).default('default'),
-          float: z.enum(['left', 'right', 'center']).optional(),
-        }).optional(),
-        // Sectioned content support
+        // Nested sectioned content support
         sections: z.array(z.object({
-          type: z.enum(['content', 'gallery', 'interleaved']),
-          title: z.string().optional(),
-          content: z.string().optional(), // Markdown content for content sections
-          gallery: z.array(z.object({     // Gallery data for gallery sections
-            src: image(),
-            alt: z.string(),
-            caption: z.string().optional(),
-          })).optional(),
-          // For interleaved sections - mix of content and gallery
-          contentGalleryPairs: z.array(z.object({
-            content: z.string().optional(),
-            gallery: z.array(z.object({
-              src: image(),
-              alt: z.string(),
-              caption: z.string().optional(),
-            })).optional(),
-            layout: z.enum(['side-by-side', 'content-first', 'gallery-first', 'wrapped']).default('side-by-side'),
-          })).optional(),
-          galleryOptions: z.object({
-            size: z.union([
-              z.enum(['small', 'medium', 'large', 'full']), // Preset sizes
-              z.number().min(200).max(1200)                  // Custom pixel width (200px - 1200px)
-            ]).default('medium'),
-            autoplay: z.boolean().default(false),
-            autoplayInterval: z.number().default(4000),
-            showThumbnails: z.boolean().default(true),
-            showIndicators: z.boolean().default(true),
-            layout: z.enum(['default', 'side-by-side', 'wrapped', 'stacked']).default('default'),
-            float: z.enum(['left', 'right', 'center']).optional(),
-          }).optional(),
+          columns: z.array(typedColumnSchema).min(1).max(4),
         })).optional(),
-        // Version support
+        // Version support (extend with recursive sections)
         versionsTitle: z.string().optional(), // Optional: Custom title for versions section (empty string = no header)
         versions: z.array(z.object({
           version: z.string(), // e.g., "v1", "v2", "2.0"
           title: z.string(), // e.g., "Basic Gripper", "Servo Upgrade"
           description: z.string(),
-          content: z.string().optional(), // Optional: Markdown content for detailed technical documentation
           startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]),
           endDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
           status: z.enum(["completed", "in-progress", "planned"]).default("completed"),
-          images: z.array(image()).optional(), // Legacy: Simple image array
-          gallery: z.array(z.object({           // New: Full gallery support per version
+          githubUrl: z.string().url().optional(), // Optional: Version-specific repository link
+          liveUrl: z.string().url().optional(),
+          achievements: z.array(z.string()).optional(), // Optional: Key accomplishments for this version
+          learnings: z.array(z.string()).optional(), // Optional: Insights gained during this version
+          // Legacy support
+          content: z.string().optional(), // Optional: Markdown content for backward compatibility
+          images: z.array(image()).optional(), // Simple image array for backward compatibility
+          gallery: z.array(z.object({           // Gallery support per version
             src: image(),
             alt: z.string(),
             caption: z.string().optional(),
@@ -120,14 +215,13 @@ export const collections = {
             autoplayInterval: z.number().default(4000),
             showThumbnails: z.boolean().default(true),
             showIndicators: z.boolean().default(true),
-            layout: z.enum(['default', 'side-by-side', 'wrapped', 'stacked']).default('default'),
-            float: z.enum(['left', 'right', 'center']).optional(),
           }).optional(),
-          githubUrl: z.string().url().optional(), // Optional: Version-specific repository link
-          liveUrl: z.string().url().optional(),
-          achievements: z.array(z.string()).optional(), // Optional: Key accomplishments for this version
-          learnings: z.array(z.string()).optional(), // Optional: Insights gained during this version
+          // Nested modular sections per version
+          sections: z.array(z.object({
+            columns: z.array(typedColumnSchema).min(1).max(4),
+          })).optional(),
         })).optional(),
-      }),
+      });
+    },
   }),
 };

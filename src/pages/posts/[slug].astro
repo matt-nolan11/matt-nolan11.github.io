@@ -3,6 +3,9 @@ import { getCollection, getEntry } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import { Image } from "astro:assets";
 import { getRelatedContent } from "../../utils/tagUtils.ts";
+import { marked } from 'marked';
+import ProjectGallery from '../../components/ProjectGallery';
+import ModularSection from '../../components/ModularSection.astro';
 
 export const prerender = true;
 
@@ -31,22 +34,43 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
       {post.data.tags && post.data.tags.length > 0 && (
         <div class="flex flex-wrap gap-2 mb-6">
           {post.data.tags.map((tag) => (
-            <a href={`/tags/${tag}`} class="badge badge-outline hover:badge-primary transition-colors">
+            <a href={`/tags/${tag}`} class="badge badge-outline tag-hover-light-blue transition-colors">
               {tag}
             </a>
           ))}
         </div>
       )}
       
-      <Image
-        src={post.data.cover}
-        alt={post.data.title}
-        width={560}
-        height={315}
-        class="mx-auto my-8 rounded-lg shadow-md"
-      />
+      <!-- Cover Image/Gallery -->
+      {post.data.gallery && post.data.gallery.length > 0 ? (
+        <ProjectGallery 
+          images={post.data.gallery}
+          autoplay={post.data.gallery.length > 1}
+          autoplayInterval={4000}
+          showThumbnails={true}
+          showIndicators={true}
+          size="medium"
+          client:load
+        />
+      ) : (
+        <Image
+          src={post.data.cover}
+          alt={post.data.title}
+          width={560}
+          height={315}
+          class="mx-auto my-8 rounded-lg shadow-md"
+        />
+      )}
+      
       <Content />
     </div>
+
+    <!-- Modular Post Sections -->
+    {post.data.sections && post.data.sections.length > 0 && (
+      <div class="max-w-7xl mx-auto px-4 mt-12">
+        <ModularSection sections={post.data.sections} />
+      </div>
+    )}
   </article>
 
   <!-- Related Content -->
@@ -56,37 +80,45 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {relatedContent.map(item => (
           <article class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-200">
-            <figure>
-              <Image 
-                src={item.data.cover}
-                alt={item.data.title}
-                width={300}
-                height={200}
-                class="w-full h-32 object-cover"
-              />
-            </figure>
-            <div class="card-body p-4">
-              <div class="flex items-center gap-2 mb-2">
-                <div class={`badge badge-sm ${
-                  item.type === 'project' ? 'badge-primary' : 'badge-secondary'
-                }`}>
-                  {item.type}
+            <a 
+              href={`/${item.type === 'project' ? 'projects' : 'posts'}/${item.slug}/`}
+              class="block"
+            >
+              <figure>
+                <Image 
+                  src={item.data.cover}
+                  alt={item.data.title}
+                  width={300}
+                  height={200}
+                  class="w-full h-32 object-cover"
+                />
+              </figure>
+              <div class="card-body p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <div class={`badge badge-sm ${
+                    item.type === 'project' ? 'badge-primary' : 'badge-secondary'
+                  }`}>
+                    {item.type}
+                  </div>
+                  <div class="text-xs text-base-content/60">
+                    {item.sharedTags.length} shared tag{item.sharedTags.length !== 1 ? 's' : ''}
+                  </div>
                 </div>
-                <div class="text-xs text-base-content/60">
-                  {item.sharedTags.length} shared tag{item.sharedTags.length !== 1 ? 's' : ''}
-                </div>
-              </div>
-              <h3 class="card-title text-base">
-                <a 
-                  href={`/${item.type === 'project' ? 'projects' : 'posts'}/${item.slug}/`}
-                  class="hover:text-primary transition-colors"
-                >
+                <h3 class="card-title text-base">
                   {item.data.title}
-                </a>
-              </h3>
-              <div class="flex flex-wrap gap-1 mt-2">
+                </h3>
+              </div>
+            </a>
+            <div class="px-4 pb-4">
+              <div class="flex flex-wrap gap-1">
                 {item.sharedTags.map(tag => (
-                  <span class="badge badge-outline badge-xs">{tag}</span>
+                  <a 
+                    href={`/tags/${tag}/`} 
+                    class="badge badge-outline badge-xs tag-hover-light-blue transition-colors"
+                    onclick="event.stopPropagation()"
+                  >
+                    {tag}
+                  </a>
                 ))}
               </div>
             </div>

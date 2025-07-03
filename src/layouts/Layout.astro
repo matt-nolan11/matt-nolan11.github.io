@@ -104,64 +104,72 @@ const seoConfig = {
   </div>
 
   <style>
-    /* Full-height drawer and full-screen overlay */
+    /* Ensure drawer appears above header and has proper background */
     .drawer-side {
-      position: fixed !important;
-      top: 0 !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      width: 20rem !important; /* w-80 */
-      z-index: 70 !important;
-      overflow-y: hidden !important;
-    }
-
-    .drawer-overlay {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      z-index: 69 !important;
-    }
-
-    /* Ensure the menu itself is above the overlay */
-    .drawer-side .menu {
-      position: relative !important;
-      z-index: 71 !important;
-      background-color: oklch(var(--b1)) !important;
-      min-height: 100vh !important;
-      width: 100% !important;
-    }
-
-    /* Dark theme background - use normal background color */
-    [data-theme="business"] .drawer-side .menu {
-      background-color: var(--color-base-100) !important;
-    }
-
-    /* Light theme background */
-    [data-theme="corporate"] .drawer-side .menu {
-      background-color: #ffffff !important; /* white */
-    }
-
-    /* Ensure all drawer menu items are visible and clickable */
-    .drawer-side .menu li {
-      display: block !important;
-      width: 100%;
-      position: relative !important;
-      z-index: 72 !important;
+      z-index: 1000;
     }
     
-    .drawer-side .menu li a {
-      display: block !important;
-      width: 100%;
-      padding: 0.75rem 1rem;
-      text-decoration: none;
-      color: inherit;
-      position: relative !important;
-      z-index: 73 !important;
-      pointer-events: auto !important;
+    .drawer-overlay {
+      z-index: 999;
+    }
+    
+    .drawer-side .menu {
+      min-height: 100vh;
+      position: relative;
+      z-index: 1001;
+    }
+
+    /* Theme-specific backgrounds */
+    [data-theme="business"] .drawer-side .menu {
+      background-color: #202020 !important;
+    }
+
+    [data-theme="corporate"] .drawer-side .menu {
+      background-color: #ffffff !important;
+    }
+
+    /* Smooth window resize transitions that preserve drawer animations */
+    .window-resizing {
+      transition: none !important;
     }
   </style>
+
+  <!-- Ultra smooth window resize transitions that preserve drawer animations -->
+  <script is:inline>
+    // Smooth layout transitions during window resize - carefully avoiding drawer interference
+    let isResizing = false;
+    let resizeTimeout;
+    
+    function handleResize() {
+      // Skip if drawer is open to avoid any interference
+      const drawerOpen = document.getElementById('nav-drawer')?.checked;
+      if (drawerOpen) return;
+      
+      if (!isResizing) {
+        isResizing = true;
+        document.body.classList.add('window-resizing');
+      }
+      
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        isResizing = false;
+        document.body.classList.remove('window-resizing');
+      }, 400);
+    }
+    
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    
+    // Ensure drawer state changes immediately clear resize transitions
+    const drawerToggle = document.getElementById('nav-drawer');
+    if (drawerToggle) {
+      drawerToggle.addEventListener('change', () => {
+        document.body.classList.remove('window-resizing');
+        clearTimeout(resizeTimeout);
+        isResizing = false;
+      });
+    }
+  </script>
 
   </body>
 </html>

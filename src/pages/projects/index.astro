@@ -68,7 +68,7 @@ const publishedProjects = projects
             {project.data.tags && project.data.tags.length > 0 && (
               <div class="flex flex-wrap gap-2 mb-4">
                 {project.data.tags.slice(0, 4).map(tag => (
-                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm hover:badge-primary transition-colors">
+                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors">
                     {tag}
                   </a>
                 ))}

@@ -20,7 +20,7 @@ const displayProjects = getFeaturedProjects(projects, 6);
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 		  {displayProjects.map(project => (
 			<div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl">
-			  <figure>
+			  <figure class="relative">
 				<a href={`/projects/${project.slug}/`}>
 				  <Image 
 					src={project.data.cover}
@@ -30,6 +30,15 @@ const displayProjects = getFeaturedProjects(projects, 6);
 					class="w-full h-auto object-cover"
 				  />
 				</a>
+				<div class="absolute top-2 right-2">
+				  <div class={`badge ${
+					project.data.status === 'completed' ? 'badge-success' : 
+					project.data.status === 'in-progress' ? 'badge-warning' : 
+					'badge-info'
+				  }`}>
+					{project.data.status}
+				  </div>
+				</div>
 			  </figure>
 			  <div class="card-body">
 				<a href={`/projects/${project.slug}/`} class="block">
@@ -38,7 +47,7 @@ const displayProjects = getFeaturedProjects(projects, 6);
 				<p class="text-sm text-base-content/70 mb-2">{project.data.description}</p>
 				<div class="flex flex-wrap gap-2 mb-4">
 				  {project.data.tags.slice(0, 3).map(tag => (
-					<a href={`/tags/${tag}/`} class="badge badge-outline badge-sm hover:badge-primary transition-colors">
+					<a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors">
 					  {tag}
 					</a>
 				  ))}
@@ -55,7 +64,6 @@ const displayProjects = getFeaturedProjects(projects, 6);
 						  : `Planned: ${formatProjectDate(project.data.startDate)}`
 					  }
 				  </span>
-				  <div class="badge badge-primary badge-sm">{project.data.status}</div>
 				</div>
 			  </div>
 			</div>

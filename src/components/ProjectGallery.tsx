@@ -2,6 +2,37 @@ import { useState, useRef, useEffect } from 'react';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 
+// CSS for proper gallery behavior
+const galleryStyles = `
+  .project-gallery .keen-slider {
+    display: flex;
+  }
+  .project-gallery .keen-slider__slide {
+    min-width: 100%;
+    flex-shrink: 0;
+  }
+  .project-gallery .main-carousel {
+    overflow: hidden;
+  }
+  .project-gallery .thumbnail-carousel .keen-slider__slide {
+    min-width: auto !important;
+    flex-shrink: 0;
+    width: auto;
+  }
+  .project-gallery .thumbnail-carousel {
+    overflow: visible;
+    gap: 10px;
+  }
+`;
+
+// Inject styles once
+if (typeof document !== 'undefined' && !document.getElementById('project-gallery-styles')) {
+  const style = document.createElement('style');
+  style.id = 'project-gallery-styles';
+  style.textContent = galleryStyles;
+  document.head.appendChild(style);
+}
+
 interface GalleryImage {
   src: string | { src: string; width: number; height: number; format: string };
   alt: string;
@@ -10,7 +41,6 @@ interface GalleryImage {
 
 interface ProjectGalleryProps {
   images: GalleryImage[];
-  title?: string;
   autoplay?: boolean;
   autoplayInterval?: number;
   showThumbnails?: boolean;
@@ -77,43 +107,24 @@ export default function ProjectGallery({
   const [loaded, setLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(autoplay);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Simple CSS injection for proper slide behavior
-  useEffect(() => {
-    const styleId = 'project-gallery-styles';
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement('style');
-      style.id = styleId;
-      style.textContent = `
-        .project-gallery .main-carousel .keen-slider__slide {
-          min-width: 100% !important;
-          flex-shrink: 0 !important;
-        }
-      `;
-      document.head.appendChild(style);
-    }
-    
-    return () => {
-      const existingStyle = document.getElementById(styleId);
-      if (existingStyle) {
-        existingStyle.remove();
-      }
-    };
-  }, []);
-
-  // Main slider
+  // Main slider with proper configuration
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     initial: 0,
     loop,
     slides: { 
       perView: 1, 
-      spacing: 0
+      spacing: 0,
+      origin: "center"
     },
+    renderMode: "precision",
     created() {
       setLoaded(true);
     },
     slideChanged(slider) {
-      setCurrentSlide(slider.track.details.rel);
+      const newSlide = slider.track.details.rel;
+      setCurrentSlide(newSlide);
     },
     destroyed() {
       if (intervalRef.current) {
@@ -126,24 +137,28 @@ export default function ProjectGallery({
   const [thumbnailRef] = useKeenSlider<HTMLDivElement>({
     initial: 0,
     slides: {
-      perView: 4,
-      spacing: 10,
+      perView: 'auto',
+      spacing: 12,
     },
     breakpoints: {
       "(min-width: 640px)": {
-        slides: { perView: 6, spacing: 15 },
+        slides: { perView: 'auto', spacing: 15 },
       },
       "(min-width: 1024px)": {
-        slides: { perView: 8, spacing: 15 },
+        slides: { perView: 'auto', spacing: 15 },
       },
     },
   });
 
-  // Autoplay functionality
+  // Autoplay functionality with better reliability
   useEffect(() => {
-    if (isPlaying && instanceRef.current) {
+    if (!loaded || !instanceRef.current) return;
+
+    if (isPlaying && autoplay) {
       intervalRef.current = setInterval(() => {
-        instanceRef.current?.next();
+        if (instanceRef.current) {
+          instanceRef.current.next();
+        }
       }, autoplayInterval);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -153,9 +168,10 @@ export default function ProjectGallery({
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [isPlaying, autoplayInterval, instanceRef]);
+  }, [isPlaying, autoplayInterval, loaded, autoplay]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -165,11 +181,11 @@ export default function ProjectGallery({
       switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault();
-          instanceRef.current.prev();
+          handlePrev();
           break;
         case 'ArrowRight':
           e.preventDefault();
-          instanceRef.current.next();
+          handleNext();
           break;
         case ' ':
           e.preventDefault();
@@ -177,25 +193,124 @@ export default function ProjectGallery({
           break;
         case 'Home':
           e.preventDefault();
-          instanceRef.current.moveToIdx(0);
+          goToSlide(0);
           break;
         case 'End':
           e.preventDefault();
-          instanceRef.current.moveToIdx(images.length - 1);
+          goToSlide(images.length - 1);
           break;
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [instanceRef, isPlaying, images.length]);
+  }, [isPlaying, images.length]);
+
+  // Visibility observer to reinitialize slider when tab becomes visible
+  useEffect(() => {
+    if (!containerRef.current || !instanceRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0) {
+            // Component is visible, reinitialize if needed
+            setTimeout(() => {
+              if (instanceRef.current) {
+                instanceRef.current.update();
+                // Force a recalculation of the slider
+                const currentIndex = instanceRef.current.track.details.rel;
+                instanceRef.current.moveToIdx(currentIndex, true);
+              }
+            }, 100);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(containerRef.current);
+
+    const mutationObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const target = mutation.target as HTMLElement;
+          const isVisible = !target.classList.contains('hidden') && 
+                           getComputedStyle(target).display !== 'none';
+          
+          if (isVisible && instanceRef.current) {
+            // Give the DOM time to update after class changes
+            setTimeout(() => {
+              if (instanceRef.current) {
+                instanceRef.current.update();
+                // Ensure we're on the correct slide
+                const currentIndex = instanceRef.current.track.details.rel;
+                setCurrentSlide(currentIndex);
+              }
+            }, 50);
+          }
+        }
+      });
+    });
+
+    // Watch for class changes on the container and its parent
+    const watchElement = containerRef.current.closest('.version-content') || containerRef.current;
+    mutationObserver.observe(watchElement, { 
+      attributes: true, 
+      attributeFilter: ['class'],
+      subtree: true 
+    });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [loaded]);
+
+  // Listen for tab changes to reinitialize the slider
+  useEffect(() => {
+    const handleTabChange = () => {
+      if (instanceRef.current && containerRef.current) {
+        // Give the DOM time to update after tab change
+        setTimeout(() => {
+          if (instanceRef.current) {
+            instanceRef.current.update();
+            // Reset to first slide and update state
+            instanceRef.current.moveToIdx(0, true);
+            setCurrentSlide(0);
+          }
+        }, 100);
+      }
+    };
+
+    window.addEventListener('versionTabChanged', handleTabChange);
+    
+    return () => {
+      window.removeEventListener('versionTabChanged', handleTabChange);
+    };
+  }, [loaded]);
 
   const goToSlide = (idx: number) => {
-    instanceRef.current?.moveToIdx(idx);
+    if (instanceRef.current) {
+      instanceRef.current.moveToIdx(idx);
+      setCurrentSlide(idx); // Ensure state is updated immediately
+    }
   };
 
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
+  };
+
+  const handleNext = () => {
+    if (instanceRef.current) {
+      instanceRef.current.next();
+    }
+  };
+
+  const handlePrev = () => {
+    if (instanceRef.current) {
+      instanceRef.current.prev();
+    }
   };
 
   if (!images || images.length === 0) {
@@ -208,6 +323,7 @@ export default function ProjectGallery({
 
   return (
     <div 
+      ref={containerRef}
       className={`project-gallery ${gallerySize.className} ${className}`} 
       style={gallerySize.style}
       role="region" 
@@ -243,7 +359,7 @@ export default function ProjectGallery({
         {loaded && instanceRef.current && images.length > 1 && (
           <>
             <button
-              onClick={() => instanceRef.current?.prev()}
+              onClick={handlePrev}
               className="btn btn-circle btn-sm absolute left-2 top-1/2 -translate-y-1/2 bg-base-100/80 border-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               aria-label="Previous image"
             >
@@ -252,7 +368,7 @@ export default function ProjectGallery({
               </svg>
             </button>
             <button
-              onClick={() => instanceRef.current?.next()}
+              onClick={handleNext}
               className="btn btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2 bg-base-100/80 border-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               aria-label="Next image"
             >
@@ -276,7 +392,7 @@ export default function ProjectGallery({
               </svg>
             ) : (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
               </svg>
             )}
           </button>
@@ -310,7 +426,7 @@ export default function ProjectGallery({
             {images.map((image, idx) => (
               <div
                 key={idx}
-                className="keen-slider__slide cursor-pointer"
+                className="keen-slider__slide cursor-pointer w-20 flex-shrink-0"
                 onClick={() => goToSlide(idx)}
               >
                 <img

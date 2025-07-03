@@ -111,26 +111,26 @@
   transform: translateY(-4px) scale(1.02);
 }
 
-/* Prevent only color transitions globally, but allow layout/size transitions during resize */
-body, body * {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke !important;
-  transition: none !important;
-}
-
 /* Restore smooth border color transition for navbar */
 #main-header {
   transition: border-bottom-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 300ms, opacity 300ms, box-shadow 300ms !important;
 }
 
-/* Enhanced smooth transitions ONLY during window resize */
+/* Ultra smooth layout transitions during window resize - with drawer protection */
 @media (prefers-reduced-motion: no-preference) {
-  /* Apply smooth transitions only when window is being resized */
-  body.window-resizing *:not(.drawer):not(.drawer *):not(.navbar):not(.navbar *):not(.modal):not(.modal *):not(.btn):not(.btn *):not(header):not(header *):not(nav):not(nav *):not(button):not(button *):not([role="button"]):not([role="button"] *) {
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-    will-change: transform, width, height, padding, margin, flex, grid-template-columns !important;
+  /* Apply smooth transitions only when window is being resized, excluding all drawer elements */
+  body.window-resizing *:not(.drawer):not(.drawer *):not(.drawer-side):not(.drawer-side *):not(.drawer-content):not(.drawer-content *):not(.drawer-overlay):not(.drawer-toggle):not(#nav-drawer):not(.navbar):not(.navbar *):not(.modal):not(.modal *):not(.btn):not(.btn *):not(button):not(button *):not([role="button"]):not([role="button"] *) {
+    transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                margin 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                padding 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                flex-basis 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                grid-template-columns 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    will-change: transform, width, height, padding, margin, flex !important;
   }
   
-  /* Specific targeting for main content areas during resize - longer duration for smoother feel */
+  /* Extra smooth transitions for main content areas */
   body.window-resizing main,
   body.window-resizing main *:not(.btn):not(.btn *):not(button):not(button *),
   body.window-resizing article,
@@ -141,43 +141,26 @@ body, body * {
   body.window-resizing .container *:not(.btn):not(.btn *):not(button):not(button *),
   body.window-resizing .card,
   body.window-resizing .card *:not(.btn):not(.btn *):not(button):not(button *) {
-    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-    will-change: transform, width, height, padding, margin, flex, grid-template-columns !important;
+    transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                margin 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                padding 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                flex-basis 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                grid-template-columns 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    will-change: transform, width, height, padding, margin, flex !important;
   }
   
-  /* Ensure navigation elements are NEVER affected during resize - comprehensive exclusions */
+  /* Absolutely ensure drawer elements are never affected */
   body.window-resizing .drawer,
   body.window-resizing .drawer *,
-  body.window-resizing .navbar,
-  body.window-resizing .navbar *,
-  body.window-resizing header,
-  body.window-resizing header *,
-  body.window-resizing #main-header,
-  body.window-resizing #main-header *,
-  body.window-resizing .modal,
-  body.window-resizing .modal *,
-  body.window-resizing dialog,
-  body.window-resizing dialog *,
-  body.window-resizing .pagefind-ui,
-  body.window-resizing .pagefind-ui *,
-  body.window-resizing .drawer-toggle,
-  body.window-resizing .drawer-content,
   body.window-resizing .drawer-side,
+  body.window-resizing .drawer-side *,
+  body.window-resizing .drawer-content,
+  body.window-resizing .drawer-content *,
   body.window-resizing .drawer-overlay,
-  body.window-resizing label[for="nav-drawer"],
-  body.window-resizing label[for="nav-drawer"] *,
-  body.window-resizing .btn,
-  body.window-resizing .btn *,
-  body.window-resizing button,
-  body.window-resizing button *,
-  body.window-resizing [role="button"],
-  body.window-resizing [role="button"] *,
-  body.window-resizing .btn-ghost,
-  body.window-resizing .btn-ghost *,
-  body.window-resizing .btn-square,
-  body.window-resizing .btn-square *,
-  body.window-resizing svg,
-  body.window-resizing svg * {
+  body.window-resizing .drawer-toggle,
+  body.window-resizing #nav-drawer {
     transition: none !important;
     will-change: auto !important;
   }
@@ -205,4 +188,87 @@ body, body * {
   content: "";
   display: table;
   clear: both;
+}
+
+/* Project Versions Alignment Fixes */
+.version-content {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.version-card {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  /* Remove any background or border that might be causing visual misalignment */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure version content aligns with tabs container */
+.version-content .version-card {
+  /* Reset any inherited padding/margin from parent containers */
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure content inside version cards has proper spacing */
+.version-content .version-card > div {
+  margin: 0;
+  padding: 0;
+}
+
+/* Restore internal spacing for content elements */
+.version-content .version-card h3,
+.version-content .version-card h4,
+.version-content .version-card h5,
+.version-content .version-card p,
+.version-content .version-card ul,
+.version-content .version-card div {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Ensure proper spacing between version content sections */
+.version-content .version-card .mb-4 {
+  margin-bottom: 1rem;
+}
+
+.version-content .version-card .mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.version-content .version-card .mb-8 {
+  margin-bottom: 2rem;
+}
+
+/* Custom tag hover colors - using DaisyUI primary color */
+.tag-hover-light-blue:hover {
+  background-color: #1c4e7f !important; /* Correct primary blue color */
+  border-color: #1c4e7f !important;
+  color: #ffffff !important; /* White text for contrast */
+}
+
+/* Override for light theme - use same primary color system */
+[data-theme="corporate"] .tag-hover-light-blue:hover {
+  background-color: #1c4e7f !important; /* Correct primary blue color */
+  border-color: #1c4e7f !important;
+  color: #ffffff !important; /* White text for contrast */
+}
+
+/* Special hover for tags that already have colored backgrounds */
+.tag-colored-hover:hover {
+  background-color: #0f3460 !important; /* Darker blue for distinction from existing colors */
+  border-color: #0f3460 !important;
+  color: #ffffff !important; /* White text for contrast */
+}
+
+[data-theme="corporate"] .tag-colored-hover:hover {
+  background-color: #0f3460 !important; /* Darker blue for distinction from existing colors */
+  border-color: #0f3460 !important;
+  color: #ffffff !important; /* White text for contrast */
 }

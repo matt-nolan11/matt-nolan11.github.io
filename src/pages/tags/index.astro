@@ -28,7 +28,7 @@ const tags = await getAllTags();
             {tags.map(tag => (
               <a 
                 href={`/tags/${tag.name}/`}
-                class={`badge badge-lg hover:badge-primary transition-colors ${
+                class={`badge badge-lg tag-colored-hover transition-colors ${
                   tag.count > 3 ? 'badge-primary' :
                   tag.count > 1 ? 'badge-secondary' : 
                   'badge-outline'

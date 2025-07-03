@@ -105,7 +105,7 @@ const sortedPosts = posts.sort((a, b) =>
                     {project.data.tags.map(projectTag => (
                       <a 
                         href={`/tags/${projectTag}/`} 
-                        class={`badge badge-outline badge-sm hover:badge-primary transition-colors ${
+                        class={`badge badge-outline badge-sm tag-hover-light-blue transition-colors ${
                           projectTag === tag ? 'badge-primary' : ''
                         }`}
                       >
@@ -171,7 +171,7 @@ const sortedPosts = posts.sort((a, b) =>
                     {post.data.tags.map(postTag => (
                       <a 
                         href={`/tags/${postTag}/`} 
-                        class={`badge badge-outline badge-sm hover:badge-primary transition-colors ${
+                        class={`badge badge-outline badge-sm tag-hover-light-blue transition-colors ${
                           postTag === tag ? 'badge-primary' : ''
                         }`}
                       >

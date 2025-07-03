@@ -1,4 +1,4 @@
-# Matt Nolan
+# Matt Nolan's Portfolio and Blog
 
 Personal website featuring my project portfolio, professional information, and blog posts about engineering, robotics, and making.
 
