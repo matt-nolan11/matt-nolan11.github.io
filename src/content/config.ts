@@ -48,7 +48,6 @@ export const collections = {
             autoplay: z.boolean().default(false),
             autoplayInterval: z.number().default(4000),
             showThumbnails: z.boolean().default(true),
-            showIndicators: z.boolean().default(true),
           }).optional(),
           // For nested sections
           sections: z.array(z.object({
@@ -105,7 +104,6 @@ export const collections = {
             autoplay: z.boolean().default(false),
             autoplayInterval: z.number().default(4000),
             showThumbnails: z.boolean().default(true),
-            showIndicators: z.boolean().default(true),
           }).optional(),
           // For nested sections
           sections: z.array(z.object({
@@ -165,7 +163,6 @@ export const collections = {
             autoplay: z.boolean().default(false),
             autoplayInterval: z.number().default(4000),
             showThumbnails: z.boolean().default(true),
-            showIndicators: z.boolean().default(true),
           }).optional(),
           // Nested modular sections per version
           sections: z.array(z.object({

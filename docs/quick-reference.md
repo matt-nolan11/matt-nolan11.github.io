@@ -59,9 +59,15 @@ galleryOptions:
   size: "medium"        # small|medium|large|full or 200-1200px
   autoplay: false
   autoplayInterval: 4000
-  showThumbnails: true
-  showIndicators: true
+  showThumbnails: true  # Shows thumbnail navigation strip
 ```
+
+**Recent Gallery Improvements:**
+- Thumbnail navigation replaces indicator dots for better UX
+- Smart autoplay that only resumes if previously active
+- Optimized event handlers and reduced code complexity
+- Enhanced accessibility and keyboard navigation
+- Better focus management and visual feedback
 
 ## Project Versions
 
@@ -116,6 +122,31 @@ gallery:
     alt: "Hero image 2"
 ---
 ```
+
+## ProjectGallery Component
+
+The gallery component has been recently optimized for better performance and user experience:
+
+### Key Features
+- **Thumbnail Navigation**: Primary navigation method with visual highlights
+- **Smart Autoplay**: Intelligently resumes only when appropriate
+- **Touch-Friendly**: Optimized swipe gestures and mobile interactions
+- **Keyboard Accessible**: Full keyboard navigation support
+- **Performance Optimized**: Reduced code complexity and better memoization
+
+### Navigation Methods
+- **Thumbnails**: Click/tap thumbnails for direct navigation
+- **Arrows**: Hover to show navigation arrows
+- **Keyboard**: `←/→` to navigate, `Space` to play/pause, `Home/End` for first/last
+- **Touch**: Swipe gestures on mobile devices
+- **Autoplay**: Optional automatic slideshow with smart pause/resume
+
+### Architecture Improvements (Recent)
+- Removed redundant indicator dots (thumbnails serve this purpose)
+- Consolidated repetitive autoplay logic into utility functions
+- Optimized event handlers for better performance
+- Enhanced focus management for accessibility
+- Reduced component size by ~25% while maintaining functionality
 
 ## Responsive Behavior
 

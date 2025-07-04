@@ -147,14 +147,15 @@ sections:
     autoplay: false
     autoplayInterval: 4000
     showThumbnails: true
-    showIndicators: true
 ```
 
 **Gallery Features:**
 - Touch/swipe support for mobile devices
 - Keyboard navigation (←/→, Space, Home/End)
+- Thumbnail navigation with visual feedback
 - Lazy loading for performance
 - ARIA accessibility labels
+- Responsive autoplay controls
 - Customizable sizing and behavior
 
 #### 3. Single Image Columns
@@ -351,7 +352,7 @@ versions:
 
 ## Gallery System
 
-Advanced React-based image carousel component with touch support, accessibility features, and performance optimizations.
+Advanced React-based image carousel component with touch support, accessibility features, and performance optimizations. The gallery system has been recently optimized for better user experience and maintainability.
 
 ### Gallery Configuration
 
@@ -367,8 +368,7 @@ galleryOptions:
   size: "medium"           # Size preset or custom pixel width
   autoplay: false          # Enable automatic slideshow
   autoplayInterval: 4000   # Milliseconds between slides
-  showThumbnails: true     # Show thumbnail navigation
-  showIndicators: true     # Show dot indicators
+  showThumbnails: true     # Show thumbnail navigation (replaces indicators)
 ```
 
 ### Size Options
@@ -387,17 +387,32 @@ galleryOptions:
 
 ### Gallery Features
 
-#### Interaction
-- **Touch/Swipe Support**: Native mobile gestures
-- **Keyboard Navigation**: Arrow keys, Space (play/pause), Home/End
-- **Mouse Navigation**: Click thumbnails, navigation arrows, indicators
-- **Auto-pause**: Pauses autoplay on user interaction
+#### Navigation & Interaction
+- **Thumbnail Navigation**: Visual thumbnail strip with ring highlights for active image
+- **Touch/Swipe Support**: Native mobile gestures with proper autoplay integration
+- **Keyboard Navigation**: Arrow keys, Space (play/pause), Home/End keys
+- **Mouse Navigation**: Click thumbnails and navigation arrows
+- **Responsive Controls**: Auto-pause/resume on user interaction
+
+#### User Experience
+- **Smart Autoplay**: Only resumes if it was actually playing before user interaction
+- **Visual Feedback**: Active thumbnails highlighted with primary color ring
+- **Hover Controls**: Navigation arrows and play/pause appear on hover
+- **Focus Management**: Proper keyboard focus handling with outline removal
+- **Compact Layout**: Autoplay controls positioned next to slide counter
 
 #### Accessibility
 - **ARIA Labels**: Comprehensive screen reader support
-- **Focus Management**: Proper keyboard focus handling
-- **Role Attributes**: Semantic HTML structure
+- **Semantic HTML**: Proper role attributes and structure
+- **Keyboard Accessible**: Full keyboard navigation support
 - **Alt Text**: Required for all images
+- **Focus Indicators**: Visible focus states for accessibility
+
+#### Performance
+- **Lazy Loading**: Images load as needed for better performance
+- **Optimized Transitions**: Smooth 800ms animations
+- **Memory Management**: Proper cleanup of intervals and observers
+- **Responsive Images**: Automatic sizing hints for different viewports
 
 #### Performance
 - **Lazy Loading**: Off-screen images load only when needed

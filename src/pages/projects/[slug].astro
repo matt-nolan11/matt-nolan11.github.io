@@ -46,7 +46,6 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
               autoplay={project.data.gallery.length > 1}
               autoplayInterval={4000}
               showThumbnails={true}
-              showIndicators={true}
               size="medium"
               client:load
             />
@@ -290,7 +289,6 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
                           autoplay={version.galleryOptions?.autoplay !== undefined ? version.galleryOptions.autoplay : version.gallery.length > 1}
                           autoplayInterval={version.galleryOptions?.autoplayInterval || 5000}
                           showThumbnails={version.galleryOptions?.showThumbnails !== undefined ? version.galleryOptions.showThumbnails : version.gallery.length > 2}
-                          showIndicators={version.galleryOptions?.showIndicators !== false}
                           size={version.galleryOptions?.size || 'medium'}
                           client:load
                         />

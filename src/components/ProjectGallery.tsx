@@ -54,7 +54,6 @@ interface ProjectGalleryProps {
   autoplay?: boolean;
   autoplayInterval?: number;
   showThumbnails?: boolean;
-  showIndicators?: boolean;
   loop?: boolean;
   className?: string;
   size?: 'small' | 'medium' | 'large' | 'full' | number; // Support both preset and numeric sizing
@@ -100,7 +99,6 @@ export default function ProjectGallery({
   autoplay = false,
   autoplayInterval = 3000,
   showThumbnails = true,
-  showIndicators = true,
   loop = true,
   className = '',
   size = 'medium',
@@ -134,8 +132,80 @@ export default function ProjectGallery({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(autoplay);
+  const [isMobile, setIsMobile] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const userInteractionRef = useRef(false);
+  const isPlayingRef = useRef(isPlaying);
+  const autoplayIntervalRef = useRef(autoplayInterval);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  useEffect(() => {
+    autoplayIntervalRef.current = autoplayInterval;
+  }, [autoplayInterval]);
+
+  // Detect mobile screens
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    // Check on mount
+    if (typeof window !== 'undefined') {
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }
+  }, []);
+
+  // Helper function to reset autoplay timer
+  const resetAutoplayTimer = useCallback(() => {
+    if (autoplay && isPlaying) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      intervalRef.current = setInterval(() => {
+        if (instanceRef.current && instanceRef.current.track?.details) {
+          instanceRef.current.next();
+        }
+      }, autoplayInterval);
+    }
+  }, [autoplay, isPlaying, autoplayInterval]);
+
+  // Helper function to start autoplay
+  const startAutoplay = useCallback(() => {
+    if (autoplay) {
+      setIsPlaying(true);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      intervalRef.current = setInterval(() => {
+        if (instanceRef.current && instanceRef.current.track?.details) {
+          instanceRef.current.next();
+        }
+      }, autoplayInterval);
+    }
+  }, [autoplay, autoplayInterval]);
+
+  // Helper function to restore autoplay after user interaction
+  const restoreAutoplayIfNeeded = useCallback((wasPlaying: boolean) => {
+    if (wasPlaying) {
+      setTimeout(() => {
+        startAutoplay();
+      }, 100);
+    }
+  }, [startAutoplay]);
+
+  // Helper function to clear focus from active element
+  const clearFocus = useCallback(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }, []);
 
   // Main slider with proper configuration
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
@@ -156,6 +226,24 @@ export default function ProjectGallery({
     slideChanged(slider) {
       const newSlide = slider.track.details.rel;
       setCurrentSlide(newSlide);
+      
+      // If this was a user interaction (touch swipe), reset autoplay timer
+      if (userInteractionRef.current && autoplay && isPlayingRef.current) {
+        userInteractionRef.current = false; // Reset the flag
+        // Reset autoplay timer inline to avoid dependency issues
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+        intervalRef.current = setInterval(() => {
+          if (instanceRef.current && instanceRef.current.track?.details) {
+            instanceRef.current.next();
+          }
+        }, autoplayIntervalRef.current);
+      }
+    },
+    dragStarted() {
+      // Mark that user is interacting with the slider
+      userInteractionRef.current = true;
     },
     destroyed() {
       if (intervalRef.current) {
@@ -186,35 +274,6 @@ export default function ProjectGallery({
       }
     };
   }, [isPlaying, autoplayInterval, loaded, autoplay]);
-
-  // Helper function to reset autoplay timer
-  const resetAutoplayTimer = useCallback(() => {
-    if (autoplay && isPlaying) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      intervalRef.current = setInterval(() => {
-        if (instanceRef.current && instanceRef.current.track?.details) {
-          instanceRef.current.next();
-        }
-      }, autoplayInterval);
-    }
-  }, [autoplay, isPlaying, autoplayInterval]);
-
-  // Helper function to start autoplay
-  const startAutoplay = useCallback(() => {
-    if (autoplay) {
-      setIsPlaying(true);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      intervalRef.current = setInterval(() => {
-        if (instanceRef.current && instanceRef.current.track?.details) {
-          instanceRef.current.next();
-        }
-      }, autoplayInterval);
-    }
-  }, [autoplay, autoplayInterval]);
 
   // Visibility observer to reinitialize slider when tab becomes visible
   useEffect(() => {
@@ -321,158 +380,48 @@ export default function ProjectGallery({
     if (!instanceRef.current || !loaded || !instanceRef.current.track?.details) return;
     if (idx < 0 || idx >= images.length) return;
     
-    // Clear focus from buttons to prevent persistent outline
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    
-    // Check if autoplay was active before manual navigation
+    clearFocus();
     const wasAutoplayActive = autoplay && isPlaying;
     
-    // Move to the slide
     instanceRef.current.moveToIdx(idx);
     setCurrentSlide(idx);
     
-    // Resume autoplay if it was active
-    if (wasAutoplayActive) {
-      setTimeout(() => {
-        startAutoplay();
-      }, 100);
-    }
-  }, [loaded, images.length, isPlaying, autoplay, startAutoplay]);
-
-  const togglePlayPause = useCallback(() => {
-    // Clear focus to prevent persistent outline
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    
-    setIsPlaying(!isPlaying);
-  }, [isPlaying]);
-
-  const handleThumbnailClick = useCallback((idx: number, event?: React.MouseEvent | React.KeyboardEvent) => {
-    // Prevent event bubbling
-    event?.preventDefault();
-    event?.stopPropagation();
-    
-    if (!instanceRef.current || !loaded || !instanceRef.current.track?.details) return;
-    if (idx < 0 || idx >= images.length) return;
-    
-    // Clear focus to prevent persistent outline
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    
-    // Check if autoplay was active before manual navigation
-    const wasAutoplayActive = autoplay && isPlaying;
-    
-    // Directly move to slide
-    instanceRef.current.moveToIdx(idx);
-    
-    // Resume autoplay if it was active
-    if (wasAutoplayActive) {
-      setTimeout(() => {
-        startAutoplay();
-      }, 100);
-    }
-  }, [loaded, images.length, isPlaying, autoplay, startAutoplay]);
+    restoreAutoplayIfNeeded(wasAutoplayActive);
+  }, [loaded, images.length, isPlaying, autoplay, clearFocus, restoreAutoplayIfNeeded]);
 
   const handleNext = useCallback(() => {
     if (!instanceRef.current || !loaded || !instanceRef.current.track?.details) return;
     
-    // Clear focus from buttons to prevent persistent outline
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    
-    // Check if autoplay was active before manual navigation
+    clearFocus();
     const wasAutoplayActive = autoplay && isPlaying;
     
     instanceRef.current.next();
-    
-    // Resume autoplay if it was active
-    if (wasAutoplayActive) {
-      setTimeout(() => {
-        startAutoplay();
-      }, 100);
-    }
-  }, [loaded, isPlaying, autoplay, startAutoplay]);
+    restoreAutoplayIfNeeded(wasAutoplayActive);
+  }, [loaded, isPlaying, autoplay, clearFocus, restoreAutoplayIfNeeded]);
 
   const handlePrev = useCallback(() => {
     if (!instanceRef.current || !loaded || !instanceRef.current.track?.details) return;
     
-    // Clear focus from buttons to prevent persistent outline
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    
-    // Check if autoplay was active before manual navigation
+    clearFocus();
     const wasAutoplayActive = autoplay && isPlaying;
     
     instanceRef.current.prev();
-    
-    // Resume autoplay if it was active
-    if (wasAutoplayActive) {
-      setTimeout(() => {
-        startAutoplay();
-      }, 100);
-    }
-  }, [loaded, isPlaying, autoplay, startAutoplay]);
+    restoreAutoplayIfNeeded(wasAutoplayActive);
+  }, [loaded, isPlaying, autoplay, clearFocus, restoreAutoplayIfNeeded]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Same direct guard pattern as button handlers
       if (!instanceRef.current || !loaded || !instanceRef.current.track?.details) return;
       
       switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault();
-          // Check if autoplay was active before manual navigation
-          const wasAutoplayActiveLeft = autoplay && isPlaying;
-          
-          instanceRef.current.prev();
-          
-          // Resume autoplay if it was active
-          if (wasAutoplayActiveLeft) {
-            setTimeout(() => {
-              if (autoplay) {
-                setIsPlaying(true);
-                if (intervalRef.current) {
-                  clearInterval(intervalRef.current);
-                }
-                intervalRef.current = setInterval(() => {
-                  if (instanceRef.current && instanceRef.current.track?.details) {
-                    instanceRef.current.next();
-                  }
-                }, autoplayInterval);
-              }
-            }, 100);
-          }
+          handlePrev();
           break;
         case 'ArrowRight':
           e.preventDefault();
-          // Check if autoplay was active before manual navigation
-          const wasAutoplayActiveRight = autoplay && isPlaying;
-          
-          instanceRef.current.next();
-          
-          // Resume autoplay if it was active
-          if (wasAutoplayActiveRight) {
-            setTimeout(() => {
-              if (autoplay) {
-                setIsPlaying(true);
-                if (intervalRef.current) {
-                  clearInterval(intervalRef.current);
-                }
-                intervalRef.current = setInterval(() => {
-                  if (instanceRef.current && instanceRef.current.track?.details) {
-                    instanceRef.current.next();
-                  }
-                }, autoplayInterval);
-              }
-            }, 100);
-          }
+          handleNext();
           break;
         case ' ':
           e.preventDefault();
@@ -480,58 +429,18 @@ export default function ProjectGallery({
           break;
         case 'Home':
           e.preventDefault();
-          // Check if autoplay was active before manual navigation
-          const wasAutoplayActiveHome = autoplay && isPlaying;
-          
-          instanceRef.current.moveToIdx(0);
-          
-          // Resume autoplay if it was active
-          if (wasAutoplayActiveHome) {
-            setTimeout(() => {
-              if (autoplay) {
-                setIsPlaying(true);
-                if (intervalRef.current) {
-                  clearInterval(intervalRef.current);
-                }
-                intervalRef.current = setInterval(() => {
-                  if (instanceRef.current && instanceRef.current.track?.details) {
-                    instanceRef.current.next();
-                  }
-                }, autoplayInterval);
-              }
-            }, 100);
-          }
+          goToSlide(0);
           break;
         case 'End':
           e.preventDefault();
-          // Check if autoplay was active before manual navigation
-          const wasAutoplayActiveEnd = autoplay && isPlaying;
-          
-          instanceRef.current.moveToIdx(images.length - 1);
-          
-          // Resume autoplay if it was active
-          if (wasAutoplayActiveEnd) {
-            setTimeout(() => {
-              if (autoplay) {
-                setIsPlaying(true);
-                if (intervalRef.current) {
-                  clearInterval(intervalRef.current);
-                }
-                intervalRef.current = setInterval(() => {
-                  if (instanceRef.current && instanceRef.current.track?.details) {
-                    instanceRef.current.next();
-                  }
-                }, autoplayInterval);
-              }
-            }, 100);
-          }
+          goToSlide(images.length - 1);
           break;
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [loaded, isPlaying, images.length, autoplay, autoplayInterval]);
+  }, [loaded, isPlaying, images.length, handlePrev, handleNext, goToSlide]);
 
   // Enhanced image optimization with realistic fallback support
   const createOptimizedImage = (src: string | { src: string }, width: number, quality: number = 80): { 
@@ -613,37 +522,9 @@ export default function ProjectGallery({
         {images.length > 1 && loaded && instanceRef.current && (
           <>
             <button
-              onClick={(e) => {
+              onMouseDown={(e) => {
                 e.preventDefault();
-                // Same direct logic as keyboard navigation
-                if (!instanceRef.current || !instanceRef.current.track?.details) return;
-                
-                // Clear focus to prevent persistent outline
-                if (document.activeElement instanceof HTMLElement) {
-                  document.activeElement.blur();
-                }
-                
-                // Check if autoplay was active before manual navigation
-                const wasAutoplayActive = autoplay && isPlaying;
-                
-                instanceRef.current.prev();
-                
-                // Resume autoplay if it was active
-                if (wasAutoplayActive) {
-                  setTimeout(() => {
-                    if (autoplay) {
-                      setIsPlaying(true);
-                      if (intervalRef.current) {
-                        clearInterval(intervalRef.current);
-                      }
-                      intervalRef.current = setInterval(() => {
-                        if (instanceRef.current && instanceRef.current.track?.details) {
-                          instanceRef.current.next();
-                        }
-                      }, autoplayInterval);
-                    }
-                  }, 100);
-                }
+                handlePrev();
               }}
               className="btn btn-circle btn-sm absolute left-2 top-1/2 -translate-y-1/2 bg-base-100/80 border-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               aria-label="Previous image"
@@ -653,37 +534,9 @@ export default function ProjectGallery({
               </svg>
             </button>
             <button
-              onClick={(e) => {
+              onMouseDown={(e) => {
                 e.preventDefault();
-                // Same direct logic as keyboard navigation  
-                if (!instanceRef.current || !instanceRef.current.track?.details) return;
-                
-                // Clear focus to prevent persistent outline
-                if (document.activeElement instanceof HTMLElement) {
-                  document.activeElement.blur();
-                }
-                
-                // Check if autoplay was active before manual navigation
-                const wasAutoplayActive = autoplay && isPlaying;
-                
-                instanceRef.current.next();
-                
-                // Resume autoplay if it was active
-                if (wasAutoplayActive) {
-                  setTimeout(() => {
-                    if (autoplay) {
-                      setIsPlaying(true);
-                      if (intervalRef.current) {
-                        clearInterval(intervalRef.current);
-                      }
-                      intervalRef.current = setInterval(() => {
-                        if (instanceRef.current && instanceRef.current.track?.details) {
-                          instanceRef.current.next();
-                        }
-                      }, autoplayInterval);
-                    }
-                  }, 100);
-                }
+                handleNext();
               }}
               className="btn btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2 bg-base-100/80 border-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               aria-label="Next image"
@@ -694,157 +547,25 @@ export default function ProjectGallery({
             </button>
           </>
         )}
-
-        {/* Play/Pause button */}
-        {autoplay && loaded && instanceRef.current && (
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              // Clear focus to prevent persistent outline
-              if (document.activeElement instanceof HTMLElement) {
-                document.activeElement.blur();
-              }
-              
-              setIsPlaying(!isPlaying);
-            }}
-            className="btn btn-circle btn-sm absolute top-2 right-2 bg-base-100/80 border-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
-          >
-            {isPlaying ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <rect x="6" y="4" width="4" height="16" rx="1"/>
-                <rect x="14" y="4" width="4" height="16" rx="1"/>
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            )}
-          </button>
-        )}
       </div>
 
-      {/* Indicators */}
-      {showIndicators && images.length > 1 && loaded && instanceRef.current && (
-        <div className="flex justify-center mt-4 gap-2" role="tablist" aria-label="Image indicators">
-          {images.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={(e) => {
-                e.preventDefault();
-                // Same direct logic as keyboard navigation
-                if (!instanceRef.current || !instanceRef.current.track?.details) return;
-                if (idx < 0 || idx >= images.length) return;
-                
-                // Clear focus to prevent persistent outline
-                if (document.activeElement instanceof HTMLElement) {
-                  document.activeElement.blur();
-                }
-                
-                // Check if autoplay was active before manual navigation
-                const wasAutoplayActive = autoplay && isPlaying;
-                
-                instanceRef.current.moveToIdx(idx);
-                setCurrentSlide(idx);
-                
-                // Resume autoplay if it was active
-                if (wasAutoplayActive) {
-                  setTimeout(() => {
-                    if (autoplay) {
-                      setIsPlaying(true);
-                      if (intervalRef.current) {
-                        clearInterval(intervalRef.current);
-                      }
-                      intervalRef.current = setInterval(() => {
-                        if (instanceRef.current && instanceRef.current.track?.details) {
-                          instanceRef.current.next();
-                        }
-                      }, autoplayInterval);
-                    }
-                  }, 100);
-                }
-              }}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                idx === currentSlide
-                  ? 'bg-primary scale-110'
-                  : 'bg-base-content/30 hover:bg-base-content/50'
-              }`}
-              role="tab"
-              aria-selected={idx === currentSlide}
-              aria-label={`Go to image ${idx + 1}`}
-            />
-          ))}
-        </div>
-      )}      {/* Thumbnails */}
+      {/* Thumbnails */}
       {showThumbnails && images.length > 1 && loaded && instanceRef.current && (
         <div className="mt-4 overflow-x-auto">
-          <div className="flex gap-2 min-w-max px-4 py-2">
+          <div className="flex gap-4 min-w-max p-1">
             {images.map((image, idx) => (
               <div
                 key={idx}
                 className="cursor-pointer flex-shrink-0 rounded-lg"
                 style={{ width: '64px' }}
-                onClick={(e) => {
+                onMouseDown={(e) => {
                   e.preventDefault();
-                  // Same direct logic as keyboard navigation
-                  if (!instanceRef.current || !instanceRef.current.track?.details) return;
-                  if (idx < 0 || idx >= images.length) return;
-                  
-                  // Clear focus to prevent persistent outline
-                  if (document.activeElement instanceof HTMLElement) {
-                    document.activeElement.blur();
-                  }
-                  
-                  // Check if autoplay was active before manual navigation
-                  const wasAutoplayActive = autoplay && isPlaying;
-                  
-                  instanceRef.current.moveToIdx(idx);
-                  
-                  // Resume autoplay if it was active
-                  if (wasAutoplayActive) {
-                    setTimeout(() => {
-                      if (autoplay) {
-                        setIsPlaying(true);
-                        if (intervalRef.current) {
-                          clearInterval(intervalRef.current);
-                        }
-                        intervalRef.current = setInterval(() => {
-                          if (instanceRef.current && instanceRef.current.track?.details) {
-                            instanceRef.current.next();
-                          }
-                        }, autoplayInterval);
-                      }
-                    }, 100);
-                  }
+                  goToSlide(idx);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    // Same direct logic as keyboard navigation
-                    if (!instanceRef.current || !instanceRef.current.track?.details) return;
-                    if (idx < 0 || idx >= images.length) return;
-                    
-                    // Check if autoplay was active before manual navigation
-                    const wasAutoplayActive = autoplay && isPlaying;
-                    
-                    instanceRef.current.moveToIdx(idx);
-                    
-                    // Resume autoplay if it was active
-                    if (wasAutoplayActive) {
-                      setTimeout(() => {
-                        if (autoplay) {
-                          setIsPlaying(true);
-                          if (intervalRef.current) {
-                            clearInterval(intervalRef.current);
-                          }
-                          intervalRef.current = setInterval(() => {
-                            if (instanceRef.current && instanceRef.current.track?.details) {
-                              instanceRef.current.next();
-                            }
-                          }, autoplayInterval);
-                        }
-                      }, 100);
-                    }
+                    goToSlide(idx);
                   }
                 }}
                 tabIndex={0}
@@ -872,27 +593,53 @@ export default function ProjectGallery({
         </div>
       )}
 
-      {/* Gallery info */}
+      {/* Gallery info with controls */}
       <div className="flex justify-between items-center mt-2 text-sm text-base-content/60">
-        <span>{currentSlide + 1} of {images.length}</span>
-        {autoplay && (
-          <span className="flex items-center gap-1">
-            <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-green-500' : 'bg-red-500'}`} />
-            {isPlaying ? 'Playing' : 'Paused'}
-          </span>
-        )}
+        <div className="flex items-center gap-5">
+          <span>{currentSlide + 1} of {images.length}</span>
+          {autoplay && (
+            <>
+              <span className="flex items-center gap-1">
+                <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-green-500' : 'bg-red-500'}`} />
+                {isPlaying ? 'Playing' : 'Paused'}
+              </span>
+              <button
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  clearFocus();
+                  setIsPlaying(!isPlaying);
+                }}
+                className="btn btn-circle btn-sm bg-base-100/80 border-none hover:bg-base-100"
+                aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
+              >
+                {isPlaying ? (
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <rect x="6" y="4" width="4" height="16" rx="1"/>
+                    <rect x="14" y="4" width="4" height="16" rx="1"/>
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                )}
+              </button>
+            </>
+          )}
+        </div>
+        <div></div>
       </div>
 
       {/* Keyboard shortcuts info */}
-      <details className="mt-2">
-        <summary className="text-xs text-base-content/50 cursor-pointer hover:text-base-content/70">
-          Keyboard shortcuts
-        </summary>
-        <div className="text-xs text-base-content/60 mt-1">
-          <p>← → : Navigate | Space: Play/Pause | Home/End: First/Last image</p>
-          <p className="text-xs text-base-content/50 mt-1">Tab to focus controls, Enter/Space to activate</p>
-        </div>
-      </details>
+      {!isMobile && (
+        <details className="mt-2 inline-block">
+          <summary className="text-xs text-base-content/50 cursor-pointer hover:text-base-content/70">
+            Keyboard shortcuts
+          </summary>
+          <div className="text-xs text-base-content/60 mt-1">
+            <p>← → : Navigate | Space: Play/Pause | Home/End: First/Last image</p>
+          </div>
+        </details>
+      )}
     </div>
   );
 }

@@ -297,7 +297,6 @@ versions:
       size: 500
       autoplay: false
       showThumbnails: true
-      showIndicators: true
     sections:
       - columns:
         - type: "content"
