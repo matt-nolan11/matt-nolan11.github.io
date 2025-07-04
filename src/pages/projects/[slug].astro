@@ -7,6 +7,7 @@ import { getRelatedContent } from '../../utils/tagUtils';
 import { marked } from 'marked';
 import ProjectGallery from '../../components/ProjectGallery';
 import ModularSection from '../../components/ModularSection.astro';
+import TagList from '../../components/TagList.tsx';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -546,7 +547,7 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
         }
         
         // Set up all version content
-        document.querySelectorAll('.version-content').forEach((content, index) => {
+        document.querySelectorAll('.version-content').forEach((content, _index) => {
           // Only apply transition to version content elements, not globally
           content.style.transition = 'opacity 0.4s ease-in-out';
           content.style.position = 'relative'; // Ensure proper positioning context
@@ -614,17 +615,7 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
                 </div>
               </a>
               <div class="px-4 pb-4">
-                <div class="flex flex-wrap gap-1">
-                  {item.sharedTags.map(tag => (
-                    <a 
-                      href={`/tags/${tag}/`} 
-                      class="badge badge-outline badge-xs tag-hover-light-blue transition-colors"
-                      onclick="event.stopPropagation()"
-                    >
-                      {tag}
-                    </a>
-                  ))}
-                </div>
+                <TagList tags={item.sharedTags} client:load />
               </div>
             </article>
           ))}

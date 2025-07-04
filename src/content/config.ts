@@ -19,55 +19,6 @@ import { defineCollection, z } from "astro:content";
  * - This enables complex multi-level layouts and nested content structures
  */
 
-// Create nested section schemas
-const createSectionSchemas = () => {
-  // Base column types (non-nested)
-  const baseColumnSchema = z.object({
-    type: z.enum(['content', 'gallery', 'image']),
-    title: z.string().optional(),
-    // For content columns
-    content: z.string().optional(),
-    // For image columns
-    src: z.any().optional(), // Will be typed as image() in collections
-    alt: z.string().optional(),
-    caption: z.string().optional(),
-    // For gallery columns
-    gallery: z.array(z.object({ 
-      src: z.any(), // Will be typed as image() in collections
-      alt: z.string(), 
-      caption: z.string().optional() 
-    })).optional(),
-    galleryOptions: z.object({
-      size: z.union([
-        z.enum(['small','medium','large','full']),
-        z.number().min(200).max(1200)
-      ]).default('medium'),
-      autoplay: z.boolean().default(false),
-      autoplayInterval: z.number().default(4000),
-      showThumbnails: z.boolean().default(true),
-      showIndicators: z.boolean().default(true),
-    }).optional(),
-  });
-
-  // Nested column schema that can contain nested sections
-  const columnSchema: z.ZodType<any> = z.lazy(() => 
-    baseColumnSchema.extend({
-      type: z.enum(['content', 'gallery', 'image', 'sections']),
-      sections: z.array(z.object({
-        columns: z.array(columnSchema).min(1).max(4),
-      })).optional(),
-    })
-  );
-
-  // Section schema using nested columns
-  const sectionSchema = z.array(z.object({
-    columns: z.array(columnSchema).min(1).max(4),
-  }));
-
-  return { columnSchema, sectionSchema };
-};
-
-const { sectionSchema } = createSectionSchemas();
 export const collections = {
   posts: defineCollection({
     type: "content",
@@ -208,8 +159,8 @@ export const collections = {
           })).optional(),
           galleryOptions: z.object({
             size: z.union([
-              z.enum(['small', 'medium', 'large', 'full']), // Preset sizes
-              z.number().min(200).max(1200)                  // Custom pixel width (200px - 1200px)
+              z.enum(['small', 'medium', 'large', 'full']),
+              z.number().min(200).max(1200)
             ]).default('medium'),
             autoplay: z.boolean().default(false),
             autoplayInterval: z.number().default(4000),

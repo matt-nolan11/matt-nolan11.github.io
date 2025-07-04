@@ -1,42 +1,66 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import { marked } from 'marked';
 import ProjectGallery from './ProjectGallery';
 
-interface Column {
-  type: 'content' | 'gallery' | 'image' | 'sections';
-  title?: string;
-  content?: string;
-  src?: any;
-  alt?: string;
-  caption?: string;
-  gallery?: Array<{
-    src: any;
-    alt: string;
-    caption?: string;
-  }>;
-  galleryOptions?: {
-    size?: 'small' | 'medium' | 'large' | 'full' | number;
-    autoplay?: boolean;
-    autoplayInterval?: number;
-    showThumbnails?: boolean;
-    showIndicators?: boolean;
-  };
-  sections?: Array<{
-    columns: Column[];
-  }>;
+// Helper function to optimize gallery images using Astro's image optimization
+async function optimizeGalleryImages(gallery: any[]) {
+  if (!gallery || gallery.length === 0) return [];
+  
+  return await Promise.all(
+    gallery.map(async (image: any) => {
+      try {
+        const optimizedImage = await getImage({
+          src: image.src,
+          width: 800,
+          height: 600,
+          quality: 80,
+          format: 'webp'
+        });
+        
+        return {
+          src: optimizedImage.src,
+          alt: image.alt,
+          caption: image.caption
+        };
+      } catch (error) {
+        // Fallback to original image if optimization fails
+        console.warn('Failed to optimize image:', image.src, error);
+        return {
+          src: image.src,
+          alt: image.alt,
+          caption: image.caption
+        };
+      }
+    })
+  );
 }
 
-interface Section {
-  columns: Column[];
+// Pre-optimize gallery images for all sections
+async function optimizeSectionGalleries(sections: any[]) {
+  if (!sections || sections.length === 0) return sections;
+  
+  return await Promise.all(
+    sections.map(async (section: any) => {
+      const optimizedColumns = await Promise.all(
+        section.columns.map(async (col: any) => {
+          if (col.type === 'gallery' && col.gallery) {
+            const optimizedGallery = await optimizeGalleryImages(col.gallery);
+            return { ...col, gallery: optimizedGallery };
+          }
+          return col;
+        })
+      );
+      return { ...section, columns: optimizedColumns };
+    })
+  );
 }
 
-interface Props {
-  sections: Section[];
-  depth?: number;
-}
-
+// Optimize the sections
 const { sections, depth = 0 } = Astro.props;
+
+// Optimize the sections
+const optimizedSections = await optimizeSectionGalleries(sections);
 
 // Calculate appropriate heading levels based on nesting depth
 const getHeadingLevel = (depth: number) => {
@@ -60,12 +84,12 @@ const headingClass = getHeadingClass(depth);
 ---
 
 <div class={`modular-sections ${depth === 0 ? 'space-y-12' : 'space-y-6'}`}>
-  {sections.map((section, i) => (
+  {optimizedSections.map((section: any, _i: number) => (
     <div class={`section gap-6 ${
       section.columns.length <= 2 ? 'flex flex-col lg:flex-row' :
       'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-' + section.columns.length
     }`}>
-      {section.columns.map((col, j) => (
+      {section.columns.map((col: any, _j: number) => (
         <div class={`column ${
           section.columns.length === 1 ? 'w-full' :
           section.columns.length === 2 ? 'lg:w-1/2' :

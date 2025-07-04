@@ -3,9 +3,9 @@ import { getCollection, getEntry } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import { Image } from "astro:assets";
 import { getRelatedContent } from "../../utils/tagUtils.ts";
-import { marked } from 'marked';
 import ProjectGallery from '../../components/ProjectGallery';
 import ModularSection from '../../components/ModularSection.astro';
+import TagList from '../../components/TagList.tsx';
 
 export const prerender = true;
 
@@ -110,17 +110,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
               </div>
             </a>
             <div class="px-4 pb-4">
-              <div class="flex flex-wrap gap-1">
-                {item.sharedTags.map(tag => (
-                  <a 
-                    href={`/tags/${tag}/`} 
-                    class="badge badge-outline badge-xs tag-hover-light-blue transition-colors"
-                    onclick="event.stopPropagation()"
-                  >
-                    {tag}
-                  </a>
-                ))}
-              </div>
+              <TagList tags={item.sharedTags} client:load />
             </div>
           </article>
         ))}
