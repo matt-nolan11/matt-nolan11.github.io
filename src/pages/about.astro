@@ -1,7 +1,120 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ModularSection from '../components/ModularSection.astro';
 import { Image } from 'astro:assets';
 import aboutImage from '../assets/about.png';
+
+// Define modular sections for the about page content
+const aboutSections = [
+  {
+    columns: [
+      {
+        type: 'content',
+        title: 'What I Do',
+        content: `
+My work spans across multiple domains of robotics and engineering, from autonomous systems to precision manipulation. I'm particularly interested in:
+
+- **Autonomous Robotics**: Developing intelligent systems that can navigate and operate in complex environments
+- **Robotic Manipulation**: Creating precise control systems for robotic arms and end effectors
+- **Making & Prototyping**: Building physical prototypes and exploring new fabrication techniques
+- **Space & Astronomy**: Combining my engineering skills with a passion for space exploration
+        `
+      }
+    ]
+  },
+  {
+    columns: [
+      {
+        type: 'content',
+        title: 'My Approach',
+        content: `
+I believe in learning by doing. Whether it's building a new robot from scratch, exploring the latest in autonomous navigation, or diving deep into the mechanics of robotic systems, I approach each project with curiosity and a commitment to understanding the fundamentals.
+
+This blog serves as both a documentation of my projects and a place to share insights that might help other makers and engineers on their own journeys.
+        `
+      }
+    ]
+  },
+  {
+    columns: [
+      {
+        type: 'content',
+        title: 'Beyond Engineering',
+        content: `
+When I'm not working on engineering projects, you'll find me honing my piano skills, fighting combat robots, playing chess, hiking, and spending time with friends and family.
+        `
+      }
+    ]
+  },
+  {
+    columns: [
+      {
+        type: 'content',
+        title: 'Contact Me',
+        content: `
+If you'd like to get in touch, please use the contact form, reach out to me on LinkedIn, or email me directly.
+
+I'm always open to discussing new and current projects, collaborations, or just sharing ideas about robotics and engineering!
+        `
+      },
+      {
+        type: 'content',
+        content: `
+<div id="contact-form-root" class="not-prose">
+  <form
+    id="contact-form"
+    action="https://formspree.io/f/xjkrjkrp"
+    method="POST"
+    class="bg-base-200 rounded-2xl shadow-lg flex flex-col gap-6 p-6 w-full"
+    autocomplete="off"
+  >
+    <div class="form-control w-full">
+      <label for="name" class="label">
+        <span class="label-text font-semibold">Name</span>
+      </label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        class="input input-bordered w-full"
+        required
+        autocomplete="name"
+      />
+    </div>
+    <div class="form-control w-full">
+      <label for="email" class="label">
+        <span class="label-text font-semibold">Email</span>
+      </label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        class="input input-bordered w-full"
+        required
+        autocomplete="email"
+      />
+    </div>
+    <div class="form-control w-full">
+      <label for="message" class="label">
+        <span class="label-text font-semibold">Message</span>
+      </label>
+      <textarea
+        id="message"
+        name="message"
+        class="textarea textarea-bordered w-full"
+        rows="5"
+        required
+      ></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary w-full mt-2">Send Message</button>
+    <div id="form-status" class="text-success text-center mt-2 hidden"></div>
+  </form>
+</div>
+        `
+      }
+    ]
+  }
+];
 ---
 
 <Layout 
@@ -69,77 +182,7 @@ import aboutImage from '../assets/about.png';
     </div>
 
     <!-- Content Sections -->
-    <div class="prose prose-lg max-w-none">
-      <h2>What I Do</h2>
-      <p>My work spans across multiple domains of robotics and engineering, from autonomous systems to precision manipulation. I'm particularly interested in:</p>
-      <ul>
-        <li><strong>Autonomous Robotics</strong>: Developing intelligent systems that can navigate and operate in complex environments</li>
-        <li><strong>Robotic Manipulation</strong>: Creating precise control systems for robotic arms and end effectors</li>
-        <li><strong>Making & Prototyping</strong>: Building physical prototypes and exploring new fabrication techniques</li>
-        <li><strong>Space & Astronomy</strong>: Combining my engineering skills with a passion for space exploration</li>
-      </ul>
-
-      <h2>My Approach</h2>
-      <p>I believe in learning by doing. Whether it's building a new robot from scratch, exploring the latest in autonomous navigation, or diving deep into the mechanics of robotic systems, I approach each project with curiosity and a commitment to understanding the fundamentals.</p>
-      <p>This blog serves as both a documentation of my projects and a place to share insights that might help other makers and engineers on their own journeys.</p>
-
-      <h2>Beyond Engineering</h2>
-      <p>When I'm not working on engineering projects, you'll find me honing my piano skills, fighting combat robots, playing chess, hiking, and spending time with friends and family.</p>
-
-      <h2>Contact Me</h2>
-      <p>If you'd like to get in touch, please use the contact form below, reach out to me on LinkedIn, or email me directly.</p>
-
-      <div id="contact-form-root" class="mx-auto mt-8 not-prose">
-        <form
-          id="contact-form"
-          action="https://formspree.io/f/xjkrjkrp"
-          method="POST"
-          class="bg-base-200 rounded-2xl shadow-lg flex flex-col gap-6 p-6"
-          autocomplete="off"
-        >
-          <div class="form-control w-full">
-            <label for="name" class="label">
-              <span class="label-text font-semibold">Name</span>
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              class="input input-bordered w-full"
-              required
-              autocomplete="name"
-            />
-          </div>
-          <div class="form-control w-full">
-            <label for="email" class="label">
-              <span class="label-text font-semibold">Email</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="input input-bordered w-full"
-              required
-              autocomplete="email"
-            />
-          </div>
-          <div class="form-control w-full">
-            <label for="message" class="label">
-              <span class="label-text font-semibold">Message</span>
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              class="textarea textarea-bordered w-full"
-              rows="5"
-              required
-            ></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary w-full mt-2">Send Message</button>
-          <div id="form-status" class="text-success text-center mt-2 hidden"></div>
-        </form>
-      </div>
-    </div>
+    <ModularSection sections={aboutSections} />
   </div>
 </Layout>
 

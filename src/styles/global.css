@@ -18,6 +18,12 @@
     width: 50%;
   }
 
+  /* Navbar search should use full container width */
+  .navbar .search-wrapper .pagefind-ui,
+  .search-wrapper .pagefind-ui {
+    width: 100% !important;
+  }
+
   .pagefind-ui.yellow {
     --pagefind-ui-background: var(--color-warning);
   }
