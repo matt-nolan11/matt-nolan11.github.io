@@ -26,7 +26,7 @@ export const collections = {
       // Create typed column schema for posts
       const typedColumnSchema: z.ZodType<any> = z.lazy(() => 
         z.object({
-          type: z.enum(['content', 'gallery', 'image', 'sections']),
+          type: z.enum(['content', 'gallery', 'image', 'model', 'sections']),
           title: z.string().optional(),
           // For content columns
           content: z.string().optional(),
@@ -34,6 +34,24 @@ export const collections = {
           src: image().optional(),
           alt: z.string().optional(),
           caption: z.string().optional(),
+          // For model columns (3D viewer)
+          modelSrc: z.string().optional(),
+          poster: z.string().optional(),
+          environmentImage: z.string().optional(),
+          modelOptions: z.object({
+            autoRotate: z.boolean().default(false),
+            cameraControls: z.boolean().default(true),
+            ar: z.boolean().default(false),
+            size: z.union([
+              z.enum(['small', 'medium', 'large', 'full']),
+              z.number().min(200).max(1200)
+            ]).default('medium'),
+            exposureCompensation: z.number().default(1),
+            shadowIntensity: z.number().default(1),
+            shadowSoftness: z.number().default(1),
+            interactionPrompt: z.enum(['auto', 'when-focused', 'none']).default('auto'),
+            loading: z.enum(['auto', 'lazy', 'eager']).default('lazy'),
+          }).optional(),
           // For gallery columns
           gallery: z.array(z.object({ 
             src: image(), 
@@ -82,7 +100,7 @@ export const collections = {
       // Create typed column schema for projects
       const typedColumnSchema: z.ZodType<any> = z.lazy(() => 
         z.object({
-          type: z.enum(['content', 'gallery', 'image', 'sections']),
+          type: z.enum(['content', 'gallery', 'image', 'model', 'sections']),
           title: z.string().optional(),
           // For content columns
           content: z.string().optional(),
@@ -90,6 +108,24 @@ export const collections = {
           src: image().optional(),
           alt: z.string().optional(),
           caption: z.string().optional(),
+          // For model columns (3D viewer)
+          modelSrc: z.string().optional(),
+          poster: z.string().optional(),
+          environmentImage: z.string().optional(),
+          modelOptions: z.object({
+            autoRotate: z.boolean().default(false),
+            cameraControls: z.boolean().default(true),
+            ar: z.boolean().default(false),
+            size: z.union([
+              z.enum(['small', 'medium', 'large', 'full']),
+              z.number().min(200).max(1200)
+            ]).default('medium'),
+            exposureCompensation: z.number().default(1),
+            shadowIntensity: z.number().default(1),
+            shadowSoftness: z.number().default(1),
+            interactionPrompt: z.enum(['auto', 'when-focused', 'none']).default('auto'),
+            loading: z.enum(['auto', 'lazy', 'eager']).default('lazy'),
+          }).optional(),
           // For gallery columns
           gallery: z.array(z.object({ 
             src: image(), 

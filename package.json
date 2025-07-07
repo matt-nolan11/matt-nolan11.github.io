@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "astro dev",
+    "dev:https": "astro dev --host",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -14,6 +15,7 @@
     "@astrojs/check": "^0.9.4",
     "@astrojs/react": "^4.3.0",
     "@astrojs/sitemap": "^3.4.1",
+    "@google/model-viewer": "^4.1.0",
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.10",
@@ -33,6 +35,7 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@vitejs/plugin-basic-ssl": "^2.1.0",
     "jsdom": "^26.1.0",
     "vitest": "^3.1.3"
   }

@@ -11,6 +11,8 @@ import astroExpressiveCode from 'astro-expressive-code'
 
 import pagefind from "astro-pagefind";
 
+import basicSsl from '@vitejs/plugin-basic-ssl';
+
 
 const expressiveCode = astroExpressiveCode({
     // You can set configuration options here
@@ -28,8 +30,14 @@ const expressiveCode = astroExpressiveCode({
 export default defineConfig({
 
   site: 'https://matt-nolan11.github.io',
+  server: {
+    host: true
+  },
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss(), basicSsl()],
+    server: {
+      host: true
+    }
   },
 
   integrations: [sitemap(), react(), pagefind(),

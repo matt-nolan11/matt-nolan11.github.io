@@ -138,6 +138,28 @@ import ThemeToggle from '../components/ThemeToggle.astro';
       attributeFilter: ['data-theme'] 
     });
 
+    // Enhanced window resize handling with smooth content transitions
+    let resizeTimeout: number;
+    let isResizing = false;
+    
+    function handleResizeStart() {
+      if (!isResizing) {
+        isResizing = true;
+        document.body.classList.add('window-resizing');
+      }
+      
+      clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(() => {
+        isResizing = false;
+        document.body.classList.remove('window-resizing');
+      }, 800);
+    }
+    
+    window.addEventListener('resize', handleResizeStart);
+    
+    // Also add orientationchange for mobile devices
+    window.addEventListener('orientationchange', handleResizeStart);
+
     // Handle mobile drawer to prevent navbar jumping
     const drawerToggle = document.getElementById('nav-drawer') as HTMLInputElement;
     const drawerLinks = document.querySelectorAll('.drawer-side a');

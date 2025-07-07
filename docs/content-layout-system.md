@@ -172,7 +172,71 @@ sections:
 - Caption support with styling
 - Accessibility compliance
 
-#### 4. Nested Section Columns
+#### 4. 3D Model Columns
+```yaml
+- type: "model"
+  title: "3D CAD Model"
+  modelSrc: "./robot-arm.glb"
+  alt: "Interactive 3D model of robot arm"
+  poster: "./model-preview.jpg"
+  caption: "Click and drag to rotate the model"
+  modelOptions:
+    autoRotate: true
+    cameraControls: true
+    ar: true
+    size: "large"
+    exposureCompensation: 1.2
+    shadowIntensity: 0.8
+    interactionPrompt: "auto"
+    loading: "lazy"
+```
+
+**Model Features:**
+- **Interactive Controls**: Mouse/touch orbit, zoom, and pan
+- **Auto-rotation**: Optional automatic model rotation
+- **AR Support**: View models in augmented reality on mobile devices
+- **Progressive Loading**: Poster images while models load
+- **Environmental Lighting**: Realistic lighting and shadows
+- **Responsive Sizing**: Adapts to container size and device
+- **Accessibility**: Screen reader support and keyboard navigation
+- **File Formats**: Supports GLTF (.gltf) and GLB (.glb) 3D models
+
+**Model Options:**
+- `autoRotate`: Enable automatic rotation (default: false)
+- `cameraControls`: Allow user camera control (default: true)
+- `ar`: Enable AR viewing on supported devices (default: false)
+- `size`: Preset size ('small', 'medium', 'large', 'full') or pixel width
+- `exposureCompensation`: Lighting brightness adjustment (default: 1)
+- `shadowIntensity`: Shadow strength (default: 1)
+- `shadowSoftness`: Shadow blur amount (default: 1)
+- `interactionPrompt`: When to show interaction hints ('auto', 'when-focused', 'none')
+- `loading`: Loading strategy ('auto', 'lazy', 'eager')
+- `rotationPerSecond`: Auto-rotation speed (default: '20deg') - use slower speeds like '15deg' for smoother animation on lower-end devices
+- `autoRotateDelay`: Delay before auto-rotation starts in milliseconds (default: 3000)
+
+**Performance Optimizations:**
+- Hardware acceleration is automatically enabled for smooth rotation
+- Adaptive quality adjustments based on device capabilities
+- Optimized shadow rendering for lower-end devices
+- CSS transforms and will-change properties for better performance
+- Slower default rotation speed (20deg/sec) to reduce stuttering
+
+**Troubleshooting Stuttering:**
+- Reduce `rotationPerSecond` to '15deg' or '10deg' for very smooth rotation
+- Lower `shadowIntensity` to 0.5 or disable shadows entirely (set to 0)
+- Use `loading="eager"` for small models to avoid loading delays
+- Ensure models are optimized (under 5MB recommended for smooth performance)
+
+**AR (Augmented Reality) Support:**
+- AR button automatically appears only when device/browser supports AR
+- **iOS Requirements:** iPhone 6s or newer with iOS 11+ and Safari/Chrome
+- **Android Requirements:** ARCore-compatible device with Chrome 67+
+- **Browser Requirements:** Must be served over HTTPS for AR to work
+- **Model Requirements:** Models must be under 10MB and properly optimized
+- AR button shows "AR not available" tooltip when unsupported
+- Test AR functionality on actual mobile devices, not desktop browsers
+
+#### 5. Nested Section Columns
 ```yaml
 - type: "sections"
   sections:
@@ -703,6 +767,81 @@ tags: ["iot", "home-automation", "esp32", "web-development"]
 ---
 
 Complete home automation system with custom sensors, web dashboard, and mobile control applications.
+```
+
+### 5. 3D Model Integration
+
+Showcase mechanical designs and CAD models interactively:
+
+```yaml
+---
+title: "Precision 6-DOF Robot Arm"
+description: "High-precision robotic arm with custom gripper design"
+cover: "./cover.png"
+startDate: "2023-06"
+status: "completed"
+tags: ["robotics", "mechanical-design", "3d-printing", "cad"]
+sections:
+  - columns:
+    - type: "content"
+      title: "Design Overview"
+      content: |
+        This precision robotic arm features custom-designed joints
+        and a specialized gripper for delicate manipulation tasks.
+        
+        **Key Features:**
+        - 6 degrees of freedom
+        - 0.1mm positioning accuracy
+        - Custom servo-driven joints
+        - Interchangeable end effectors
+        
+    - type: "model"
+      title: "Interactive 3D Model"
+      modelSrc: "./robot-arm-assembly.glb"
+      alt: "Interactive 3D model of the complete robot arm assembly"
+      poster: "./robot-arm-preview.jpg"
+      caption: "Drag to rotate • Scroll to zoom • Right-click to pan"
+      modelOptions:
+        autoRotate: true
+        cameraControls: true
+        ar: true
+        size: "large"
+        exposureCompensation: 1.2
+        shadowIntensity: 0.8
+        interactionPrompt: "auto"
+        
+  - columns:
+    - type: "model"
+      title: "Gripper Detail"
+      modelSrc: "./gripper-mechanism.glb"
+      alt: "Detailed view of the custom gripper mechanism"
+      poster: "./gripper-preview.jpg"
+      modelOptions:
+        autoRotate: false
+        cameraControls: true
+        size: "medium"
+        
+    - type: "content"
+      title: "Gripper Specifications"
+      content: |
+        ### Custom Gripper Design
+        
+        The gripper mechanism uses a parallel jaw design
+        with force feedback sensors for precise control.
+        
+        **Specifications:**
+        - Grip force: 0-50N adjustable
+        - Jaw opening: 0-80mm
+        - Position accuracy: ±0.05mm
+        - Force resolution: 0.1N
+        
+        **Materials:**
+        - Aluminum 6061-T6 frame
+        - Stainless steel contact surfaces
+        - Custom 3D printed components
+---
+
+Detailed documentation of a precision robotics project with interactive 3D models.
 ```
 
 ## Page Layout Flow

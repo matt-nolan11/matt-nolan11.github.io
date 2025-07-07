@@ -124,8 +124,8 @@
 
 /* Ultra smooth layout transitions during window resize - with drawer protection */
 @media (prefers-reduced-motion: no-preference) {
-  /* Apply smooth transitions only when window is being resized, excluding all drawer elements */
-  body.window-resizing *:not(.drawer):not(.drawer *):not(.drawer-side):not(.drawer-side *):not(.drawer-content):not(.drawer-content *):not(.drawer-overlay):not(.drawer-toggle):not(#nav-drawer):not(.navbar):not(.navbar *):not(.modal):not(.modal *):not(.btn):not(.btn *):not(button):not(button *):not([role="button"]):not([role="button"] *) {
+  /* Apply smooth transitions only when window is being resized, excluding drawer elements but allowing navbar */
+  body.window-resizing *:not(.drawer):not(.drawer *):not(.drawer-side):not(.drawer-side *):not(.drawer-content):not(.drawer-content *):not(.drawer-overlay):not(.drawer-toggle):not(#nav-drawer):not(.modal):not(.modal *):not(.btn):not(.btn *):not(button):not(button *):not([role="button"]):not([role="button"] *) {
     transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
                 height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 margin 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -136,7 +136,7 @@
     will-change: transform, width, height, padding, margin, flex !important;
   }
   
-  /* Extra smooth transitions for main content areas */
+  /* Extra smooth transitions for main content areas and navbar */
   body.window-resizing main,
   body.window-resizing main *:not(.btn):not(.btn *):not(button):not(button *),
   body.window-resizing article,
@@ -146,7 +146,11 @@
   body.window-resizing .container,
   body.window-resizing .container *:not(.btn):not(.btn *):not(button):not(button *),
   body.window-resizing .card,
-  body.window-resizing .card *:not(.btn):not(.btn *):not(button):not(button *) {
+  body.window-resizing .card *:not(.btn):not(.btn *):not(button):not(button *),
+  body.window-resizing .navbar,
+  body.window-resizing .navbar *:not(.btn):not(.btn *):not(button):not(button *),
+  body.window-resizing .search-wrapper,
+  body.window-resizing .search-wrapper * {
     transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
                 height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 margin 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),

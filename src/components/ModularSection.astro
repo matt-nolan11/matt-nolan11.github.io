@@ -2,6 +2,7 @@
 import { Image, getImage } from 'astro:assets';
 import { marked } from 'marked';
 import ProjectGallery from './ProjectGallery';
+import ModelViewer from './ModelViewer';
 
 // Helper function to optimize gallery images using Astro's image optimization
 async function optimizeGalleryImages(gallery: any[]) {
@@ -122,6 +123,39 @@ const headingClass = getHeadingClass(depth);
               {col.caption && (
                 <p class="text-sm text-base-content/60 mt-2 text-center">{col.caption}</p>
               )}
+            </>
+          )}
+          
+          {col.type === 'model' && col.modelSrc && (
+            <>
+              {col.title && (
+                <Fragment>
+                  {headingLevel === 'h2' && <h2 class={headingClass}>{col.title}</h2>}
+                  {headingLevel === 'h3' && <h3 class={headingClass}>{col.title}</h3>}
+                  {headingLevel === 'h4' && <h4 class={headingClass}>{col.title}</h4>}
+                  {headingLevel === 'h5' && <h5 class={headingClass}>{col.title}</h5>}
+                  {headingLevel === 'h6' && <h6 class={headingClass}>{col.title}</h6>}
+                </Fragment>
+              )}
+              <ModelViewer
+                src={col.modelSrc}
+                alt={col.alt}
+                poster={col.poster}
+                environmentImage={col.environmentImage}
+                caption={col.caption}
+                autoRotate={col.modelOptions?.autoRotate}
+                cameraControls={col.modelOptions?.cameraControls}
+                ar={col.modelOptions?.ar}
+                size={col.modelOptions?.size || 'medium'}
+                exposureCompensation={col.modelOptions?.exposureCompensation}
+                shadowIntensity={col.modelOptions?.shadowIntensity}
+                shadowSoftness={col.modelOptions?.shadowSoftness}
+                interactionPrompt={col.modelOptions?.interactionPrompt}
+                loading={col.modelOptions?.loading}
+                rotationPerSecond={col.modelOptions?.rotationPerSecond}
+                autoRotateDelay={col.modelOptions?.autoRotateDelay}
+                client:load
+              />
             </>
           )}
           

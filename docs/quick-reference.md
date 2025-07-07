@@ -51,6 +51,7 @@ sections:
 - **`content`**: Markdown text with optional title
 - **`gallery`**: Image carousel with options
 - **`image`**: Single image with caption
+- **`model`**: Interactive 3D model viewer
 - **`sections`**: Nested sections (unlimited depth)
 
 ### Gallery Options
@@ -68,6 +69,46 @@ galleryOptions:
 - Optimized event handlers and reduced code complexity
 - Enhanced accessibility and keyboard navigation
 - Better focus management and visual feedback
+
+### Model Options
+```yaml
+- type: "model"
+  title: "3D Model"
+  modelSrc: "./model.glb"        # GLB/GLTF model file
+  alt: "Description of 3D model"
+  poster: "./preview.jpg"        # Loading poster image
+  caption: "Model description"
+  modelOptions:
+    autoRotate: false            # Automatic rotation
+    cameraControls: true         # Mouse/touch controls
+    ar: false                    # Augmented reality support
+    size: "medium"               # small|medium|large|full or px
+    exposureCompensation: 1      # Lighting adjustment
+    shadowIntensity: 1           # Shadow strength
+    shadowSoftness: 1            # Shadow blur amount
+    interactionPrompt: "auto"    # auto|when-focused|none
+    loading: "lazy"              # auto|lazy|eager
+    rotationPerSecond: "20deg"   # Rotation speed (e.g., "15deg", "30deg")
+    autoRotateDelay: 3000        # Delay before auto-rotation starts (ms)
+```
+
+**Model Features:**
+- Interactive camera controls (orbit, zoom, pan)
+- Support for GLTF/GLB 3D model formats
+- Optional auto-rotation and animations
+- Augmented Reality (AR) support for mobile devices
+- Progressive loading with poster images
+- Responsive sizing and accessibility
+- Environmental lighting and shadow controls
+- **Performance optimizations for smooth rotation**
+- **Hardware acceleration and adaptive quality**
+
+**AR Support Notes:**
+- AR button appears automatically when supported
+- Requires mobile device with ARCore/ARKit
+- Needs HTTPS connection to function
+- Only works on compatible browsers (Chrome, Safari)
+- Shows helpful tooltips when AR is unavailable
 
 ## Project Versions
 

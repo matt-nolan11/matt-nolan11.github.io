@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Capability Test</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #1f2937; 
+            color: white; 
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #374151; 
+            border-radius: 8px; 
+        }
+        .status { 
+            font-weight: bold; 
+            padding: 5px 10px; 
+            border-radius: 4px; 
+            display: inline-block; 
+        }
+        .success { background: #065f46; color: #d1fae5; }
+        .error { background: #7f1d1d; color: #fecaca; }
+        .warning { background: #78350f; color: #fde68a; }
+        model-viewer { 
+            width: 100%; 
+            height: 300px; 
+            background-color: #374151; 
+            border-radius: 8px; 
+        }
+        pre { 
+            background: #111827; 
+            padding: 10px; 
+            border-radius: 4px; 
+            overflow-x: auto; 
+            font-size: 12px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>AR Capability Test for Model Viewer</h1>
+    
+    <div class="test-section">
+        <h2>Browser Environment</h2>
+        <p><strong>Protocol:</strong> <span id="protocol"></span></p>
+        <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
+        <p><strong>WebXR Support:</strong> <span id="webxr"></span></p>
+        <p><strong>Chrome Version:</strong> <span id="chromeVersion"></span></p>
+    </div>
+
+    <div class="test-section">
+        <h2>AR Test Model</h2>
+        <model-viewer 
+            id="testModel"
+            src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
+            alt="Test model for AR"
+            ar
+            ar-modes="webxr scene-viewer quick-look"
+            camera-controls
+            auto-rotate>
+            <button slot="ar-button" id="arButton" style="display: none;">
+                View in AR
+            </button>
+        </model-viewer>
+        <p><strong>Model AR Status:</strong> <span id="modelStatus">Loading...</span></p>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Information</h2>
+        <pre id="debugInfo">Loading debug information...</pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Troubleshooting Steps</h2>
+        <ol>
+            <li>Ensure you're on HTTPS (check URL above)</li>
+            <li>Install "Google Play Services for AR" from Play Store</li>
+            <li>Update Chrome to latest version</li>
+            <li>Grant camera permissions to Chrome</li>
+            <li>Try clearing Chrome cache and restarting</li>
+            <li>Test on official model-viewer.dev examples</li>
+        </ol>
+    </div>
+
+    <script>
+        // Basic environment checks
+        document.getElementById('protocol').textContent = window.location.protocol;
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+        document.getElementById('webxr').innerHTML = 'xr' in navigator ? 
+            '<span class="status success">✓ Available</span>' : 
+            '<span class="status error">✗ Not Available</span>';
+
+        // Chrome version detection
+        const chromeMatch = navigator.userAgent.match(/Chrome\/(\d+)/);
+        const chromeVersion = chromeMatch ? chromeMatch[1] : 'Not Chrome';
+        document.getElementById('chromeVersion').innerHTML = chromeVersion !== 'Not Chrome' ?
+            (parseInt(chromeVersion) >= 88 ? 
+                `<span class="status success">✓ ${chromeVersion} (Compatible)</span>` :
+                `<span class="status error">✗ ${chromeVersion} (Needs 88+)</span>`) :
+            `<span class="status error">✗ ${chromeVersion}</span>`;
+
+        // Model viewer AR testing
+        const modelViewer = document.getElementById('testModel');
+        const arButton = document.getElementById('arButton');
+        const modelStatus = document.getElementById('modelStatus');
+        const debugInfo = document.getElementById('debugInfo');
+
+        modelViewer.addEventListener('load', () => {
+            setTimeout(() => {
+                const canActivateAR = modelViewer.canActivateAR;
+                modelStatus.innerHTML = canActivateAR ? 
+                    '<span class="status success">✓ AR Available</span>' : 
+                    '<span class="status error">✗ AR Not Available</span>';
+
+                if (canActivateAR) {
+                    arButton.style.display = 'block';
+                }
+
+                // Debug information
+                const debugData = {
+                    canActivateAR: canActivateAR,
+                    isHTTPS: window.location.protocol === 'https:',
+                    hasWebXR: 'xr' in navigator,
+                    hasXRSession: navigator.xr ? 'XR available' : 'XR not available',
+                    chromeVersion: chromeVersion,
+                    arModes: modelViewer.getAttribute('ar-modes'),
+                    userAgent: navigator.userAgent,
+                    timestamp: new Date().toISOString()
+                };
+
+                debugInfo.textContent = JSON.stringify(debugData, null, 2);
+            }, 1000);
+        });
+
+        modelViewer.addEventListener('error', (event) => {
+            modelStatus.innerHTML = '<span class="status error">✗ Model Load Error</span>';
+            debugInfo.textContent = 'Model loading error: ' + JSON.stringify(event.detail, null, 2);
+        });
+    </script>
+</body>
+</html>
