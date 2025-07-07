@@ -1,0 +1,42 @@
+"filename", "language", "TypeScript", "Astro", "Markdown", "TypeScript JSX", "XML", "PostCSS", "comment", "blank", "total"
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\assets\landing-hero.svg", "XML", 0, 0, 0, 0, 56, 0, 1, 2, 59
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\assets\logo.svg", "XML", 0, 0, 0, 0, 303, 0, 1, 2, 306
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\assets\old-landing-hero.svg", "XML", 0, 0, 0, 0, 4, 0, 1, 1, 6
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\Footer.astro", "Astro", 0, 81, 0, 0, 0, 0, 3, 1, 85
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\Landing.astro", "Astro", 0, 28, 0, 0, 0, 0, 2, 2, 32
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\ModelViewer.tsx", "TypeScript JSX", 0, 0, 0, 397, 0, 0, 60, 43, 500
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\ModularSection.astro", "Astro", 0, 172, 0, 0, 0, 0, 0, 15, 187
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\Navbar.astro", "Astro", 0, 288, 0, 0, 0, 0, 11, 49, 348
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\ProjectGallery.tsx", "TypeScript JSX", 0, 0, 0, 510, 0, 0, 78, 58, 646
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\TagList.tsx", "TypeScript JSX", 0, 0, 0, 20, 0, 0, 5, 4, 29
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\ThemeToggle.astro", "Astro", 0, 16, 0, 0, 0, 0, 2, 3, 21
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\config.ts", "TypeScript", 170, 0, 0, 0, 0, 0, 37, 4, 211
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\black-holes\index.md", "Markdown", 0, 0, 28, 0, 0, 0, 0, 14, 42
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\brightest-stars\index.md", "Markdown", 0, 0, 21, 0, 0, 0, 0, 8, 29
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\constellations-guide\index.md", "Markdown", 0, 0, 18, 0, 0, 0, 0, 8, 26
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\exploring-exoplanets\index.md", "Markdown", 0, 0, 20, 0, 0, 0, 0, 12, 32
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\star-facts\index.md", "Markdown", 0, 0, 24, 0, 0, 0, 0, 5, 29
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\star-life-cycle\index.md", "Markdown", 0, 0, 20, 0, 0, 0, 0, 9, 29
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\projects\autonomous-rover\index.md", "Markdown", 0, 0, 143, 0, 0, 0, 0, 29, 172
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\projects\model-viewer-demo\index.md", "Markdown", 0, 0, 157, 0, 0, 0, 0, 32, 189
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\projects\robot-arm-v1\index.md", "Markdown", 0, 0, 77, 0, 0, 0, 0, 26, 103
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\projects\robot-arm\index.md", "Markdown", 0, 0, 396, 0, 0, 0, 3, 57, 456
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\layouts\Layout.astro", "Astro", 0, 150, 0, 0, 0, 0, 4, 22, 176
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\layouts\Markdown.astro", "Astro", 0, 41, 0, 0, 0, 0, 0, 4, 45
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\about.astro", "Astro", 0, 241, 0, 0, 0, 0, 12, 13, 266
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\index.astro", "Astro", 0, 72, 0, 0, 0, 0, 1, 4, 77
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\posts\[slug].astro", "Astro", 0, 110, 0, 0, 0, 0, 5, 12, 127
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\posts\index.astro", "Astro", 0, 73, 0, 0, 0, 0, 1, 8, 82
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\privacy.md", "Markdown", 0, 0, 32, 0, 0, 0, 0, 23, 55
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\projects\[slug].astro", "Astro", 0, 560, 0, 0, 0, 0, 14, 51, 625
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\projects\index.astro", "Astro", 0, 122, 0, 0, 0, 0, 1, 10, 133
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\tags\[tag].astro", "Astro", 0, 185, 0, 0, 0, 0, 4, 20, 209
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\tags\index.astro", "Astro", 0, 65, 0, 0, 0, 0, 2, 5, 72
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\tos.md", "Markdown", 0, 0, 71, 0, 0, 0, 0, 33, 104
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\scripts\themeController.ts", "TypeScript", 35, 0, 0, 0, 0, 0, 20, 6, 61
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\styles\global.css", "PostCSS", 0, 0, 0, 0, 0, 221, 25, 38, 284
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\types\model-viewer.d.ts", "TypeScript", 101, 0, 0, 0, 0, 0, 13, 13, 127
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\utils\dateUtils.ts", "TypeScript", 43, 0, 0, 0, 0, 0, 25, 8, 76
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\utils\homepageUtils.ts", "TypeScript", 25, 0, 0, 0, 0, 0, 10, 4, 39
+"c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\utils\tagUtils.ts", "TypeScript", 85, 0, 0, 0, 0, 0, 25, 15, 125
+"Total", "-", 459, 2204, 1007, 927, 363, 221, 366, 673, 6220

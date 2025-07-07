@@ -129,11 +129,14 @@ I'm always open to discussing new and current projects, collaborations, or just 
       <!-- Left Column - Image -->
       <div class="lg:w-2/5 flex justify-center">
         <Image 
+          id="about-easter-egg-img"
           src={aboutImage} 
           alt="Matt Nolan" 
           width={400}
           height={500}
-          class="w-full max-w-md rounded-2xl shadow-lg"
+          class="w-full max-w-md rounded-2xl shadow-lg select-none cursor-default" 
+          tabindex="-1"
+          draggable="false"
         />
       </div>
       
@@ -189,32 +192,45 @@ I'm always open to discussing new and current projects, collaborations, or just 
 <script is:inline>
 // Accessible AJAX Formspree handler for in-page confirmation
 document.addEventListener('DOMContentLoaded', function () {
+  // Easter Egg: Rick Roll on 5 clicks of About image
+  const aboutImg = document.getElementById('about-easter-egg-img');
+  let clickCount = 0;
+  let clickTimeout;
+  if (aboutImg) {
+    aboutImg.addEventListener('click', function () {
+      clickCount++;
+      clearTimeout(clickTimeout);
+      if (clickCount >= 5) {
+        window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+        clickCount = 0;
+      } else {
+        // Reset count if not completed in 2 seconds
+        clickTimeout = setTimeout(() => { clickCount = 0; }, 2000);
+      }
+    });
+  }
+
+  // Accessible AJAX Formspree handler for in-page confirmation
   const form = document.getElementById('contact-form');
   const status = document.getElementById('form-status');
-  
   if (form && status) {
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
-      
       // Reset status
       status.classList.add('hidden');
       status.classList.remove('text-success', 'text-error');
-      
       // Show loading state
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalText = submitBtn.textContent;
       submitBtn.textContent = 'Sending...';
       submitBtn.disabled = true;
-      
       const data = new FormData(form);
-      
       try {
         const res = await fetch(form.action, {
           method: 'POST',
           body: data,
           headers: { 'Accept': 'application/json' },
         });
-        
         if (res.ok) {
           form.reset();
           status.textContent = 'Thank you! Your message has been sent.';

@@ -1,0 +1,85 @@
+Date : 2025-07-07 15:47:26
+Directory : c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src
+Total : 32 files,  3669 codes, 205 comments, 498 blanks, all 4372 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| Astro      |         10 |      1,619 |         44 |        149 |      1,812 |
+| Markdown   |         12 |      1,007 |          3 |        256 |      1,266 |
+| TypeScript |          6 |        459 |        130 |         50 |        639 |
+| XML        |          3 |        363 |          3 |          5 |        371 |
+| PostCSS    |          1 |        221 |         25 |         38 |        284 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                  | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                     |         32 |      3,669 |        205 |        498 |      4,372 |
+| assets                                                                                                |          3 |        363 |          3 |          5 |        371 |
+| content                                                                                               |         11 |      1,074 |         40 |        204 |      1,318 |
+| content (Files)                                                                                       |          1 |        170 |         37 |          4 |        211 |
+| content\posts                                                                                         |          6 |        131 |          0 |         56 |        187 |
+| content\posts\black-holes                                                                             |          1 |         28 |          0 |         14 |         42 |
+| content\posts\brightest-stars                                                                         |          1 |         21 |          0 |          8 |         29 |
+| content\posts\constellations-guide                                                                    |          1 |         18 |          0 |          8 |         26 |
+| content\posts\exploring-exoplanets                                                                    |          1 |         20 |          0 |         12 |         32 |
+| content\posts\star-facts                                                                              |          1 |         24 |          0 |          5 |         29 |
+| content\posts\star-life-cycle                                                                         |          1 |         20 |          0 |          9 |         29 |
+| content\projects                                                                                      |          4 |        773 |          3 |        144 |        920 |
+| content\projects\autonomous-rover                                                                     |          1 |        143 |          0 |         29 |        172 |
+| content\projects\model-viewer-demo                                                                    |          1 |        157 |          0 |         32 |        189 |
+| content\projects\robot-arm                                                                            |          1 |        396 |          3 |         57 |        456 |
+| content\projects\robot-arm-v1                                                                         |          1 |         77 |          0 |         26 |        103 |
+| layouts                                                                                               |          2 |        191 |          4 |         26 |        221 |
+| pages                                                                                                 |         10 |      1,531 |         40 |        179 |      1,750 |
+| pages (Files)                                                                                         |          4 |        416 |         13 |         73 |        502 |
+| pages\posts                                                                                           |          2 |        183 |          6 |         20 |        209 |
+| pages\projects                                                                                        |          2 |        682 |         15 |         61 |        758 |
+| pages\tags                                                                                            |          2 |        250 |          6 |         25 |        281 |
+| scripts                                                                                               |          1 |         35 |         20 |          6 |         61 |
+| styles                                                                                                |          1 |        221 |         25 |         38 |        284 |
+| types                                                                                                 |          1 |        101 |         13 |         13 |        127 |
+| utils                                                                                                 |          3 |        153 |         60 |         27 |        240 |
++-------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                              | language   | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\assets\landing-hero.svg                     | XML        |         56 |          1 |          2 |         59 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\assets\logo.svg                             | XML        |        303 |          1 |          2 |        306 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\assets\old-landing-hero.svg                 | XML        |          4 |          1 |          1 |          6 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\config.ts                           | TypeScript |        170 |         37 |          4 |        211 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\black-holes\index.md          | Markdown   |         28 |          0 |         14 |         42 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\brightest-stars\index.md      | Markdown   |         21 |          0 |          8 |         29 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\constellations-guide\index.md | Markdown   |         18 |          0 |          8 |         26 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\exploring-exoplanets\index.md | Markdown   |         20 |          0 |         12 |         32 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\star-facts\index.md           | Markdown   |         24 |          0 |          5 |         29 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\posts\star-life-cycle\index.md      | Markdown   |         20 |          0 |          9 |         29 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\projects\autonomous-rover\index.md  | Markdown   |        143 |          0 |         29 |        172 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\projects\model-viewer-demo\index.md | Markdown   |        157 |          0 |         32 |        189 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\projects\robot-arm-v1\index.md      | Markdown   |         77 |          0 |         26 |        103 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\content\projects\robot-arm\index.md         | Markdown   |        396 |          3 |         57 |        456 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\layouts\Layout.astro                        | Astro      |        150 |          4 |         22 |        176 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\layouts\Markdown.astro                      | Astro      |         41 |          0 |          4 |         45 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\about.astro                           | Astro      |        241 |         12 |         13 |        266 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\index.astro                           | Astro      |         72 |          1 |          4 |         77 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\posts\[slug].astro                    | Astro      |        110 |          5 |         12 |        127 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\posts\index.astro                     | Astro      |         73 |          1 |          8 |         82 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\privacy.md                            | Markdown   |         32 |          0 |         23 |         55 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\projects\[slug].astro                 | Astro      |        560 |         14 |         51 |        625 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\projects\index.astro                  | Astro      |        122 |          1 |         10 |        133 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\tags\[tag].astro                      | Astro      |        185 |          4 |         20 |        209 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\tags\index.astro                      | Astro      |         65 |          2 |          5 |         72 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\pages\tos.md                                | Markdown   |         71 |          0 |         33 |        104 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\scripts\themeController.ts                  | TypeScript |         35 |         20 |          6 |         61 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\styles\global.css                           | PostCSS    |        221 |         25 |         38 |        284 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\types\model-viewer.d.ts                     | TypeScript |        101 |         13 |         13 |        127 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\utils\dateUtils.ts                          | TypeScript |         43 |         25 |          8 |         76 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\utils\homepageUtils.ts                      | TypeScript |         25 |         10 |          4 |         39 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\utils\tagUtils.ts                           | TypeScript |         85 |         25 |         15 |        125 |
+| Total                                                                                                 |            |      3,669 |        205 |        498 |      4,372 |
++-------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

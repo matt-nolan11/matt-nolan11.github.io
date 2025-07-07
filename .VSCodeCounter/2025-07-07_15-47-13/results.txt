@@ -1,0 +1,33 @@
+Date : 2025-07-07 15:47:13
+Directory : c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components
+Total : 8 files,  1512 codes, 161 comments, 175 blanks, all 1848 lines
+
+Languages
++----------------+------------+------------+------------+------------+------------+
+| language       | files      | code       | comment    | blank      | total      |
++----------------+------------+------------+------------+------------+------------+
+| TypeScript JSX |          3 |        927 |        143 |        105 |      1,175 |
+| Astro          |          5 |        585 |         18 |         70 |        673 |
++----------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                      | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                         |          8 |      1,512 |        161 |        175 |      1,848 |
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| filename                                                                                  | language       | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\Footer.astro         | Astro          |         81 |          3 |          1 |         85 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\Landing.astro        | Astro          |         28 |          2 |          2 |         32 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\ModelViewer.tsx      | TypeScript JSX |        397 |         60 |         43 |        500 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\ModularSection.astro | Astro          |        172 |          0 |         15 |        187 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\Navbar.astro         | Astro          |        288 |         11 |         49 |        348 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\ProjectGallery.tsx   | TypeScript JSX |        510 |         78 |         58 |        646 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\TagList.tsx          | TypeScript JSX |         20 |          5 |          4 |         29 |
+| c:\Users\Matt\Documents\GitHub\matt-nolan11.github.io\src\components\ThemeToggle.astro    | Astro          |         16 |          2 |          3 |         21 |
+| Total                                                                                     |                |      1,512 |        161 |        175 |      1,848 |
++-------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
