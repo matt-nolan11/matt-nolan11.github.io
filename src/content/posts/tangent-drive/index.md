@@ -1,7 +1,7 @@
 ---
 title: Basics of Tangent Drive
-slug: star-life-cycle
-description: Tangent drive is getting more popular for small combat robot drivetrains, and it has some interesting properties.
+slug: basics-of-tangent-drive
+description: Tangent drive is becoming more popular for small combat robot drivetrains, and it has some interesting properties.
 date: 2025-07-21
 cover: cover.webp
 coverCaption: "Example tangent drive setup (Credit <a href=\"https://repeat-robotics.com/buy/repeat-tangent-drive-motors/\" target=\"_blank\" rel=\"noopener noreferrer\">Repeat Robotics</a>)"
