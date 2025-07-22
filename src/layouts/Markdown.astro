@@ -20,22 +20,29 @@ if (coverImg && typeof coverImg === 'string' && assetMap[coverImg as string]) {
     <div class="flex flex-col items-center">
         <h1 class="text-3xl font-bold mb-4">{frontmatter.title}</h1>
         <p class="text-sm text-base-content/70 font-semibold mb-4">{frontmatter.date}</p>
-        {coverImg && typeof coverImg === 'object' ? (
-            <Image 
-                src={coverImg}
-                alt={frontmatter.title}
-                width={560}
-                height={315}
-                class="mx-auto my-8 rounded-lg shadow-md"
-            />
-        ) : coverImg ? (
-            <img 
-                src={coverImg}
-                alt={frontmatter.title}
-                width={560}
-                height={315}
-                class="mx-auto my-8 rounded-lg shadow-md"
-            />
+        {coverImg ? (
+            <figure class="mx-auto my-8">
+                {typeof coverImg === 'object' ? (
+                    <Image 
+                        src={coverImg}
+                        alt={frontmatter.title}
+                        width={560}
+                        height={315}
+                        class="mx-auto rounded-lg shadow-md"
+                    />
+                ) : (
+                    <img 
+                        src={coverImg}
+                        alt={frontmatter.title}
+                        width={560}
+                        height={315}
+                        class="mx-auto rounded-lg shadow-md"
+                    />
+                )}
+                {frontmatter.coverCaption && (
+                    <figcaption class="mt-2 text-center text-base-content/60 text-sm">{frontmatter.coverCaption}</figcaption>
+                )}
+            </figure>
         ) : null}
         <div class={`prose mx-auto ${center ? 'text-center' : ''}`}>
             <slot />

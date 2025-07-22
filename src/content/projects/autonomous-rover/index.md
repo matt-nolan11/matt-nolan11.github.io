@@ -28,6 +28,8 @@ status: 'completed'
 tags: ['robotics', 'autonomous', 'computer-vision', 'solar', 'outdoor', 'raspberry-pi', 'python', 'opencv', 'ros', 'lidar']
 githubUrl: 'https://github.com/matt-nolan11/autonomous-rover'
 draft: false
+featured: true
+#featuredOrder: 2
 sections:
   - columns:
     - type: "content"

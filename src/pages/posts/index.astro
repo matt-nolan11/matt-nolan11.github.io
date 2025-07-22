@@ -19,7 +19,7 @@ const publishedPosts = posts
     <div class="prose prose-lg max-w-none mb-8">
       <h1 class="text-4xl font-bold mb-4">Posts</h1>
       <p class="text-lg text-base-content/70">
-        Insights, tutorials, and thoughts on robotics, engineering, and the art of making. Dive into the technical details and creative processes behind innovative projects.
+        Insights and tutorials in robotics and engineering, as well as combat robotics event recaps! Dive into the technical details and creative processes behind innovative projects.
       </p>
     </div>
 
@@ -65,7 +65,7 @@ const publishedPosts = posts
             
             <div class="card-actions justify-between items-center">
               <time class="text-sm text-base-content/70">
-                {new Date(post.data.date).toLocaleDateString()}
+                {new Date(post.data.date).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })}
               </time>
             </div>
           </div>

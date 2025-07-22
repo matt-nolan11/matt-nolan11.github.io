@@ -2,7 +2,7 @@
 
 Personal website featuring my project portfolio, professional information, and blog posts about engineering, robotics, and making.
 
-Built with the [StarGarden Astro theme](https://github.com/sustanza/stargarden).
+Built with the [Astro](https://astro.build/) and the [StarGarden](https://github.com/sustanza/stargarden) theme.
 
 ## License
 

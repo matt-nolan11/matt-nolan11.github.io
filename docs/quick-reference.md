@@ -16,6 +16,12 @@ tags: ["tag1", "tag2"]
 Markdown content here...
 ```
 
+title: "Project Name" 
+description: "Project description"
+cover: "./cover.png"
+startDate: "2024-01"
+status: "completed"  # completed | in-progress | planned
+
 ### Projects (Portfolio)
 ```yaml
 ---
@@ -24,12 +30,20 @@ description: "Project description"
 cover: "./cover.png"
 startDate: "2024-01"
 status: "completed"  # completed | in-progress | planned
-featured: true
+featured: true                # Show in homepage featured section
+featuredOrder: 2              # (Optional) 1-based manual order in featured section (see below)
 tags: ["robotics", "arduino"]
 githubUrl: "https://github.com/user/repo"
 ---
 Project description...
 ```
+
+**Featured Project Ordering:**
+- Set `featured: true` to include in homepage featured section.
+- Optionally set `featuredOrder: N` (1-based, e.g., 1 for first, 2 for second, up to 6).
+- Gaps in ordering are allowed (e.g., 1 and 3, with 2 filled by another featured/recent project).
+- Duplicate or out-of-bounds `featuredOrder` values (not 1–6) will throw a build error.
+- Remaining slots are filled by other featured or recent projects, sorted by date.
 
 ## Modular Sections
 
@@ -70,6 +84,7 @@ galleryOptions:
 - Enhanced accessibility and keyboard navigation
 - Better focus management and visual feedback
 
+
 ### Model Options
 ```yaml
 - type: "model"
@@ -79,29 +94,34 @@ galleryOptions:
   poster: "./preview.jpg"        # Loading poster image
   caption: "Model description"
   modelOptions:
-    autoRotate: false            # Automatic rotation
-    cameraControls: true         # Mouse/touch controls
-    ar: false                    # Augmented reality support
-    size: "medium"               # small|medium|large|full or px
-    exposureCompensation: 1      # Lighting adjustment
-    shadowIntensity: 1           # Shadow strength
-    shadowSoftness: 1            # Shadow blur amount
-    interactionPrompt: "auto"    # auto|when-focused|none
-    loading: "lazy"              # auto|lazy|eager
-    rotationPerSecond: "20deg"   # Rotation speed (e.g., "15deg", "30deg")
-    autoRotateDelay: 3000        # Delay before auto-rotation starts (ms)
+    autoRotate: false            # Enable automatic rotation (default: false)
+    cameraControls: true         # Allow user camera control (default: true)
+    ar: false                    # Enable AR viewing on supported devices (default: false)
+    size: "medium"               # Preset size ('small', 'medium', 'large', 'full') or pixel width
+    exposureCompensation: 1      # Lighting brightness adjustment (default: 1)
+    shadowIntensity: 1           # Shadow strength (default: 1)
+    shadowSoftness: 1            # Shadow blur amount (default: 1)
+    interactionPrompt: "auto"    # When to show interaction hints ('auto', 'when-focused', 'none')
+    loading: "lazy"              # Loading strategy ('auto', 'lazy', 'eager')
+    rotationPerSecond: "20deg"   # Auto-rotation speed (e.g., '20deg', '15deg')
+    autoRotateDelay: 3000        # Delay before auto-rotation starts in ms (default: 3000)
 ```
 
-**Model Features:**
-- Interactive camera controls (orbit, zoom, pan)
-- Support for GLTF/GLB 3D model formats
-- Optional auto-rotation and animations
-- Augmented Reality (AR) support for mobile devices
-- Progressive loading with poster images
-- Responsive sizing and accessibility
-- Environmental lighting and shadow controls
-- **Performance optimizations for smooth rotation**
-- **Hardware acceleration and adaptive quality**
+**Model Viewer Features:**
+- **Interactive Controls**: Mouse/touch orbit, zoom, and pan
+- **Auto-rotation**: Optional automatic model rotation (`autoRotate`)
+- **AR Support**: View models in augmented reality on mobile (AR button appears when supported; requires HTTPS and compatible device/browser)
+- **Progressive Loading**: Poster images while models load (`poster`)
+- **Environmental Lighting**: Realistic lighting and shadows (`exposureCompensation`, `shadowIntensity`, `shadowSoftness`)
+- **Responsive Sizing**: Adapts to container size and device (`size`)
+- **Accessibility**: Screen reader support and keyboard navigation
+- **File Formats**: Supports GLTF (.gltf) and GLB (.glb) 3D models
+- **Performance Optimizations**: Hardware acceleration, adaptive quality, optimized shadows, CSS transforms, and will-change for smooth animation
+
+**Performance Tips:**
+- Lower `rotationPerSecond` or `shadowIntensity` for smoother performance
+- Use `loading: eager` for small models to avoid loading delays
+- Keep models under 5MB for best results
 
 **AR Support Notes:**
 - AR button appears automatically when supported

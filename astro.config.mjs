@@ -1,17 +1,15 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
+
 import tailwindcss from '@tailwindcss/vite';
-
 import sitemap from '@astrojs/sitemap';
-
 import react from '@astrojs/react';
-
-import astroExpressiveCode from 'astro-expressive-code'
-
-import pagefind from "astro-pagefind";
-
+import astroExpressiveCode from 'astro-expressive-code';
+import pagefind from 'astro-pagefind';
 import basicSsl from '@vitejs/plugin-basic-ssl';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 
 const expressiveCode = astroExpressiveCode({
@@ -28,18 +26,22 @@ const expressiveCode = astroExpressiveCode({
 
 // https://astro.build/config
 export default defineConfig({
-
   site: 'https://matt-nolan11.github.io',
   server: {
     host: true
   },
   vite: {
-    plugins: [tailwindcss(), basicSsl()],
+    plugins: [
+      tailwindcss(),
+      basicSsl(),
+    ],
     server: {
-      host: true
-    }
+      host: true,
+    },
   },
-
-  integrations: [sitemap(), react(), pagefind(),
-    expressiveCode]
+  markdown: {
+    remarkPlugins: [remarkMath],
+    rehypePlugins: [rehypeKatex],
+  },
+  integrations: [sitemap(), react(), pagefind(), expressiveCode]
 });

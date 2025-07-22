@@ -27,7 +27,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
     <div class="prose max-w-2xl mx-auto">
       <h1>{post.data.title}</h1>
       <p class="text-sm text-base-content/70 font-bold mb-4">
-        {post.data.date.toLocaleDateString()}
+        {post.data.date.toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })}
       </p>
       
       <!-- Tags -->
@@ -41,7 +41,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
         </div>
       )}
       
-      <!-- Cover Image/Gallery -->
+      <!-- Cover Image/Gallery with Caption -->
       {post.data.gallery && post.data.gallery.length > 0 ? (
         <ProjectGallery 
           images={post.data.gallery}
@@ -51,15 +51,20 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
           size="medium"
           client:load
         />
-      ) : (
-        <Image
-          src={post.data.cover}
-          alt={post.data.title}
-          width={560}
-          height={315}
-          class="mx-auto my-8 rounded-lg shadow-md"
-        />
-      )}
+      ) : post.data.cover ? (
+        <figure class="mx-auto my-8">
+          <Image
+            src={post.data.cover}
+            alt={post.data.title}
+            width={560}
+            height={315}
+            class="mx-auto rounded-lg shadow-md"
+          />
+          {post.data.coverCaption && (
+            <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={post.data.coverCaption}></figcaption>
+          )}
+        </figure>
+      ) : null}
       
       <Content />
     </div>

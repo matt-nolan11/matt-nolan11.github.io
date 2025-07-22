@@ -21,9 +21,9 @@ export function formatProjectDate(date: Date | string, format: 'full' | 'short' 
   } else {
     // Handle full Date object
     if (format === 'short') {
-      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', timeZone: 'UTC' });
     } else {
-      return date.toLocaleDateString();
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
     }
   }
 }

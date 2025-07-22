@@ -1,3 +1,8 @@
+@import 'katex/dist/katex.min.css';
+/* Make all Markdown images rounded */
+.prose img {
+  border-radius: 0.5rem;
+}
 @import "tailwindcss";
 @plugin '@tailwindcss/typography';
 @plugin "daisyui" {

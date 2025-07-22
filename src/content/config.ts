@@ -78,6 +78,7 @@ export const collections = {
         title: z.string(),
         description: z.string().max(160),
         cover: image(),
+        coverCaption: z.string().optional(),
         date: z.date(),
         tags: z.array(z.string()).default([]),
         draft: z.boolean().optional(),
@@ -152,11 +153,13 @@ export const collections = {
         title: z.string(),
         description: z.string().max(160),
         cover: image(),
+        coverCaption: z.string().optional(),
         startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]), // Accepts YYYY-MM-DD or YYYY-MM
         endDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(), // Accepts YYYY-MM-DD or YYYY-MM
         tags: z.array(z.string()).default([]),
         draft: z.boolean().optional(),
         featured: z.boolean().optional().default(false), // Manual control for featuring on homepage
+          featuredOrder: z.number().optional(), // Manual order for featured projects (lower = higher priority)
         status: z.enum(["completed", "in-progress", "planned"]).default("completed"),
         githubUrl: z.string().url().optional(),
         liveUrl: z.string().url().optional(),

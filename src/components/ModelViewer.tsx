@@ -486,8 +486,8 @@ export default function ModelViewer({
           3D controls
         </summary>
         <div className="text-xs text-base-content/60 mt-1">
-          <p>Touch: Drag to rotate • Pinch to zoom • Two-finger drag to pan</p>
           <p className="hidden sm:block">Mouse: Click and drag to rotate • Scroll to zoom • Right-click and drag to pan</p>
+          <p>Touch: Drag to rotate • Pinch to zoom • Two-finger drag to pan</p>
           {ar && canActivateAR && <p className="text-primary">Tap AR button for augmented reality view</p>}
           {ar && !canActivateAR && isLoaded && (
             <p className="text-warning">AR requires mobile device with ARCore (Android) or ARKit (iOS)</p>

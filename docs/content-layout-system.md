@@ -82,6 +82,15 @@ Your main project description and content here.
 | `endDate` | date/string | | Project completion date |
 | `status` | enum | | "completed", "in-progress", "planned" |
 | `featured` | boolean | | Show on homepage featured section |
+| `featuredOrder` | number | | (1-based) Manual position in homepage featured section. Gaps allowed. Duplicates/out-of-bounds will throw an error. |
+
+To manually control which projects appear in the homepage featured section and their order:
+
+- Set `featured: true` in the project frontmatter.
+- Optionally set `featuredOrder: N` (where N is 1-based position, e.g., 1 for first, 2 for second, etc.).
+- Gaps in ordering are allowed (e.g., 1 and 3, with 2 filled by another featured or recent project).
+- If multiple projects use the same `featuredOrder`, or if a value is out of bounds (not 1–6), a build error will occur.
+- Remaining slots are filled by other featured or recent projects, sorted by date.
 | `tags` | array | | Technology/topic tags |
 | `githubUrl` | url | | Project repository link |
 | `liveUrl` | url | | Live demo/deployment link |
@@ -192,14 +201,30 @@ sections:
 ```
 
 **Model Features:**
+**Model Viewer Features:**
 - **Interactive Controls**: Mouse/touch orbit, zoom, and pan
-- **Auto-rotation**: Optional automatic model rotation
-- **AR Support**: View models in augmented reality on mobile devices
-- **Progressive Loading**: Poster images while models load
-- **Environmental Lighting**: Realistic lighting and shadows
-- **Responsive Sizing**: Adapts to container size and device
+- **Auto-rotation**: Optional automatic model rotation (`autoRotate`)
+- **AR Support**: View models in augmented reality on mobile devices (AR button appears when supported; requires HTTPS and compatible device/browser)
+- **Progressive Loading**: Poster images while models load (`poster`)
+- **Environmental Lighting**: Realistic lighting and shadows (`exposureCompensation`, `shadowIntensity`, `shadowSoftness`)
+- **Responsive Sizing**: Adapts to container size and device (`size`)
 - **Accessibility**: Screen reader support and keyboard navigation
 - **File Formats**: Supports GLTF (.gltf) and GLB (.glb) 3D models
+- **Performance Optimizations**: Hardware acceleration, adaptive quality, optimized shadows, CSS transforms, and will-change for smooth animation
+- **Troubleshooting**: Lower `rotationPerSecond` or `shadowIntensity` for smoother performance; use `loading: eager` for small models; keep models under 5MB for best results
+
+**Model Options:**
+- `autoRotate`: Enable automatic rotation (default: false)
+- `cameraControls`: Allow user camera control (default: true)
+- `ar`: Enable AR viewing on supported devices (default: false)
+- `size`: Preset size ('small', 'medium', 'large', 'full') or pixel width
+- `exposureCompensation`: Lighting brightness adjustment (default: 1)
+- `shadowIntensity`: Shadow strength (default: 1)
+- `shadowSoftness`: Shadow blur amount (default: 1)
+- `interactionPrompt`: When to show interaction hints ('auto', 'when-focused', 'none')
+- `loading`: Loading strategy ('auto', 'lazy', 'eager')
+- `rotationPerSecond`: Auto-rotation speed (e.g., '20deg', '15deg')
+- `autoRotateDelay`: Delay before auto-rotation starts in milliseconds (default: 3000)
 
 **Model Options:**
 - `autoRotate`: Enable automatic rotation (default: false)
