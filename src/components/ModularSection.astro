@@ -97,7 +97,7 @@ const headingLevel = getHeadingLevel(depth);
 const headingClass = getHeadingClass(depth);
 ---
 
-<div class={`modular-sections ${depth === 0 ? 'space-y-12' : 'space-y-6'}`}>
+<div class={`modular-sections ${depth === 0 ? 'space-y-8' : 'space-y-6'}`}>
   {optimizedSections.map((section: any, _i: number) => (
     <div class={`section gap-6 ${
       section.columns.length <= 2 ? 'flex flex-col lg:flex-row' :
@@ -125,7 +125,7 @@ const headingClass = getHeadingClass(depth);
           )}
           
           {col.type === 'image' && col.src && (
-            <figure class="flex flex-col items-center">
+            <figure class="flex flex-col items-center mb-2">
               <Image 
                 src={col.src} 
                 alt={col.alt || ''} 

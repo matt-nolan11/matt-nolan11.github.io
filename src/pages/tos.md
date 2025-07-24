@@ -4,7 +4,7 @@ layout: '../layouts/Markdown.astro'
 date: "2025-06-25"
 ---
 
-Welcome to Matt Nolan's robotics portfolio and blog. By accessing and using this website, you agree to comply with and be bound by the following terms and conditions.
+Welcome to Matt Nolan's personal portfolio and blog. By accessing and using this website, you agree to comply with and be bound by the following terms and conditions.
 
 ---
 

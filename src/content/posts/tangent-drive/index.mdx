@@ -4,7 +4,7 @@ slug: basics-of-tangent-drive
 description: Tangent drive is becoming more popular for small combat robot drivetrains, and it has some interesting properties.
 date: 2025-07-21
 cover: images/cover.jpg
-coverCaption: "Example tangent drive setup (Credit <a href=\"https://repeat-robotics.com/buy/repeat-tangent-drive-motors/\" target=\"_blank\" rel=\"noopener noreferrer\">Repeat Robotics</a>)"
+coverCaption: "Example tangent drive setup (Credit: <a href=\"https://repeat-robotics.com/buy/repeat-tangent-drive-motors/\" target=\"_blank\" rel=\"noopener noreferrer\">Repeat Robotics</a>)"
 tags: ["combat robotics", "tutorials", "mechanisms", "robot design"]
 ---
 
@@ -25,7 +25,7 @@ This question leads us to the main interesting property of tangent drive setups.
 Let's first consider a more traditional, direct-drive setup where a gearmotor directly applies power to a wheel. The linear speed and force produced by this wheel (assuming no slip and perfectly efficient torque transfer) is given by the following:
 
 ```math
-v = \frac{\omega_m r_w}{G} \qquad
+v = \frac{\omega_m r_w}{G} \qquad \quad
 F = \frac{\tau_m G}{r_w}
 ```
 
@@ -43,7 +43,7 @@ From these equations, it is clear that the wheel size affects the speed and forc
 Now consider a tangent drive setup, where the motor shaft drives the edge of the wheel through friction. The motor has no gearbox, but the rolling contact creates a gear ratio that depends on the wheel radius and the motor shaft radius (i.e. $G=\frac{r_w}{r_m}$, where $r_m$ is the motor shaft radius). Making this substitution and applying the same assumptions as before, the linear speed and force produced by this wheel is:
 
 ```math
-v = \frac{\omega_m r_w}{\frac{r_w}{r_m}} = \omega_m r_m \qquad
+v = \frac{\omega_m r_w}{\frac{r_w}{r_m}} = \omega_m r_m \qquad \quad
 F = \frac{\tau_m \frac{r_w}{r_m}}{r_w} = \frac{\tau_m}{r_m}
 ```
 
@@ -52,10 +52,10 @@ We can see that the $r_w$ term has been canceled out because the gear ratio of t
 ## Design Considerations
 Because of the wheel size irrelevance and the nature of the rolling friction contact, there are some important trade-offs to consider when designing a robot with tangent drive.
 
-### 1. Susceptible to slippage
+### 1. Susceptible to motor shaft slippage
 Tangent drive is more liable to slip than other options, so the design needs to carefully position the motor relative to the wheel to obtain good engagement. For example, the 2207.5 [Repeat Tangent Drive Motors](https://repeat-robotics.com/buy/repeat-tangent-drive-motors/) recommend 0.8mm - 1.2mm of interference between the motor shaft and the wheel, depending on the wheel design. Importantly, most of these designs use 2 wheels on each side (4 total), which can effectively prevent the motor shaft from tilting away from the wheel and disengaging. Using tangent drive on 2-wheel robots can be more finicky because of this, though using a small idler wheel or a sufficiently stiff motor+wheel mount can help.
 
-### 2. Front/back wheels want to be close to one another
+### 2. Relatively short drivebase
 Most tangent drive robots use a fairly small drive shaft, which means the front and back wheels end up relatively close to one another. This drivebase length is often shorter than that of many typical 4-wheel-drive robots. You can still use tangent drive motors with belts/pullies to extend the drivebase, but this adds complexity and may introduce slippage as discussed previously.
 
 ### 3. Less control over the robot's final speed and torque
