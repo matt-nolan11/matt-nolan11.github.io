@@ -582,18 +582,18 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
         <h2 class="text-2xl font-bold mb-6">Related Content</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {relatedContent.map(item => (
-            <article class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-200">
+            <article class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-200 rounded-xl overflow-hidden border border-base-300">
               <a 
                 href={`/${item.type === 'project' ? 'projects' : 'posts'}/${item.slug}/`}
                 class="block"
               >
-                <figure>
+                <figure class="aspect-[4/3] rounded-t-xl overflow-hidden">
                   <Image 
                     src={item.data.cover}
                     alt={item.data.title}
                     width={300}
                     height={200}
-                    class="w-full h-32 object-cover"
+                    class="w-full h-full object-cover"
                   />
                 </figure>
                 <div class="card-body p-4">

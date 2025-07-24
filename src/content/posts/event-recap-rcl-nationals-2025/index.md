@@ -1,0 +1,8 @@
+---
+title: "Event Recap: RCL National Championship 2025"
+description: "Event summary and fight breakdowns for the Robot Combat League National Championship in May 2025"
+cover: images/cover.jpg
+coverCaption: "RCL Nationals 2025 was held at the Discovery Cube on May 3rd-4th"
+date: 2025-05-10
+tags: ["combat robotics", "event recap", "creature", "spinny boiii"]
+---

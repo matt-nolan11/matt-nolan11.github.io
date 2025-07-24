@@ -1,6 +1,6 @@
 # Content System Quick Reference
 
-A quick reference guide for the Matt Nolan portfolio content system.
+A comprehensive reference for Matt Nolan's portfolio content system, covering both Markdown (.md) and MDX (.mdx) formats.
 
 ## Content Types
 
@@ -13,134 +13,340 @@ cover: "./cover.png"
 date: "2025-01-01"
 tags: ["tag1", "tag2"]
 ---
-Markdown content here...
 ```
-
-title: "Project Name" 
-description: "Project description"
-cover: "./cover.png"
-startDate: "2024-01"
-status: "completed"  # completed | in-progress | planned
 
 ### Projects (Portfolio)
 ```yaml
 ---
-title: "Project Name" 
-description: "Project description"
+title: "Project Name"
+description: "Project description" 
 cover: "./cover.png"
 startDate: "2024-01"
 status: "completed"  # completed | in-progress | planned
-featured: true                # Show in homepage featured section
-featuredOrder: 2              # (Optional) 1-based manual order in featured section (see below)
+featured: true       # Show in homepage featured section
+featuredOrder: 2     # Optional 1-6 manual order in featured section
 tags: ["robotics", "arduino"]
 githubUrl: "https://github.com/user/repo"
 ---
-Project description...
 ```
 
 **Featured Project Ordering:**
-- Set `featured: true` to include in homepage featured section.
-- Optionally set `featuredOrder: N` (1-based, e.g., 1 for first, 2 for second, up to 6).
-- Gaps in ordering are allowed (e.g., 1 and 3, with 2 filled by another featured/recent project).
-- Duplicate or out-of-bounds `featuredOrder` values (not 1–6) will throw a build error.
-- Remaining slots are filled by other featured or recent projects, sorted by date.
+- Set `featured: true` to include in homepage featured section
+- Optionally set `featuredOrder: N` (1-6, gaps allowed)
+- Remaining slots filled by other featured/recent projects by date
 
-## Modular Sections
+## Content Formats
 
-### Basic Layout
+### Markdown (.md) Files
+Traditional markdown with YAML frontmatter and sections:
 ```yaml
 sections:
   - columns:
     - type: "content"
       title: "Section Title"
-      content: |
-        Markdown content
-    - type: "gallery"
-      gallery:
-        - src: "./image.png"
-          alt: "Description"
+      content: "Content text with **markdown**"
 ```
 
-### Column Types
-- **`content`**: Markdown text with optional title
-- **`gallery`**: Image carousel with options
-- **`image`**: Single image with caption
-- **`model`**: Interactive 3D model viewer
-- **`sections`**: Nested sections (unlimited depth)
+### MDX (.mdx) Files  
+Markdown with embedded JSX components for maximum flexibility:
+```mdx
+import ModularSection from '../../../components/ModularSection.astro';
+import heroImage from './images/hero.jpg';
+import modelFile from './3Dmodels/model.glb';
 
-### Gallery Options
+# Your Content
+
+Write **markdown** normally with full syntax highlighting.
+
+<ModularSection columns={[
+  { type: "content", title: "Title", content: "Content..." },
+  { type: "image", src: heroImage, alt: "Hero image" },
+  { type: "model", modelSrc: modelFile, ... }
+]} />
+
+More markdown content here...
+```
+
+## ModularSection Component
+
+### YAML Syntax (Legacy)
 ```yaml
-galleryOptions:
-  size: "medium"        # small|medium|large|full or 200-1200px
-  autoplay: false
-  autoplayInterval: 4000
-  showThumbnails: true  # Shows thumbnail navigation strip
+sections:
+  - columns:
+    - type: "content"
+      title: "Column Title"
+      content: "Column content"
 ```
 
-**Recent Gallery Improvements:**
-- Thumbnail navigation replaces indicator dots for better UX
-- Smart autoplay that only resumes if previously active
-- Optimized event handlers and reduced code complexity
-- Enhanced accessibility and keyboard navigation
-- Better focus management and visual feedback
+### MDX Syntax (Recommended)
+```mdx
+<ModularSection columns={[
+  {
+    type: "content",
+    title: "Column Title", 
+    content: "Column content"
+  }
+]} />
+## Column Types
 
-
-### Model Options
-```yaml
-- type: "model"
-  title: "3D Model"
-  modelSrc: "./model.glb"        # GLB/GLTF model file
-  alt: "Description of 3D model"
-  poster: "./preview.jpg"        # Loading poster image
-  caption: "Model description"
-  modelOptions:
-    autoRotate: false            # Enable automatic rotation (default: false)
-    cameraControls: true         # Allow user camera control (default: true)
-    ar: false                    # Enable AR viewing on supported devices (default: false)
-    size: "medium"               # Preset size ('small', 'medium', 'large', 'full') or pixel width
-    exposureCompensation: 1      # Lighting brightness adjustment (default: 1)
-    shadowIntensity: 1           # Shadow strength (default: 1)
-    shadowSoftness: 1            # Shadow blur amount (default: 1)
-    interactionPrompt: "auto"    # When to show interaction hints ('auto', 'when-focused', 'none')
-    loading: "lazy"              # Loading strategy ('auto', 'lazy', 'eager')
-    rotationPerSecond: "20deg"   # Auto-rotation speed (e.g., '20deg', '15deg')
-    autoRotateDelay: 3000        # Delay before auto-rotation starts in ms (default: 3000)
+### Content Column
+Text content with markdown support:
+```javascript
+{
+  type: "content",
+  title: "Column Title",
+  content: `Text with **markdown** support
+  
+  - Lists work
+  - **Bold** and *italic*
+  - [Links](https://example.com)`
+}
 ```
 
-**Model Viewer Features:**
-- **Interactive Controls**: Mouse/touch orbit, zoom, and pan
-- **Auto-rotation**: Optional automatic model rotation (`autoRotate`)
-- **AR Support**: View models in augmented reality on mobile (AR button appears when supported; requires HTTPS and compatible device/browser)
-- **Progressive Loading**: Poster images while models load (`poster`)
-- **Environmental Lighting**: Realistic lighting and shadows (`exposureCompensation`, `shadowIntensity`, `shadowSoftness`)
-- **Responsive Sizing**: Adapts to container size and device (`size`)
-- **Accessibility**: Screen reader support and keyboard navigation
-- **File Formats**: Supports GLTF (.gltf) and GLB (.glb) 3D models
-- **Performance Optimizations**: Hardware acceleration, adaptive quality, optimized shadows, CSS transforms, and will-change for smooth animation
+### Image Column  
+Single optimized image:
+```javascript
+// With import (MDX)
+import myImage from './images/photo.jpg';
+{
+  type: "image",
+  title: "Image Title",
+  src: myImage,
+  alt: "Image description",
+  caption: "Optional caption"
+}
 
-**Performance Tips:**
-- Lower `rotationPerSecond` or `shadowIntensity` for smoother performance
-- Use `loading: eager` for small models to avoid loading delays
-- Keep models under 5MB for best results
+// With string path (legacy)
+{
+  type: "image",
+  title: "Image Title", 
+  src: "./images/photo.jpg",
+  alt: "Image description",
+  caption: "Optional caption"
+}
+```
 
-**AR Support Notes:**
-- AR button appears automatically when supported
-- Requires mobile device with ARCore/ARKit
-- Needs HTTPS connection to function
-- Only works on compatible browsers (Chrome, Safari)
-- Shows helpful tooltips when AR is unavailable
+### Gallery Column
+Multiple images with navigation:
+```javascript
+// With imports (MDX)
+import photo1 from './images/photo1.jpg';
+import photo2 from './images/photo2.jpg';
+{
+  type: "gallery", 
+  title: "Photo Gallery",
+  gallery: [
+    { src: photo1, alt: "Description 1", caption: "Caption 1" },
+    { src: photo2, alt: "Description 2", caption: "Caption 2" }
+  ],
+  galleryOptions: {
+    autoplay: true,
+    autoplayInterval: 4000,
+    showThumbnails: true,
+    size: "medium"
+  }
+}
+
+// With string paths (legacy)
+{
+  type: "gallery",
+  title: "Photo Gallery",
+  gallery: [
+    { src: "./images/photo1.jpg", alt: "Description 1", caption: "Caption 1" },
+    { src: "./images/photo2.jpg", alt: "Description 2", caption: "Caption 2" }
+  ],
+  galleryOptions: { /* same options */ }
+}
+```
+
+### 3D Model Column
+Interactive 3D model viewer:
+```javascript
+// With import (MDX) - Recommended
+import modelFile from './3Dmodels/model.glb';
+import posterImage from './images/poster.jpg';
+{
+  type: "model",
+  title: "3D Model",
+  modelSrc: modelFile,
+  alt: "3D model description",
+  poster: posterImage,
+  caption: "Model caption",
+  modelOptions: {
+    autoRotate: true,
+    cameraControls: true,
+    ar: true,
+    size: "large",
+    cameraOrbit: "0deg 75deg 1.5m",
+    fieldOfView: "35deg",
+    exposureCompensation: 1.0,
+    shadowIntensity: 0.8,
+    shadowSoftness: 1.2,
+    interactionPrompt: "auto",
+    loading: "lazy"
+  }
+}
+
+// With string path (legacy)
+{
+  type: "model",
+  title: "3D Model", 
+  modelSrc: "./3Dmodels/model.glb",
+  alt: "3D model description",
+  poster: "./images/poster.jpg",
+  caption: "Model caption",
+  modelOptions: { /* same options */ }
+}
+```
+
+## 3D Model Options
+
+### Camera Control
+- `cameraOrbit`: `"azimuth polar distance"` (e.g., `"0deg 75deg 1.5m"`)
+- `fieldOfView`: Zoom level (smaller = more zoomed in, e.g., `"25deg"`)
+- `minCameraOrbit` / `maxCameraOrbit`: Interaction limits
+- `minFieldOfView` / `maxFieldOfView`: Zoom limits
+
+### Interaction
+- `cameraControls`: Enable user interaction (default: `true`)
+- `autoRotate`: Automatic rotation (default: `false`)
+- `autoRotateDelay`: Delay before auto-rotation starts (ms)
+- `rotationPerSecond`: Rotation speed (e.g., `"20deg"`)
+- `interactionPrompt`: `"auto"` | `"none"` | `"wiggle"`
+
+### Lighting & Rendering
+- `exposureCompensation`: Brightness adjustment (0.0-2.0)
+- `shadowIntensity`: Shadow strength (0.0-1.0)
+- `shadowSoftness`: Shadow softness (0.0-2.0)
+- `loading`: `"auto"` | `"lazy" | "eager"`
+
+### AR Support
+- `ar`: Enable AR button on supported devices
+- `arPlacement`: `"floor"` | `"wall"`
+- `iosSource`: Separate .usdz file for iOS AR
+
+### Size Options
+- `size`: `"small"` | `"medium"` | `"large"` | `"full"` | number (200-1200)
+
+## Gallery Options
+
+### Navigation
+- `autoplay`: Auto-advance slides (default: `false`)
+- `autoplayInterval`: Time between slides (ms, default: 4000)
+- `showThumbnails`: Show thumbnail navigation (default: `true`)
+
+### Layout
+- `size`: `"small"` | `"medium"` | `"large"` | `"full"`
+
+## File Organization
+
+### Content Structure
+```
+src/content/
+├── posts/
+│   └── post-name/
+│       ├── index.md or index.mdx
+│       ├── cover.webp
+│       ├── images/           # Co-located images
+│       │   ├── hero.jpg
+│       │   └── gallery1.jpg
+│       └── 3Dmodels/         # Co-located 3D models (if needed)
+└── projects/
+    └── project-name/
+        ├── index.md or index.mdx  
+        ├── cover.png
+        ├── images/           # Co-located images
+        │   ├── photo1.jpg
+        │   └── photo2.jpg
+        └── 3Dmodels/         # Co-located 3D models
+            └── model.glb
+```
 
 ## Project Versions
 
+Add versioning to projects for iterative development:
 ```yaml
 versions:
   - version: "v2.0"
-    title: "Version Name"
-    description: "What changed"
-    startDate: "2024-01"
+    title: "Major Redesign"
+    description: "Complete overhaul with new features"
+    startDate: "2024-06"
     status: "completed"
-    achievements:
-      - "Key accomplishment"
+    achievements: ["Improved performance", "New UI design"]
+    learnings: ["Important lesson learned"]
+    githubUrl: "https://github.com/user/repo/tree/v2.0"
+    content: "Optional detailed markdown content"
+```
+
+### Version Headers
+Customize or hide the versions section header:
+```yaml
+versionsTitle: "Development History"  # Custom header
+versionsTitle: ""                    # Hide header completely  
+# versionsTitle: undefined           # Default "Project Versions"
+```
+
+## Best Practices
+
+### Performance
+- Use `.glb` models (smaller than `.gltf`)
+- Optimize images with appropriate formats (`.webp` for covers)
+- Keep 3D models under 5MB for best performance
+- Use `loading: "lazy"` for off-screen content
+
+### Organization  
+- Co-locate images with content in same directory
+- Use descriptive alt text for accessibility
+- Organize assets in project subdirectories
+- Use consistent naming conventions
+
+### Content Strategy
+- **MDX for complex layouts**: Use when you need fine control over content flow
+- **Markdown for simple content**: Use for straightforward blog posts
+- **Mix both formats**: Start with `.md`, convert to `.mdx` when needed
+
+### Camera Positioning Tips
+- **Closer models**: `cameraOrbit: "0deg 75deg 0.8m"`, `fieldOfView: "25deg"`
+- **Wide views**: `cameraOrbit: "0deg 60deg 2m"`, `fieldOfView: "45deg"`  
+- **Top-down**: `cameraOrbit: "0deg 30deg 1.5m"`
+- **Side view**: `cameraOrbit: "90deg 90deg 1.5m"`
+
+## Common Examples
+
+### Two-Column Layout
+```mdx
+import heroImage from './images/hero.jpg';
+import modelFile from './3Dmodels/model.glb';
+
+<ModularSection columns={[
+  { type: "content", title: "Description", content: "Text here..." },
+  { type: "model", modelSrc: modelFile, modelOptions: { autoRotate: true } }
+]} />
+```
+
+### Photo Gallery with Text
+```mdx
+import photo1 from './images/photo1.jpg';
+import photo2 from './images/photo2.jpg';
+
+<ModularSection columns={[
+  { 
+    type: "gallery",
+    gallery: [
+      { src: photo1, alt: "Photo 1", caption: "First photo" },
+      { src: photo2, alt: "Photo 2", caption: "Second photo" }
+    ],
+    galleryOptions: { autoplay: true, showThumbnails: true }
+  }
+]} />
+```
+
+### Single Column Content
+```mdx
+<ModularSection columns={[
+  { type: "content", title: "Full Width", content: "Content spans full width..." }
+]} />
+```
     learnings:
       - "Lesson learned"
     gallery: [...]
@@ -150,25 +356,46 @@ versions:
 ## Layout Patterns
 
 ### Two Columns (50/50)
+**MDX (Recommended):**
+```mdx
+import photo from './images/photo.jpg';
+
+<ModularSection columns={[
+  { type: "content", content: "Left column text..." },
+  { type: "gallery", gallery: [{ src: photo, alt: "Photo" }] }
+]} />
+```
+
+**YAML (Legacy):**
 ```yaml
 sections:
   - columns:
     - type: "content"
       content: "Left column"
     - type: "gallery"  
-      gallery: [...]
+      gallery: 
+        - src: "./images/photo.jpg"
+          alt: "Photo"
 ```
 
 ### Three Columns (33/33/33)
-```yaml
-sections:
-  - columns:
-    - type: "content"
-      content: "Left"
-    - type: "gallery"
-      gallery: [...]
-    - type: "content"
-      content: "Right"
+**MDX (Recommended):**
+```mdx
+import photo from './images/photo.jpg';
+
+<ModularSection columns={[
+  { type: "content", content: "Left column" },
+  { type: "gallery", gallery: [{ src: photo, alt: "Photo" }] },
+  { type: "content", content: "Right column" }
+]} />
+```
+
+### Single Full-Width Column
+**MDX (Recommended):**
+```mdx
+<ModularSection columns={[
+  { type: "content", title: "Full Width", content: "Content spans entire width..." }
+]} />
 ```
 
 ### Header Gallery
@@ -177,58 +404,71 @@ Replace cover image with carousel:
 ---
 title: "Project"
 gallery:
-  - src: "./hero1.png"
+  - src: "./images/hero1.png"
     alt: "Hero image 1"
-  - src: "./hero2.png"
+  - src: "./images/hero2.png"
     alt: "Hero image 2"
 ---
 ```
 
-## ProjectGallery Component
-
-The gallery component has been recently optimized for better performance and user experience:
-
-### Key Features
-- **Thumbnail Navigation**: Primary navigation method with visual highlights
-- **Smart Autoplay**: Intelligently resumes only when appropriate
-- **Touch-Friendly**: Optimized swipe gestures and mobile interactions
-- **Keyboard Accessible**: Full keyboard navigation support
-- **Performance Optimized**: Reduced code complexity and better memoization
+## Gallery Features
 
 ### Navigation Methods
-- **Thumbnails**: Click/tap thumbnails for direct navigation
+- **Thumbnails**: Primary navigation with visual highlights
 - **Arrows**: Hover to show navigation arrows
 - **Keyboard**: `←/→` to navigate, `Space` to play/pause, `Home/End` for first/last
 - **Touch**: Swipe gestures on mobile devices
 - **Autoplay**: Optional automatic slideshow with smart pause/resume
 
-### Architecture Improvements (Recent)
-- Removed redundant indicator dots (thumbnails serve this purpose)
-- Consolidated repetitive autoplay logic into utility functions
-- Optimized event handlers for better performance
-- Enhanced focus management for accessibility
-- Reduced component size by ~25% while maintaining functionality
+### Key Features
+- **Performance Optimized**: Reduced complexity and better memoization
+- **Touch-Friendly**: Optimized swipe gestures and mobile interactions
+- **Keyboard Accessible**: Full keyboard navigation support
+- **Smart Autoplay**: Intelligently resumes only when appropriate
 
 ## Responsive Behavior
 
-- **Mobile**: All columns stack vertically
-- **Tablet**: 2-column layouts maintained, 3+ may stack
-- **Desktop**: Full multi-column layouts
+- **Mobile**: All columns stack vertically for optimal mobile experience
+- **Tablet**: 2-column layouts maintained, 3+ columns may stack
+- **Desktop**: Full multi-column layouts display side-by-side
 
 ## File Organization
 
+### Content Structure
 ```
 src/content/
 ├── posts/
 │   └── post-name/
-│       ├── index.md
-│       ├── cover.png
-│       └── images/
+│       ├── index.md|mdx      # Post content (use .mdx for components)
+│       ├── cover.png         # Card thumbnail image
+│       ├── images/           # Additional post images
+│       │   ├── hero.jpg
+│       │   └── gallery1.jpg
+│       └── 3Dmodels/         # 3D models (if needed)
 └── projects/
     └── project-name/
-        ├── index.md
-        ├── cover.png
-        └── images/
+        ├── index.md|mdx      # Project content (use .mdx for components) 
+        ├── cover.png         # Card thumbnail image
+        ├── images/           # Project images
+        │   ├── photo1.jpg
+        │   └── photo2.jpg
+        └── 3Dmodels/         # Project 3D models
+            └── model.glb
 ```
 
-For detailed documentation, see `content-layout-system.md`.
+### Asset Guidelines
+- **Co-locate assets**: Keep images and models with their content in organized subfolders
+- **Use imports in MDX**: `import image from './images/photo.jpg'` for better optimization
+- **Organize with subfolders**: Use `images/` and `3Dmodels/` subfolders within content directories
+- **Use .webp**: For cover images when possible (better compression)
+- **Use .glb**: For 3D models (smaller than .gltf)
+- **Descriptive naming**: Use clear, descriptive filenames
+- **Optimize sizes**: Keep models under 5MB, compress images appropriately
+
+### Import Benefits
+- **Better performance**: Astro optimizes imported assets automatically
+- **Type safety**: Import errors caught at build time
+- **Hot reload**: Changes reflected immediately during development
+- **Bundle optimization**: Unused assets automatically excluded
+
+For comprehensive documentation, see `content-layout-system.md`.

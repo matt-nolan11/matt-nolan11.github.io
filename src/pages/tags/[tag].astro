@@ -70,14 +70,14 @@ const sortedPosts = posts.sort((a, b) =>
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedProjects.map(project => (
-              <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-                <figure class="relative">
+              <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300">
+                <figure class="relative aspect-[16/9] rounded-t-xl overflow-hidden">
                   <Image 
                     src={project.data.cover}
                     alt={project.data.title}
                     width={400}
                     height={250}
-                    class="w-full h-48 object-cover"
+                    class="w-full h-full object-cover"
                   />
                   <div class="absolute top-2 right-2">
                     <div class={`badge ${
@@ -145,14 +145,14 @@ const sortedPosts = posts.sort((a, b) =>
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedPosts.map(post => (
-              <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-                <figure>
+              <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300">
+                <figure class="aspect-[16/9] rounded-t-xl overflow-hidden">
                   <Image 
                     src={post.data.cover}
                     alt={post.data.title}
                     width={400}
                     height={250}
-                    class="w-full h-48 object-cover"
+                    class="w-full h-full object-cover"
                   />
                 </figure>
                 

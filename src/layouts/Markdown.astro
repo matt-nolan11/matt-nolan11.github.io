@@ -23,20 +23,20 @@ if (coverImg && typeof coverImg === 'string' && assetMap[coverImg as string]) {
         {coverImg ? (
             <figure class="mx-auto my-8">
                 {typeof coverImg === 'object' ? (
-                    <Image 
+                    <Image
                         src={coverImg}
                         alt={frontmatter.title}
                         width={560}
                         height={315}
-                        class="mx-auto rounded-lg shadow-md"
+                        class="mx-auto rounded-xl shadow-lg"
                     />
                 ) : (
-                    <img 
+                    <img
                         src={coverImg}
                         alt={frontmatter.title}
                         width={560}
                         height={315}
-                        class="mx-auto rounded-lg shadow-md"
+                        class="mx-auto rounded-xl shadow-lg"
                     />
                 )}
                 {frontmatter.coverCaption && (

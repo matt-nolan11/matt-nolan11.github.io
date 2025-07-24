@@ -58,7 +58,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
             alt={post.data.title}
             width={560}
             height={315}
-            class="mx-auto rounded-lg shadow-md"
+            class="mx-auto rounded-xl shadow-lg"
           />
           {post.data.coverCaption && (
             <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={post.data.coverCaption}></figcaption>
@@ -83,18 +83,18 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
       <h2 class="text-2xl font-bold mb-6">Related Content</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {relatedContent.map(item => (
-          <article class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-200">
+          <article class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-200 rounded-xl overflow-hidden">
             <a 
               href={`/${item.type === 'project' ? 'projects' : 'posts'}/${item.slug}/`}
               class="block"
             >
-              <figure>
+              <figure class="aspect-[4/3] rounded-t-xl overflow-hidden">
                 <Image 
                   src={item.data.cover}
                   alt={item.data.title}
                   width={300}
                   height={200}
-                  class="w-full h-32 object-cover"
+                  class="w-full h-full object-cover"
                 />
               </figure>
               <div class="card-body p-4">

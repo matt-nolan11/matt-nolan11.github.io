@@ -58,10 +58,23 @@ async function optimizeSectionGalleries(sections: any[]) {
 }
 
 // Optimize the sections
-const { sections, depth = 0 } = Astro.props;
+const { sections, columns, depth = 0 } = Astro.props;
+
+// Support both the old sections API and new columns API
+let sectionsToProcess;
+if (columns) {
+  // New simplified API: just pass columns directly
+  sectionsToProcess = [{ columns }];
+} else if (sections) {
+  // Backward compatibility: use the existing sections structure
+  sectionsToProcess = sections;
+} else {
+  // No data provided
+  sectionsToProcess = [];
+}
 
 // Optimize the sections
-const optimizedSections = await optimizeSectionGalleries(sections);
+const optimizedSections = await optimizeSectionGalleries(sectionsToProcess);
 
 // Calculate appropriate heading levels based on nesting depth
 const getHeadingLevel = (depth: number) => {
@@ -112,18 +125,18 @@ const headingClass = getHeadingClass(depth);
           )}
           
           {col.type === 'image' && col.src && (
-            <>
+            <figure class="flex flex-col items-center">
               <Image 
                 src={col.src} 
                 alt={col.alt || ''} 
                 width={600} 
                 height={400} 
-                class="w-full h-auto rounded-lg shadow-lg" 
+                class="w-full h-auto rounded-xl shadow-lg" 
               />
               {col.caption && (
-                <p class="text-sm text-base-content/60 mt-2 text-center">{col.caption}</p>
+                <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={col.caption}></figcaption>
               )}
-            </>
+            </figure>
           )}
           
           {col.type === 'model' && col.modelSrc && (
@@ -154,6 +167,12 @@ const headingClass = getHeadingClass(depth);
                 loading={col.modelOptions?.loading}
                 rotationPerSecond={col.modelOptions?.rotationPerSecond}
                 autoRotateDelay={col.modelOptions?.autoRotateDelay}
+                cameraOrbit={col.modelOptions?.cameraOrbit}
+                fieldOfView={col.modelOptions?.fieldOfView}
+                minCameraOrbit={col.modelOptions?.minCameraOrbit}
+                maxCameraOrbit={col.modelOptions?.maxCameraOrbit}
+                minFieldOfView={col.modelOptions?.minFieldOfView}
+                maxFieldOfView={col.modelOptions?.maxFieldOfView}
                 client:load
               />
             </>

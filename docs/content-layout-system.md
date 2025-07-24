@@ -2,22 +2,168 @@
 
 ## Overview
 
-This documentation covers the complete content and layout system for Matt Nolan's portfolio website. The system provides flexible, responsive layouts for both simple blog posts and complex engineering project documentation.
+This documentation covers the complete content and layout system for Matt Nolan's portfolio website. The system provides flexible, responsive layouts for both simple blog posts and complex engineering project documentation with support for both traditional Markdown and enhanced MDX formats.
 
 ### Key Features
 
+- **Dual Content Format Support**: Both Markdown (.md) and MDX (.mdx) files supported
 - **Flexible Content Architecture**: Support for posts and projects with different complexity levels
-- **Modular Section System**: Mix text, images, galleries, and nested layouts
+- **Enhanced ModularSection Component**: Simplified API with both legacy and modern syntax
+- **Interactive 3D Models**: Full-featured model viewer with camera controls and AR support
+- **Advanced Gallery System**: Touch-friendly carousels with thumbnail navigation
 - **Project Versioning**: Track project evolution through multiple iterations
-- **Advanced Gallery System**: Touch-friendly carousels with accessibility features
 - **Responsive Design**: Mobile-first approach with DaisyUI dark/light themes
 - **TypeScript Schema Validation**: Type-safe content with automatic validation
+
+## Content Formats
+
+### Markdown (.md) - Traditional Approach
+Use for straightforward content with YAML frontmatter and ModularSection in YAML format:
+
+```yaml
+---
+title: "Project Title"
+description: "Project description"
+cover: "./cover.png"
+# ... other frontmatter
+sections:
+  - columns:
+    - type: "content"
+      content: "Text content here"
+    - type: "gallery"
+      gallery: [...]
+---
+
+# Additional markdown content
+Standard markdown content follows the frontmatter.
+```
+
+### MDX (.mdx) - Enhanced Approach (Recommended)
+Use for complex layouts with embedded components and better developer experience:
+
+```mdx
+---
+title: "Project Title"
+description: "Project description"  
+cover: "./cover.png"
+# ... other frontmatter (no sections needed)
+---
+
+# Project Content
+
+Regular markdown content with embedded components:
+
+<ModularSection columns={[
+  { 
+    type: "content", 
+    title: "Description",
+    content: "Detailed **markdown** content with full formatting support..." 
+  },
+  { 
+    type: "model", 
+    modelSrc: "./robot.glb",
+    modelOptions: { 
+      autoRotate: true,
+      cameraOrbit: "0deg 75deg 0.8m",
+      fieldOfView: "25deg"
+    }
+  }
+]} />
+
+More markdown content can follow components...
+```
+
+## Asset Organization
+
+### Co-located Assets (Recommended)
+
+Assets are organized alongside content files using imports for better maintainability:
+
+```
+src/content/posts/my-post/
+├── index.mdx                 # Main content
+├── images/
+│   ├── cover.jpg            # Cover image  
+│   ├── diagram.png          # Content images
+│   └── photo.webp           # Additional images
+└── models/
+    └── prototype.glb        # 3D models
+
+src/content/projects/my-project/
+├── index.mdx                # Main content
+├── images/
+│   ├── cover.png            # Project card image
+│   ├── v1-photo.jpg         # Version photos
+│   └── assembly.png         # Technical diagrams
+└── 3Dmodels/
+    ├── final.glb            # Current model
+    └── prototype.glb        # Historical versions
+```
+
+### Import Approach for MDX
+
+```mdx
+---
+title: "My Project"
+cover: coverImage              # Use imported variable
+---
+
+import ModularSection from '../../../components/ModularSection.astro';
+import coverImage from './images/cover.png';
+import robotModel from './3Dmodels/robot.glb';
+import diagramImage from './images/diagram.png';
+
+<ModularSection columns={[
+  {
+    type: 'image',
+    src: diagramImage,         # Use imported variable
+    alt: 'Technical diagram'
+  },
+  {
+    type: 'model', 
+    modelSrc: robotModel,      # Use imported variable
+    alt: '3D robot model'
+  }
+]} />
+```
+
+### Benefits of Co-located Assets
+
+- **Better Organization**: Assets live with the content that uses them
+- **Easier Maintenance**: Moving/renaming content moves assets automatically  
+- **Build-time Validation**: Missing assets cause build failures (catch errors early)
+- **Automatic Optimization**: Astro optimizes imported images automatically
+- **Clear Dependencies**: Easy to see what assets each piece of content uses
+
+### Legacy Public Path Support
+
+For backwards compatibility, string paths are also supported:
+
+```mdx
+---
+cover: "./images/cover.jpg"    # String path (still works)
+---
+
+<ModularSection columns={[
+  {
+    type: 'image',
+    src: '/static/legacy-image.jpg'  # Public folder path
+  }
+]} />
+```
+
+**MDX Benefits:**
+- **Better syntax highlighting**: Full component syntax highlighting in editors
+- **Component intellisense**: Auto-completion and type checking
+- **Flexible content flow**: Mix markdown and components naturally
+- **Import support**: Import custom components and utilities
+- **Better maintainability**: Easier to refactor and update
 
 ## Content Types
 
 ### 1. Posts (Blog Content)
 
-Simple content structure for blog posts about robotics, astronomy, and engineering topics.
+Simple content structure for blog posts about robotics, engineering, and making.
 
 **Basic Post Structure:**
 ```yaml
@@ -54,8 +200,31 @@ Standard markdown with full support for:
 
 Rich, flexible content structure for showcasing engineering projects with support for versions, galleries, and complex layouts.
 
-**Basic Project Structure:**
+**Basic Project Structure (Markdown):**
 ```yaml
+---
+title: "6-DOF Robot Arm"
+description: "Multi-version robotic arm project exploring different control systems."
+cover: "./cover.png"
+startDate: "2023-01"
+endDate: "2024-06"
+status: "in-progress"
+featured: true
+tags: ["robotics", "mechanical-design", "control-systems"]
+githubUrl: "https://github.com/username/project"
+sections:
+  - columns:
+    - type: "content"
+      content: "Project description..."
+    - type: "model"
+      modelSrc: "./robot.glb"
+---
+
+Additional markdown content here.
+```
+
+**Enhanced Project Structure (MDX):**
+```mdx
 ---
 title: "6-DOF Robot Arm"
 description: "Multi-version robotic arm project exploring different control systems."
@@ -68,7 +237,40 @@ tags: ["robotics", "mechanical-design", "control-systems"]
 githubUrl: "https://github.com/username/project"
 ---
 
-Your main project description and content here.
+# Robot Arm Project
+
+This project explores advanced robotics control systems...
+
+<ModularSection columns={[
+  { 
+    type: "content", 
+    title: "Technical Details",
+    content: `
+## Specifications
+- **Degrees of Freedom**: 6
+- **Reach**: 850mm
+- **Payload**: 2kg
+- **Repeatability**: ±0.1mm
+
+The arm uses custom servo controllers...
+    `
+  },
+  { 
+    type: "model", 
+    modelSrc: "./robot-arm.glb",
+    alt: "Interactive 3D model of the robot arm",
+    modelOptions: { 
+      autoRotate: true,
+      cameraOrbit: "45deg 75deg 1.2m",
+      fieldOfView: "30deg",
+      exposureCompensation: 1.2
+    }
+  }
+]} />
+
+## Build Process
+
+The construction involved several key phases...
 ```
 
 **Project Schema Fields:**
@@ -82,47 +284,71 @@ Your main project description and content here.
 | `endDate` | date/string | | Project completion date |
 | `status` | enum | | "completed", "in-progress", "planned" |
 | `featured` | boolean | | Show on homepage featured section |
-| `featuredOrder` | number | | (1-based) Manual position in homepage featured section. Gaps allowed. Duplicates/out-of-bounds will throw an error. |
-
-To manually control which projects appear in the homepage featured section and their order:
-
-- Set `featured: true` in the project frontmatter.
-- Optionally set `featuredOrder: N` (where N is 1-based position, e.g., 1 for first, 2 for second, etc.).
-- Gaps in ordering are allowed (e.g., 1 and 3, with 2 filled by another featured or recent project).
-- If multiple projects use the same `featuredOrder`, or if a value is out of bounds (not 1–6), a build error will occur.
-- Remaining slots are filled by other featured or recent projects, sorted by date.
+| `featuredOrder` | number | | Manual position in homepage (1-6) |
 | `tags` | array | | Technology/topic tags |
 | `githubUrl` | url | | Project repository link |
 | `liveUrl` | url | | Live demo/deployment link |
 | `gallery` | array | | Header gallery (replaces cover) |
-| `sections` | array | | Modular content sections |
+| `sections` | array | | Modular content sections (Markdown only) |
 | `versionsTitle` | string | | Custom versions section title |
 | `versions` | array | | Project version iterations |
 
-## Modular Section System
+**Featured Project Ordering:**
+- Set `featured: true` and optionally `featuredOrder: N` (1-6)
+- Gaps in ordering are allowed (e.g., 1, 3, 5)
+- Remaining slots filled by recent projects
+- Duplicate orders or out-of-bounds values cause build errors
 
-The core of the layout system is the modular section architecture that supports complex, responsive layouts with up to 4 columns per section and unlimited nesting depth.
+## ModularSection Component
 
-### Basic Section Structure
+The core layout component supports both legacy YAML syntax and modern component-based syntax.
+
+### Modern Syntax (MDX - Recommended)
+
+```mdx
+<ModularSection 
+  columns={[
+    { type: "content", title: "Overview", content: "Markdown content..." },
+    { type: "gallery", gallery: [...], galleryOptions: {...} },
+    { type: "model", modelSrc: "./model.glb", modelOptions: {...} }
+  ]}
+  cameraOrbit="45deg 75deg 1.2m"
+  fieldOfView="30deg"
+/>
+```
+
+### Legacy Syntax (YAML - Supported)
 
 ```yaml
 sections:
   - columns:
     - type: "content"
-      title: "Section Title"
-      content: |
-        Markdown content here
+      title: "Overview"
+      content: "Markdown content..."
     - type: "gallery"
-      title: "Images"
-      gallery:
-        - src: "./image1.png"
-          alt: "Description"
-          caption: "Optional caption"
+      gallery: [...]
+      galleryOptions: {...}
+    - type: "model"
+      modelSrc: "./model.glb"
+      modelOptions: {...}
 ```
 
-### Column Types
+### Component Props
 
-#### 1. Content Columns
+**ModularSection Props:**
+- `columns`: Array of column objects (see Column Types below)
+- `cameraOrbit`: Default camera position for all 3D models in this section
+- `fieldOfView`: Default field of view for all 3D models in this section
+- `minCameraOrbit`: Minimum camera orbit constraint
+- `maxCameraOrbit`: Maximum camera orbit constraint  
+- `minFieldOfView`: Minimum field of view constraint
+- `maxFieldOfView`: Maximum field of view constraint
+
+**Note:** Camera props are passed to all model columns within the section. Individual model columns can override these settings via their `modelOptions`.
+
+## Column Types
+
+### 1. Content Columns
 ```yaml
 - type: "content"
   title: "Optional Title"  # Rendered as h2-h6 based on nesting depth
@@ -136,12 +362,12 @@ sections:
 ```
 
 **Features:**
-- Full markdown rendering with `marked` library
+- Full markdown rendering with syntax highlighting
 - Automatic heading level adjustment based on nesting depth
 - Responsive typography with `prose` classes
 - Dark mode compatible styling
 
-#### 2. Gallery Columns
+### 2. Gallery Columns
 ```yaml
 - type: "gallery"
   title: "Gallery Title"
@@ -159,15 +385,13 @@ sections:
 ```
 
 **Gallery Features:**
-- Touch/swipe support for mobile devices
-- Keyboard navigation (←/→, Space, Home/End)
-- Thumbnail navigation with visual feedback
-- Lazy loading for performance
-- ARIA accessibility labels
-- Responsive autoplay controls
-- Customizable sizing and behavior
+- **Navigation Methods**: Thumbnails (primary), arrows (hover), keyboard (←/→, Space, Home/End), touch/swipe
+- **Smart Autoplay**: Intelligent pause/resume based on user interaction
+- **Performance Optimized**: Lazy loading, efficient rendering, reduced complexity
+- **Accessibility**: ARIA labels, keyboard navigation, screen reader support
+- **Responsive**: Adapts to container size and device capabilities
 
-#### 3. Single Image Columns
+### 3. Single Image Columns
 ```yaml
 - type: "image"
   src: "./diagram.png"
@@ -176,12 +400,11 @@ sections:
 ```
 
 **Features:**
-- Optimized image loading
-- Responsive sizing
-- Caption support with styling
-- Accessibility compliance
+- Optimized image loading and responsive sizing
+- Caption support with consistent styling
+- Accessibility compliance with alt text
 
-#### 4. 3D Model Columns
+### 4. 3D Model Columns
 ```yaml
 - type: "model"
   title: "3D CAD Model"
@@ -198,70 +421,63 @@ sections:
     shadowIntensity: 0.8
     interactionPrompt: "auto"
     loading: "lazy"
+    cameraOrbit: "45deg 75deg 1.2m"
+    fieldOfView: "30deg"
+    rotationPerSecond: "15deg"
+    autoRotateDelay: 3000
 ```
 
+**Model Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `autoRotate` | boolean | false | Enable automatic rotation |
+| `cameraControls` | boolean | true | Allow user camera control |
+| `ar` | boolean | false | Enable AR viewing on supported devices |
+| `size` | string/number | "medium" | "small", "medium", "large", "full" or pixel width |
+| `exposureCompensation` | number | 1 | Lighting brightness adjustment |
+| `shadowIntensity` | number | 1 | Shadow strength (0-2) |
+| `shadowSoftness` | number | 1 | Shadow blur amount (0-2) |
+| `interactionPrompt` | string | "auto" | "auto", "when-focused", "none" |
+| `loading` | string | "lazy" | "auto", "lazy", "eager" |
+| `cameraOrbit` | string | "0deg 75deg 105%" | Initial camera position (azimuth elevation distance) |
+| `fieldOfView` | string | "auto" | Camera field of view (e.g., "30deg") |
+| `minCameraOrbit` | string | "auto" | Minimum camera constraints |
+| `maxCameraOrbit` | string | "auto" | Maximum camera constraints |
+| `minFieldOfView` | string | "auto" | Minimum zoom constraint |
+| `maxFieldOfView` | string | "auto" | Maximum zoom constraint |
+| `rotationPerSecond` | string | "20deg" | Auto-rotation speed |
+| `autoRotateDelay` | number | 3000 | Delay before auto-rotation starts (ms) |
+
+**Camera Positioning Examples:**
+- **Closer view**: `cameraOrbit: "0deg 75deg 0.8m"`, `fieldOfView: "25deg"`
+- **Wide view**: `cameraOrbit: "0deg 60deg 2m"`, `fieldOfView: "45deg"`
+- **Top-down**: `cameraOrbit: "0deg 30deg 1.5m"`
+- **Side view**: `cameraOrbit: "90deg 90deg 1.5m"`
+
 **Model Features:**
-**Model Viewer Features:**
 - **Interactive Controls**: Mouse/touch orbit, zoom, and pan
-- **Auto-rotation**: Optional automatic model rotation (`autoRotate`)
-- **AR Support**: View models in augmented reality on mobile devices (AR button appears when supported; requires HTTPS and compatible device/browser)
-- **Progressive Loading**: Poster images while models load (`poster`)
-- **Environmental Lighting**: Realistic lighting and shadows (`exposureCompensation`, `shadowIntensity`, `shadowSoftness`)
-- **Responsive Sizing**: Adapts to container size and device (`size`)
+- **Auto-rotation**: Configurable automatic model rotation
+- **AR Support**: View models in augmented reality on compatible mobile devices
+- **Progressive Loading**: Poster images while models load
+- **Environmental Lighting**: Realistic lighting and shadows
+- **Performance Optimized**: Hardware acceleration, adaptive quality
 - **Accessibility**: Screen reader support and keyboard navigation
-- **File Formats**: Supports GLTF (.gltf) and GLB (.glb) 3D models
-- **Performance Optimizations**: Hardware acceleration, adaptive quality, optimized shadows, CSS transforms, and will-change for smooth animation
-- **Troubleshooting**: Lower `rotationPerSecond` or `shadowIntensity` for smoother performance; use `loading: eager` for small models; keep models under 5MB for best results
+- **File Formats**: GLTF (.gltf) and GLB (.glb) 3D models
 
-**Model Options:**
-- `autoRotate`: Enable automatic rotation (default: false)
-- `cameraControls`: Allow user camera control (default: true)
-- `ar`: Enable AR viewing on supported devices (default: false)
-- `size`: Preset size ('small', 'medium', 'large', 'full') or pixel width
-- `exposureCompensation`: Lighting brightness adjustment (default: 1)
-- `shadowIntensity`: Shadow strength (default: 1)
-- `shadowSoftness`: Shadow blur amount (default: 1)
-- `interactionPrompt`: When to show interaction hints ('auto', 'when-focused', 'none')
-- `loading`: Loading strategy ('auto', 'lazy', 'eager')
-- `rotationPerSecond`: Auto-rotation speed (e.g., '20deg', '15deg')
-- `autoRotateDelay`: Delay before auto-rotation starts in milliseconds (default: 3000)
+**AR Requirements:**
+- **iOS**: iPhone 6s+ with iOS 11+ and Safari/Chrome
+- **Android**: ARCore-compatible device with Chrome 67+
+- **Connection**: HTTPS required for AR functionality
+- **Model Size**: Under 10MB recommended for AR
 
-**Model Options:**
-- `autoRotate`: Enable automatic rotation (default: false)
-- `cameraControls`: Allow user camera control (default: true)
-- `ar`: Enable AR viewing on supported devices (default: false)
-- `size`: Preset size ('small', 'medium', 'large', 'full') or pixel width
-- `exposureCompensation`: Lighting brightness adjustment (default: 1)
-- `shadowIntensity`: Shadow strength (default: 1)
-- `shadowSoftness`: Shadow blur amount (default: 1)
-- `interactionPrompt`: When to show interaction hints ('auto', 'when-focused', 'none')
-- `loading`: Loading strategy ('auto', 'lazy', 'eager')
-- `rotationPerSecond`: Auto-rotation speed (default: '20deg') - use slower speeds like '15deg' for smoother animation on lower-end devices
-- `autoRotateDelay`: Delay before auto-rotation starts in milliseconds (default: 3000)
+**Performance Tips:**
+- Use slower `rotationPerSecond` (15deg or 10deg) for smoother animation
+- Lower `shadowIntensity` to 0.5 or 0 for better performance
+- Use `loading: "eager"` for small models to avoid delays
+- Keep models under 5MB for optimal performance
 
-**Performance Optimizations:**
-- Hardware acceleration is automatically enabled for smooth rotation
-- Adaptive quality adjustments based on device capabilities
-- Optimized shadow rendering for lower-end devices
-- CSS transforms and will-change properties for better performance
-- Slower default rotation speed (20deg/sec) to reduce stuttering
-
-**Troubleshooting Stuttering:**
-- Reduce `rotationPerSecond` to '15deg' or '10deg' for very smooth rotation
-- Lower `shadowIntensity` to 0.5 or disable shadows entirely (set to 0)
-- Use `loading="eager"` for small models to avoid loading delays
-- Ensure models are optimized (under 5MB recommended for smooth performance)
-
-**AR (Augmented Reality) Support:**
-- AR button automatically appears only when device/browser supports AR
-- **iOS Requirements:** iPhone 6s or newer with iOS 11+ and Safari/Chrome
-- **Android Requirements:** ARCore-compatible device with Chrome 67+
-- **Browser Requirements:** Must be served over HTTPS for AR to work
-- **Model Requirements:** Models must be under 10MB and properly optimized
-- AR button shows "AR not available" tooltip when unsupported
-- Test AR functionality on actual mobile devices, not desktop browsers
-
-#### 5. Nested Section Columns
+### 5. Nested Section Columns
 ```yaml
 - type: "sections"
   sections:
@@ -272,15 +488,27 @@ sections:
         gallery: [...]
 ```
 
-**Nested Features:**
-- Unlimited nesting depth
-- Automatic indentation and visual hierarchy
-- Responsive column stacking
-- Consistent spacing and typography
+## Layout Patterns
 
-### Layout Patterns
+### Two-Column Layout (50/50)
+**MDX (Recommended):**
+```mdx
+<ModularSection columns={[
+  { 
+    type: "content", 
+    title: "Description",
+    content: "Text content on the left side..." 
+  },
+  { 
+    type: "gallery", 
+    gallery: [
+      { src: "./visual.png", alt: "Supporting visual" }
+    ]
+  }
+]} />
+```
 
-#### Two-Column Layout (50/50)
+**YAML (Legacy):**
 ```yaml
 sections:
   - columns:
@@ -294,26 +522,45 @@ sections:
           alt: "Supporting visual"
 ```
 
-#### Three-Column Layout (33/33/33)
-```yaml
-sections:
-  - columns:
-    - type: "content"
-      content: "Left column"
-    - type: "gallery"
-      gallery: [...]
-    - type: "content"
-      content: "Right column"
+### Three-Column Layout (33/33/33)
+**MDX (Recommended):**
+```mdx
+<ModularSection columns={[
+  { type: "content", content: "Left column" },
+  { type: "gallery", gallery: [...] },
+  { type: "content", content: "Right column" }
+]} />
 ```
 
-#### Four-Column Layout (25/25/25/25)
+### Model with Description Layout
+**MDX (Recommended):**
+```mdx
+<ModularSection 
+  columns={[
+    { 
+      type: "content", 
+      title: "Technical Details",
+      content: "Detailed specifications..." 
+    },
+    { 
+      type: "model", 
+      modelSrc: "./robot.glb",
+      modelOptions: { autoRotate: true }
+    }
+  ]}
+  cameraOrbit="45deg 75deg 1.2m"
+  fieldOfView="30deg"
+/>
+```
+
+### Four-Column Layout (25/25/25/25)
 ```yaml
 sections:
   - columns:
     - type: "image"
       src: "./icon1.png"
       alt: "Feature 1"
-    - type: "image"
+    - type: "image" 
       src: "./icon2.png"
       alt: "Feature 2"
     - type: "image"
@@ -324,12 +571,14 @@ sections:
       alt: "Feature 4"
 ```
 
-#### Asymmetric Layouts
-The system automatically handles responsive behavior - columns stack vertically on smaller screens while maintaining the intended layout on desktop.
+**Responsive Behavior:**
+- **Mobile**: All columns stack vertically for optimal experience
+- **Tablet**: 2-column layouts maintained, 3+ columns may stack
+- **Desktop**: Full multi-column layouts display side-by-side
 
 ## Project Versions System
 
-Track project evolution through multiple iterations with rich documentation, galleries, and nested sections for each version.
+Track project evolution through multiple iterations with rich documentation and media.
 
 ### Version Schema Fields
 
@@ -362,16 +611,21 @@ versions:
     endDate: "2023-12"
     status: "completed"
     githubUrl: "https://github.com/user/project/tree/v2"
-    
+    achievements:
+      - "Implemented precision control"
+      - "Added feedback systems"
+    learnings:
+      - "Stepper motors provide better accuracy"
+      
   - version: "v1.0"
-    title: "Basic Prototype"
+    title: "Basic Prototype" 
     description: "Initial servo-based design"
     startDate: "2023-01"
     endDate: "2023-05"
     status: "completed"
 ```
 
-### Enhanced Versions with Rich Content
+### Versions with Rich Content
 
 ```yaml
 versions:
@@ -383,6 +637,31 @@ versions:
     achievements:
       - "Implemented ROS control nodes"
       - "Added trajectory planning"
+    gallery:
+      - src: "./v3-overview.jpg"
+        alt: "ROS control interface"
+      - src: "./v3-trajectory.jpg"
+        alt: "Trajectory visualization"
+    sections:
+      - columns:
+        - type: "content"
+          title: "ROS Architecture"
+          content: |
+            The v3.0 upgrade introduces a complete ROS-based control system...
+        - type: "model"
+          modelSrc: "./v3-robot.glb"
+          modelOptions:
+            autoRotate: true
+            cameraOrbit: "45deg 75deg 1.2m"
+```
+
+### Custom Version Headers
+
+```yaml
+versionsTitle: "Development History"  # Custom header
+versionsTitle: ""                    # Hide header completely  
+# versionsTitle: undefined           # Default "Project Versions"
+```
       - "Integrated with MoveIt!"
     learnings:
       - "ROS learning curve was steeper than expected"
@@ -497,57 +776,60 @@ galleryOptions:
 - **Alt Text**: Required for all images
 - **Focus Indicators**: Visible focus states for accessibility
 
-#### Performance
-- **Lazy Loading**: Images load as needed for better performance
-- **Optimized Transitions**: Smooth 800ms animations
-- **Memory Management**: Proper cleanup of intervals and observers
-- **Responsive Images**: Automatic sizing hints for different viewports
+## Gallery Features
 
-#### Performance
+### Navigation Methods
+- **Thumbnails**: Primary navigation with visual highlights
+- **Arrow Controls**: Hover to show previous/next navigation
+- **Keyboard Navigation**: `←/→` to navigate, `Space` to pause/play, `Home/End` for first/last
+- **Touch/Swipe**: Mobile-optimized swipe gestures
+- **Autoplay Controls**: Smart pause/resume functionality
+
+### Performance Features
 - **Lazy Loading**: Off-screen images load only when needed
-- **Eager Loading**: First image loads immediately
-- **Optimized Rendering**: Efficient slide transitions
-- **Responsive Images**: Automatic size optimization
+- **Optimized Transitions**: Smooth 800ms slide animations
+- **Memory Management**: Proper cleanup of intervals and observers
+- **Responsive Images**: Automatic sizing optimization for different viewports
 
-#### Visual Features
-- **Captions**: Overlay text with gradient background
-- **Thumbnails**: Scrollable thumbnail navigation
-- **Indicators**: Dot navigation with active states
-- **Progress**: Current slide counter
-- **Play/Pause**: Visual autoplay controls
+### Visual Features
+- **Captions**: Overlay text with gradient backgrounds
+- **Thumbnails**: Scrollable thumbnail navigation strip
+- **Progress Counter**: Current slide indicator (1 of N)
+- **Play/Pause Button**: Visual autoplay controls
+- **Focus States**: Clear visual feedback for keyboard navigation
 
 ## Responsive Design
 
 ### Breakpoint Behavior
 
-#### Mobile (< 768px)
+**Mobile (< 768px):**
 - All columns stack vertically
-- Full-width galleries
-- Simplified navigation
+- Full-width galleries and models
 - Touch-optimized interactions
+- Simplified navigation
 
-#### Tablet (768px - 1024px)
+**Tablet (768px - 1024px):**
 - 2-column layouts maintained
-- 3+ columns may stack
-- Responsive gallery sizing
+- 3+ columns may stack or adapt
 - Hybrid touch/mouse support
+- Responsive gallery sizing
 
-#### Desktop (> 1024px)
+**Desktop (> 1024px):**
 - Full multi-column layouts
-- Side-by-side content
-- Hover interactions
-- Keyboard shortcuts visible
+- Side-by-side content presentation
+- Hover interactions enabled
+- Keyboard shortcuts available
 
 ### Column Stacking Rules
 
 1. **4 columns** → 2x2 grid (tablet) → 1 column (mobile)
-2. **3 columns** → 2+1 layout (tablet) → 1 column (mobile)
+2. **3 columns** → 2+1 layout (tablet) → 1 column (mobile)  
 3. **2 columns** → Maintained (tablet) → 1 column (mobile)
 4. **1 column** → Maintained across all breakpoints
 
 ## Content Strategy Examples
 
-### 1. Simple Project Structure
+### 1. Simple Project (Markdown)
 
 For straightforward projects without complex layouts:
 
@@ -574,11 +856,11 @@ This project creates a scrolling LED matrix display using an Arduino Uno and MAX
 The display uses a daisy-chained configuration of MAX7219 chips to control the LED matrix efficiently.
 ```
 
-### 2. Multi-Section Project Layout
+### 2. Complex Project (MDX)
 
-For projects requiring detailed documentation:
+For projects requiring detailed layouts and interactivity:
 
-```yaml
+```mdx
 ---
 title: "Autonomous Rover"
 description: "Computer vision-enabled autonomous navigation robot"
@@ -587,187 +869,192 @@ startDate: "2023-06"
 status: "in-progress"
 featured: true
 tags: ["robotics", "computer-vision", "raspberry-pi"]
-sections:
-  - columns:
-    - type: "content"
-      title: "Project Overview"
-      content: |
-        This autonomous rover uses computer vision and LIDAR
-        to navigate complex environments without human intervention.
-        
-        The project combines multiple sensors and AI algorithms
-        to create a robust navigation system.
-    - type: "gallery"
-      gallery:
-        - src: "./rover-overview.png"
-          alt: "Rover overview"
-          caption: "Complete rover assembly"
-        - src: "./rover-sensors.png"
-          alt: "Sensor layout"
-          caption: "LIDAR and camera positioning"
-  
-  - columns:
-    - type: "content"
-      title: "Technical Architecture"
-      content: |
-        ### Hardware Stack
-        - Raspberry Pi 4 (main compute)
-        - Arduino Nano (motor control)
-        - RPLiDAR A1 (navigation)
-        - USB camera (computer vision)
-        - 12V battery system
-        
-        ### Software Stack
-        - Python 3.9+ (main application)
-        - OpenCV (computer vision)
-        - ROS Noetic (robotics framework)
-        - TensorFlow Lite (ML inference)
-        
-    - type: "sections"
-      sections:
-        - columns:
-          - type: "gallery"
-            title: "Component Layout"
-            gallery:
-              - src: "./electronics.png"
-                alt: "Electronics layout"
-                caption: "Modular electronics design"
-              - src: "./wiring.png"
-                alt: "Wiring diagram"
-                caption: "System interconnections"
-          - type: "content"
-            content: |
-              The modular design allows for easy component
-              upgrades and maintenance. Each subsystem can
-              be tested independently.
 ---
 
-The rover represents the culmination of several months of research into autonomous navigation algorithms and real-world robotics implementation.
+# Autonomous Navigation Rover
+
+This rover uses computer vision and LIDAR to navigate complex environments without human intervention.
+
+<ModularSection columns={[
+  { 
+    type: "content", 
+    title: "Project Overview",
+    content: `
+This autonomous rover combines multiple sensors and AI algorithms to create a robust navigation system that can handle various terrain types and obstacles.
+
+**Key Technologies:**
+- Computer vision for object detection
+- LIDAR for precise distance mapping  
+- Machine learning for path planning
+- Real-time sensor fusion
+    `
+  },
+  { 
+    type: "gallery", 
+    title: "Rover Development",
+    gallery: [
+      { src: "./rover-overview.png", alt: "Complete rover assembly", caption: "Finished rover with all sensors mounted" },
+      { src: "./rover-sensors.png", alt: "Sensor layout diagram", caption: "LIDAR and camera positioning" },
+      { src: "./field-testing.jpg", alt: "Field testing", caption: "Testing autonomous navigation outdoors" }
+    ],
+    galleryOptions: { size: "medium", autoplay: true, autoplayInterval: 5000 }
+  }
+]} />
+
+## Technical Architecture
+
+<ModularSection columns={[
+  { 
+    type: "content", 
+    title: "Hardware Stack",
+    content: `
+### Computing Platform
+- **Raspberry Pi 4** (main compute)
+- **Arduino Nano** (motor control)
+- **NVIDIA Jetson Nano** (AI inference)
+
+### Sensors
+- **RPLiDAR A1** (360° navigation)
+- **USB cameras** (stereo vision)
+- **IMU** (orientation tracking)
+- **GPS module** (global positioning)
+
+### Power System
+- **12V LiPo battery** (main power)
+- **5V regulator** (Pi and sensors)
+- **Battery management** (charge monitoring)
+    `
+  },
+  { 
+    type: "sections",
+    sections: [
+      {
+        columns: [
+          { 
+            type: "gallery",
+            title: "Component Layout",
+            gallery: [
+              { src: "./electronics.png", alt: "Electronics layout", caption: "Modular electronics design" },
+              { src: "./wiring.png", alt: "Wiring diagram", caption: "System interconnections" }
+            ]
+          },
+          { 
+            type: "content",
+            content: "The modular design allows for easy component upgrades and maintenance. Each subsystem can be tested independently."
+          }
+        ]
+      }
+    ]
+  }
+]} />
+
+The rover represents months of research into autonomous navigation algorithms and real-world robotics implementation.
 ```
 
-### 3. Versioned Project Evolution
+### 3. Interactive 3D Showcase (MDX)
 
-For projects with multiple development iterations:
+For mechanical designs and CAD models:
 
-```yaml
+```mdx
 ---
-title: "6-DOF Robot Arm"
-description: "Multi-version robotic arm exploring different control approaches"
+title: "Precision 6-DOF Robot Arm"
+description: "High-precision robotic arm with custom gripper design"
 cover: "./cover.png"
-startDate: "2023-01"
-status: "in-progress"
-featured: true
-versionsTitle: "Development Phases"
-sections:
-  - columns:
-    - type: "content"
-      title: "Project Evolution"
-      content: |
-        This project spans 18 months of iterative development,
-        with each version building upon lessons learned from
-        the previous iteration.
-    - type: "gallery"
-      gallery:
-        - src: "./evolution.png"
-          alt: "Project evolution timeline"
-          caption: "From servo prototype to AI-powered system"
-
-versions:
-  - version: "v3.0"
-    title: "ROS Integration"
-    description: "Professional control system with MoveIt! planning"
-    startDate: "2024-01"
-    status: "in-progress"
-    achievements:
-      - "Integrated ROS Noetic framework"
-      - "Implemented MoveIt! motion planning"
-      - "Added collision detection system"
-      - "Created custom URDF model"
-    learnings:
-      - "ROS ecosystem requires significant learning investment"
-      - "URDF modeling critical for accurate simulation"
-      - "Motion planning dramatically improves safety"
-    sections:
-      - columns:
-        - type: "content"
-          title: "Control Architecture"
-          content: |
-            The ROS-based control system provides professional-grade
-            capabilities for complex manipulation tasks.
-            
-            ### Key Components
-            - Joint state publisher
-            - Motion planning interface
-            - Collision checking
-            - Trajectory execution
-            
-        - type: "gallery"
-          gallery:
-            - src: "./ros-architecture.png"
-              alt: "ROS control architecture"
-              caption: "Node graph showing system components"
-            - src: "./moveit-planning.png"
-              alt: "MoveIt! motion planning"
-              caption: "Path planning visualization"
-          galleryOptions:
-            size: "medium"
-            autoplay: true
-            autoplayInterval: 6000
-              
-  - version: "v2.0"
-    title: "Stepper Motor Upgrade"
-    description: "Precision control with stepper motors and encoders"
-    startDate: "2023-06"
-    endDate: "2023-12"
-    status: "completed"
-    achievements:
-      - "Replaced all servos with NEMA 17 steppers"
-      - "Added rotary encoders for feedback"
-      - "Implemented PID control loops"
-    learnings:
-      - "Stepper motors provide much better repeatability"
-      - "Closed-loop control essential for precision"
-      - "Gear reduction critical for torque requirements"
-    gallery:
-      - src: "./v2-assembly.png"
-        alt: "V2 stepper motor assembly"
-        caption: "NEMA 17 steppers with planetary gearboxes"
-      - src: "./v2-control-board.png"
-        alt: "Custom control board"
-        caption: "Arduino-based stepper drivers"
-    galleryOptions:
-      size: "medium"
-      autoplay: false
-      showThumbnails: true
-      
-  - version: "v1.0"
-    title: "Servo Prototype"
-    description: "Initial proof-of-concept with hobby servos"
-    startDate: "2023-01"
-    endDate: "2023-05"
-    status: "completed"
-    achievements:
-      - "Functional 6-DOF kinematics"
-      - "Basic inverse kinematics solver"
-      - "Serial control interface"
-    learnings:
-      - "Servo precision insufficient for fine manipulation"
-      - "Gear backlash causes positioning errors"
-      - "Need for closed-loop control systems"
-      - "Weight distribution affects stability"
-    content: |
-      The initial prototype used standard hobby servos and
-      3D-printed joints. While functional, it revealed several
-      limitations that guided the next iteration.
+startDate: "2023-06"
+status: "completed"
+tags: ["robotics", "mechanical-design", "3d-printing", "cad"]
 ---
 
-This robot arm project explores different control methodologies through 
-iterative design improvements over 18 months of development.
+# Precision Robot Arm
+
+High-precision robotic arm featuring custom-designed joints and specialized gripper for delicate manipulation tasks.
+
+<ModularSection 
+  columns={[
+    { 
+      type: "content", 
+      title: "Design Overview",
+      content: `
+## Key Features
+- **6 degrees of freedom** for full manipulation capability
+- **0.1mm positioning accuracy** with closed-loop control
+- **Custom servo-driven joints** with planetary gear reduction
+- **Interchangeable end effectors** for various tasks
+
+## Specifications
+- **Reach**: 850mm horizontal
+- **Payload**: 2kg maximum
+- **Repeatability**: ±0.1mm
+- **Speed**: 50mm/s maximum linear velocity
+      `
+    },
+    { 
+      type: "model", 
+      title: "Interactive 3D Model",
+      modelSrc: "./robot-arm-assembly.glb",
+      alt: "Interactive 3D model of the complete robot arm assembly",
+      poster: "./robot-arm-preview.jpg",
+      caption: "Drag to rotate • Scroll to zoom • Double-click to center",
+      modelOptions: {
+        autoRotate: true,
+        cameraControls: true,
+        ar: true,
+        size: "large",
+        exposureCompensation: 1.2,
+        shadowIntensity: 0.8,
+        interactionPrompt: "auto"
+      }
+    }
+  ]}
+  cameraOrbit="45deg 75deg 1.2m"
+  fieldOfView="30deg"
+/>
+
+## Gripper Mechanism
+
+<ModularSection columns={[
+  { 
+    type: "model", 
+    title: "Gripper Detail",
+    modelSrc: "./gripper-mechanism.glb",
+    alt: "Detailed view of the custom gripper mechanism",
+    poster: "./gripper-preview.jpg",
+    modelOptions: {
+      autoRotate: false,
+      cameraControls: true,
+      size: "medium",
+      cameraOrbit: "0deg 90deg 0.5m",
+      fieldOfView: "25deg"
+    }
+  },
+  { 
+    type: "content", 
+    title: "Gripper Specifications",
+    content: `
+### Parallel Jaw Design
+
+The gripper uses a parallel jaw mechanism with integrated force feedback sensors for precise control of delicate objects.
+
+**Performance:**
+- **Grip force**: 0-50N adjustable
+- **Jaw opening**: 0-80mm range
+- **Position accuracy**: ±0.05mm
+- **Force resolution**: 0.1N
+
+**Materials:**
+- Aluminum 6061-T6 frame
+- Stainless steel contact surfaces  
+- Custom 3D printed soft-jaw inserts
+    `
+  }
+]} />
+
+Comprehensive documentation of a precision robotics project with fully interactive 3D models.
 ```
 
-### 4. Header Gallery Usage
+### 4. Header Gallery Project
 
-Replace the cover image with a gallery for immediate visual impact:
+Replace cover image with carousel for immediate visual impact:
 
 ```yaml
 ---
@@ -782,7 +1069,7 @@ gallery:
     caption: "ESP32-based sensor nodes"
   - src: "./installation.png"
     alt: "Installation"
-    caption: "Installed throughout the home"
+    caption: "Sensors installed throughout home"
   - src: "./mobile-app.png"
     alt: "Mobile application"
     caption: "iOS/Android control app"
@@ -791,211 +1078,70 @@ status: "completed"
 tags: ["iot", "home-automation", "esp32", "web-development"]
 ---
 
-Complete home automation system with custom sensors, web dashboard, and mobile control applications.
+Complete home automation system with custom IoT sensors, responsive web dashboard, and native mobile control applications.
 ```
 
-### 5. 3D Model Integration
+## File Organization
 
-Showcase mechanical designs and CAD models interactively:
-
-```yaml
----
-title: "Precision 6-DOF Robot Arm"
-description: "High-precision robotic arm with custom gripper design"
-cover: "./cover.png"
-startDate: "2023-06"
-status: "completed"
-tags: ["robotics", "mechanical-design", "3d-printing", "cad"]
-sections:
-  - columns:
-    - type: "content"
-      title: "Design Overview"
-      content: |
-        This precision robotic arm features custom-designed joints
-        and a specialized gripper for delicate manipulation tasks.
-        
-        **Key Features:**
-        - 6 degrees of freedom
-        - 0.1mm positioning accuracy
-        - Custom servo-driven joints
-        - Interchangeable end effectors
-        
-    - type: "model"
-      title: "Interactive 3D Model"
-      modelSrc: "./robot-arm-assembly.glb"
-      alt: "Interactive 3D model of the complete robot arm assembly"
-      poster: "./robot-arm-preview.jpg"
-      caption: "Drag to rotate • Scroll to zoom • Right-click to pan"
-      modelOptions:
-        autoRotate: true
-        cameraControls: true
-        ar: true
-        size: "large"
-        exposureCompensation: 1.2
-        shadowIntensity: 0.8
-        interactionPrompt: "auto"
-        
-  - columns:
-    - type: "model"
-      title: "Gripper Detail"
-      modelSrc: "./gripper-mechanism.glb"
-      alt: "Detailed view of the custom gripper mechanism"
-      poster: "./gripper-preview.jpg"
-      modelOptions:
-        autoRotate: false
-        cameraControls: true
-        size: "medium"
-        
-    - type: "content"
-      title: "Gripper Specifications"
-      content: |
-        ### Custom Gripper Design
-        
-        The gripper mechanism uses a parallel jaw design
-        with force feedback sensors for precise control.
-        
-        **Specifications:**
-        - Grip force: 0-50N adjustable
-        - Jaw opening: 0-80mm
-        - Position accuracy: ±0.05mm
-        - Force resolution: 0.1N
-        
-        **Materials:**
-        - Aluminum 6061-T6 frame
-        - Stainless steel contact surfaces
-        - Custom 3D printed components
----
-
-Detailed documentation of a precision robotics project with interactive 3D models.
-```
-
-## Page Layout Flow
-
-Understanding how content is rendered on the final page:
+### Recommended Structure
 
 ```
-┌─────────────────────────────────────┐
-│ PROJECT HEADER                      │
-│ ├─ Gallery OR Cover Image           │  ← Hero visual
-│ ├─ Title, Description, Metadata     │  ← Project info
-│ ├─ Tags, Status, Dates              │  ← Metadata
-│ └─ GitHub/Live Links                │  ← Action buttons
-├─────────────────────────────────────┤
-│ MAIN CONTENT (Markdown)             │  ← Project description
-│ ├─ Standard markdown rendering      │
-│ └─ Full typography support          │
-├─────────────────────────────────────┤
-│ MODULAR SECTIONS                    │  ← Custom layouts
-│ ├─ Section 1 (1-4 columns)          │
-│ ├─ Section 2 (nested sections)      │
-│ └─ Section N (mixed content)        │
-├─────────────────────────────────────┤
-│ PROJECT VERSIONS                    │  ← Version timeline
-│ ├─ Version navigation tabs          │
-│ ├─ Active version content           │
-│ ├─ Version galleries/sections       │
-│ └─ Achievements/learnings           │
-├─────────────────────────────────────┤
-│ RELATED PROJECTS                    │  ← Tag-based suggestions
-│ └─ Project cards with previews      │
-└─────────────────────────────────────┘
+src/content/
+├── posts/
+│   └── post-name/
+│       ├── index.md|mdx      # Post content
+│       ├── images/           # Organized assets
+│       │   ├── cover.jpg     # Cover image
+│       │   ├── photo1.png    # Content images
+│       │   └── diagram.webp  # Additional images
+│       └── models/           # 3D assets (if needed)
+│           └── demo.glb      # 3D models
+└── projects/
+    └── project-name/
+        ├── index.md|mdx      # Project content  
+        ├── images/           # Image assets
+        │   ├── cover.png     # Project card image
+        │   ├── v1-build.jpg  # Progress photos
+        │   └── technical.svg # Diagrams & schematics
+        └── 3Dmodels/         # 3D assets
+            ├── final.glb     # Current version
+            └── prototype.glb # Earlier iterations
 ```
+
+### Asset Guidelines
+
+- **Co-locate assets**: Keep images and models with their content in organized subfolders
+- **Use MDX imports**: Import assets for better validation and optimization  
+- **Organize by type**: Use `images/` and `3Dmodels/` (or `models/`) subfolders
+- **Use .webp**: For cover images when possible (better compression)
+- **Use .glb**: For 3D models (smaller than .gltf)
+- **Descriptive naming**: Use clear, descriptive filenames (e.g., `v2-assembly.jpg`)
+- **Optimize sizes**: Keep models under 5MB, compress images appropriately
+- **Cover image naming**: Use `cover.jpg/png/webp` for consistency
 
 ## Best Practices
 
-### Content Organization
+### Content Strategy
 
 1. **Start Simple**: Begin with basic structure, add complexity as needed
-2. **Logical Flow**: Order sections from overview → details → implementation
-3. **Visual Balance**: Mix text and images for engaging layouts
-4. **Scannable Content**: Use headings and lists for easy scanning
-5. **Progressive Disclosure**: Show overview first, details in sections/versions
+2. **Choose the Right Format**: Use `.md` for simple content, `.mdx` for complex layouts
+3. **Logical Flow**: Order sections from overview → details → implementation
+4. **Visual Balance**: Mix text, images, and interactive elements
+5. **Progressive Disclosure**: Overview first, details in sections/versions
 
-### Performance Considerations
+### Performance 
 
-1. **Image Optimization**: Use WebP format when possible (Astro should do this for you, but double check!), with appropriate sizes
-2. **Lazy Loading**: Galleries automatically implement lazy loading
-3. **Progressive Enhancement**: Core content loads first, enhancements follow
-4. **Mobile Experience**: Prioritize mobile-friendly layouts and touch interactions
-5. **Bundle Size**: Keep galleries and interactions in separate chunks
-
-### SEO and Discoverability
-
-1. **Descriptive Titles**: Clear, searchable project names
-2. **Meta Descriptions**: Concise 160-character descriptions with key terms
-3. **Relevant Tags**: Use consistent, descriptive tags across projects
-4. **Structured Content**: Proper heading hierarchy (h1 → h2 → h3)
-5. **Image Alt Text**: Detailed descriptions for screen readers and SEO
+1. **Image Optimization**: Use appropriate formats and sizes
+2. **Model Optimization**: Keep 3D models under 5MB for best performance
+3. **Lazy Loading**: Leverage automatic lazy loading for galleries and models
+4. **Mobile First**: Prioritize mobile experience and touch interactions
 
 ### Accessibility
 
-1. **Semantic HTML**: Use proper heading structure and landmarks
-2. **Keyboard Navigation**: All interactive elements keyboard accessible
-3. **Screen Readers**: ARIA labels and descriptions where needed
-4. **Color Contrast**: Ensure sufficient contrast in both themes
-5. **Focus Management**: Clear focus indicators and logical tab order
+1. **Semantic HTML**: Proper heading hierarchy and landmarks
+2. **Alt Text**: Detailed descriptions for all images and models
+3. **Keyboard Navigation**: All interactive elements accessible via keyboard
+4. **Color Contrast**: Ensure sufficient contrast in both light/dark themes
+5. **Screen Readers**: ARIA labels and descriptions where needed
 
-## Technical Implementation
-
-### Component Architecture
-
-- **Layout.astro**: Main page wrapper with metadata and SEO
-- **ModularSection.astro**: Handles section rendering with column layouts
-- **ProjectGallery.tsx**: React gallery component with interactions
-- **RecursiveSection.astro**: Manages unlimited nesting depth
-- **NestedSection.astro**: Alternative nested section renderer
-
-### Schema Validation
-
-All content is validated against TypeScript schemas ensuring:
-- **Type Safety**: Compile-time error detection
-- **Required Fields**: Automatic validation of mandatory content
-- **Consistent Structure**: Enforced schema across all content
-- **Evolution Support**: Backward compatibility with schema changes
-
-### Responsive Implementation
-
-- **CSS Grid**: Flexible column layouts with `grid-template-columns`
-- **TailwindCSS**: Mobile-first breakpoints and responsive utilities
-- **DaisyUI**: Consistent theming across light/dark modes
-- **Container Queries**: Component-level responsive behavior
-
-### State Management
-
-- **Keen Slider**: Gallery state management and touch interactions
-- **React Hooks**: Component state for autoplay and navigation
-- **Event Handling**: Custom events for version tab changes
-- **Performance**: Optimized re-renders and memory management
-
-## Migration and Maintenance
-
-### Content Migration
-
-When updating existing content:
-
-1. **Backup Current Content**: Git history provides version control
-2. **Update Schema First**: Modify `src/content/config.ts` if needed
-3. **Gradual Migration**: Update content incrementally, not all at once
-4. **Test Thoroughly**: Verify both development and production builds
-5. **Monitor Performance**: Check bundle size and loading times
-
-### Schema Evolution
-
-When adding new features:
-
-1. **Backward Compatibility**: Ensure existing content continues to work
-2. **Optional Fields**: New features should be optional by default
-3. **Migration Guides**: Document changes for content creators
-4. **Version Control**: Tag schema changes for rollback capability
-
-### Performance Monitoring
-
-Regular checks for:
-
-1. **Bundle Size**: Monitor JavaScript and CSS bundle growth
-2. **Image Optimization**: Ensure images are properly compressed
-3. **Loading Times**: Test on various devices and connections
-4. **Accessibility**: Regular accessibility audits
-5. **SEO Performance**: Monitor search engine indexing and ranking
-
-This documentation provides a comprehensive guide to the content layout system, enabling rich, flexible content creation while maintaining performance and accessibility standards.
+This comprehensive system enables rich, flexible content creation while maintaining excellent performance and accessibility across all devices and user needs.

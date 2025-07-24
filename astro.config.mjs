@@ -10,6 +10,7 @@ import pagefind from 'astro-pagefind';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import mdx from '@astrojs/mdx';
 
 
 const expressiveCode = astroExpressiveCode({
@@ -38,10 +39,14 @@ export default defineConfig({
     server: {
       host: true,
     },
+    assetsInclude: ['**/*.glb', '**/*.gltf'],
   },
   markdown: {
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],
   },
-  integrations: [sitemap(), react(), pagefind(), expressiveCode]
+  integrations: [sitemap(), react(), pagefind(), expressiveCode, mdx({
+    remarkPlugins: [remarkMath],
+    rehypePlugins: [rehypeKatex],
+  })]
 });
