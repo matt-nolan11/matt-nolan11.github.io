@@ -25,7 +25,7 @@ if (coverImg && typeof coverImg === 'string' && assetMap[coverImg as string]) {
                 {typeof coverImg === 'object' ? (
                     <Image
                         src={coverImg}
-                        alt={frontmatter.title}
+                        alt={frontmatter.coverCaption || frontmatter.title}
                         width={560}
                         height={315}
                         class="mx-auto rounded-xl shadow-lg"
@@ -33,7 +33,7 @@ if (coverImg && typeof coverImg === 'string' && assetMap[coverImg as string]) {
                 ) : (
                     <img
                         src={coverImg}
-                        alt={frontmatter.title}
+                        alt={frontmatter.coverCaption || frontmatter.title}
                         width={560}
                         height={315}
                         class="mx-auto rounded-xl shadow-lg"

@@ -38,7 +38,7 @@ const publishedProjects = projects
           <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
             <Image 
               src={project.data.cover}
-              alt={project.data.title}
+              alt={project.data.coverCaption || project.data.title}
               width={560}
               height={420}
               class="w-full h-full object-cover"

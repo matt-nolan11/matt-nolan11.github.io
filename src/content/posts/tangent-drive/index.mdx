@@ -51,7 +51,7 @@ We can see that the $r_w$ term has been canceled out because the gear ratio of t
 Because of the wheel size irrelevance and the nature of the rolling friction contact, there are some important trade-offs to consider when designing a robot with tangent drive.
 
 ### 1. Susceptible to motor shaft slippage
-Tangent drive is more liable to slip than other options, so the design needs to carefully position the motor relative to the wheel to obtain good engagement. For example, the 2207.5 [Repeat Tangent Drive Motors](https://repeat-robotics.com/buy/repeat-tangent-drive-motors/) recommend 0.8mm - 1.2mm of interference between the motor shaft and the wheel, depending on the wheel design. Importantly, most of these designs use 2 wheels on each side (4 total), which can effectively prevent the motor shaft from tilting away from the wheel and disengaging. Using tangent drive on 2-wheel robots can be more finicky because of this, though using a small idler wheel or a sufficiently stiff motor+wheel mount can help.
+Tangent drive is more liable to slip than other options, so the design needs to carefully position the motor relative to the wheel to obtain good engagement. For example, the 2207.5 [Repeat Tangent Drive Motors](https://repeat-robotics.com/buy/repeat-tangent-drive-motors/) recommend 0.8mm - 1.2mm of interference between the motor shaft and the wheel, depending on the wheel design. Importantly, most of these designs use 2 wheels engaging with each motor shaft, which can effectively prevent the motor shaft from tilting away from a wheel and disengaging. Using tangent drive on 2-wheel robots can be more finicky because of this, though using a small idler wheel or a sufficiently stiff motor+wheel mount can help.
 
 ### 2. Relatively short drivebase
 Most tangent drive robots use a fairly small drive shaft, which means the front and back wheels end up relatively close to one another. This drivebase length is often shorter than that of many typical 4-wheel-drive robots. You can still use tangent drive motors with belts/pullies to extend the drivebase, but this adds complexity and may introduce slippage as discussed previously.
@@ -66,7 +66,6 @@ On the flip side, tangent drive robots are free to size their wheels to best fit
   {
     type: 'image',
     src: z3phyrImage,
-    alt: 'Z3phyr (right) with asymmetric front/back wheel sizes, fighting spinny boiii (left) at RCL Nationals 2025.',
     caption: 'Z3phyr (right) with asymmetric front/back wheel sizes, fighting spinny boiii (left) at RCL Nationals 2025 (Credit: Mark Liu)'
   }
 ]} />

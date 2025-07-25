@@ -32,7 +32,7 @@ const publishedPosts = posts
           <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
             <Image 
               src={post.data.cover}
-              alt={post.data.title}
+              alt={post.data.coverCaption || post.data.title}
               width={560}
               height={420}
               class="w-full h-full object-cover"

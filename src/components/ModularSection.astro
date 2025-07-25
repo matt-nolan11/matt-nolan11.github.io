@@ -128,7 +128,7 @@ const headingClass = getHeadingClass(depth);
             <figure class="flex flex-col items-center mb-2">
               <Image 
                 src={col.src} 
-                alt={col.alt || ''} 
+                alt={col.alt || col.caption || ''} 
                 width={600} 
                 height={400} 
                 class="w-full h-auto rounded-xl shadow-lg" 

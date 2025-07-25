@@ -55,7 +55,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
         <figure class="mx-auto my-8">
           <Image
             src={post.data.cover}
-            alt={post.data.title}
+            alt={post.data.coverCaption || post.data.title}
             width={560}
             height={315}
             class="mx-auto rounded-xl shadow-lg"
@@ -91,7 +91,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
               <figure class="aspect-[4/3] rounded-t-xl overflow-hidden">
                 <Image 
                   src={item.data.cover}
-                  alt={item.data.title}
+                  alt={item.data.coverCaption || item.data.title}
                   width={300}
                   height={200}
                   class="w-full h-full object-cover"
