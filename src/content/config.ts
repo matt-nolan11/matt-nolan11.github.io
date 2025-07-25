@@ -55,7 +55,7 @@ export const collections = {
           // For gallery columns
           gallery: z.array(z.object({ 
             src: image(), 
-            alt: z.string(), 
+            alt: z.string().optional(), // Made optional - will fallback to caption if not provided
             caption: z.string().optional() 
           })).optional(),
           galleryOptions: z.object({
@@ -85,7 +85,7 @@ export const collections = {
         // Gallery support (for header)
         gallery: z.array(z.object({
           src: image(),
-          alt: z.string(),
+          alt: z.string().optional(), // Made optional - will fallback to caption if not provided
           caption: z.string().optional(),
         })).optional(),
         // Nested modular sections for posts
@@ -130,7 +130,7 @@ export const collections = {
           // For gallery columns
           gallery: z.array(z.object({ 
             src: image(), 
-            alt: z.string(), 
+            alt: z.string().optional(), // Made optional - will fallback to caption if not provided
             caption: z.string().optional() 
           })).optional(),
           galleryOptions: z.object({
@@ -163,12 +163,58 @@ export const collections = {
         status: z.enum(["completed", "in-progress", "planned"]).default("completed"),
         githubUrl: z.string().url().optional(),
         liveUrl: z.string().url().optional(),
+        // Project metrics and statistics
+        metrics: z.object({
+          // Custom section title (defaults to "Project Stats")
+          sectionTitle: z.string().optional(),
+          // Dynamic custom fields - you can add any field with any label
+          customFields: z.array(z.object({
+            label: z.string(), // The display label (e.g., "Fighting Weight", "Weapon Tip Speed")
+            value: z.union([z.string(), z.number()]), // The value (e.g., "3.0 lbs", 8000)
+            unit: z.string().optional(), // Optional unit (e.g., "RPM", "lbs", "$")
+          })).optional(),
+        }).optional(),
+        // Competition history
+        competitions: z.array(z.object({
+          name: z.string(), // e.g., "RCL Nationals 2025"
+          date: z.string(), // e.g., "2025-01"
+          placement: z.union([z.number(), z.string()]), // e.g., 1, "1st", "Semifinals"
+          record: z.string().optional(), // e.g., "3-1", "2-2"
+          url: z.string().optional(), // Optional link to event recap, blog post, etc. (relative or absolute URL)
+        })).optional(),
+        // Competitions display options
+        competitionsOptions: z.object({
+          sectionTitle: z.string().optional(), // Custom title (defaults to "Competition History")
+          maxDisplay: z.number().optional(), // Max competitions to show (defaults to 3, set to 0 for all)
+        }).optional(),
+        // Overall competition statistics
+        competitionStats: z.object({
+          // Custom section title (defaults to "Competition Record")
+          sectionTitle: z.string().optional(),
+          // Dynamic custom stats - you can add any stat with any label
+          customStats: z.array(z.object({
+            label: z.string(), // The display label (e.g., "Events Entered", "Fight Record")
+            value: z.union([z.string(), z.number()]), // The value (e.g., "4", "12-4", "75%")
+            highlight: z.boolean().optional(), // Whether to highlight this stat (e.g., win rate, best placement)
+            color: z.enum(['success', 'warning', 'error', 'info']).optional(), // Color theme for highlighted stats
+          })).optional(),
+        }).optional(),
         // Gallery support (for header)
         gallery: z.array(z.object({
           src: image(),
-          alt: z.string(),
+          alt: z.string().optional(), // Made optional - will fallback to caption if not provided
           caption: z.string().optional(),
         })).optional(),
+        galleryOptions: z.object({
+          size: z.union([
+            z.enum(['small', 'medium', 'large', 'full']),
+            z.number().min(200).max(1200)
+          ]).default('medium'),
+          autoplay: z.boolean().default(false),
+          autoplayInterval: z.number().default(4000),
+          showThumbnails: z.boolean().default(true),
+          loop: z.boolean().default(true),
+        }).optional(),
         // Nested sectioned content support
         sections: z.array(z.object({
           columns: z.array(typedColumnSchema).min(1).max(4),
@@ -191,7 +237,7 @@ export const collections = {
           images: z.array(image()).optional(), // Simple image array for backward compatibility
           gallery: z.array(z.object({           // Gallery support per version
             src: image(),
-            alt: z.string(),
+            alt: z.string().optional(), // Made optional - will fallback to caption if not provided
             caption: z.string().optional(),
           })).optional(),
           galleryOptions: z.object({

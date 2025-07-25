@@ -15,10 +15,14 @@ interface ModelViewerProps {
   alt?: string;
   poster?: string;
   environmentImage?: string;
+  skyboxImage?: string;
   exposureCompensation?: number;
   shadowIntensity?: number;
   shadowSoftness?: number;
   cameraControls?: boolean;
+  disablePan?: boolean;
+  disableTap?: boolean;
+  disableZoom?: boolean;
   autoRotate?: boolean;
   autoRotateDelay?: number;
   rotationPerSecond?: string;
@@ -26,12 +30,14 @@ interface ModelViewerProps {
   interactionPromptStyle?: 'basic' | 'wiggle';
   interactionPromptThreshold?: number;
   cameraOrbit?: string;
+  cameraTarget?: string;
   fieldOfView?: string;
   minCameraOrbit?: string;
   maxCameraOrbit?: string;
   minFieldOfView?: string;
   maxFieldOfView?: string;
   bounds?: 'tight' | 'legacy';
+  interpolationDecay?: number;
   width?: string | number;
   height?: string | number;
   className?: string;
@@ -49,9 +55,16 @@ interface ModelViewerProps {
   arScale?: 'auto' | 'fixed';
   arPlacement?: 'floor' | 'wall';
   iosSource?: string;
+  xrEnvironment?: boolean;
+  // Staging & Scene controls
+  toneMapping?: 'aces' | 'commerce' | 'neutral';
+  neutralColorSpace?: 'srgb' | 'rec2020';
   // Additional options
   size?: 'small' | 'medium' | 'large' | 'full' | number;
   caption?: string;
+  variant?: string;
+  scale?: string;
+  orientation?: string;
 }
 
 /**
@@ -59,24 +72,31 @@ interface ModelViewerProps {
  * Provides interactive 3D model display with camera controls, animations, and AR support.
  * 
  * Features:
- * - Interactive camera controls (orbit, zoom, pan)
- * - Automatic rotation and animations
- * - Environmental lighting and shadows
+ * - Interactive camera controls (orbit, zoom, pan) with fine-grained control
+ * - Automatic rotation and animations with customizable timing
+ * - Environmental lighting, shadows, and tone mapping
  * - Progressive loading with poster images
  * - Augmented Reality support (iOS/Android)
  * - Responsive sizing with presets
  * - Accessibility support
- * - Performance optimizations
+ * - Performance optimizations for smooth rendering
+ * - Advanced staging controls (exposure, tone mapping, color space)
+ * - Multiple interaction modes and prompts
+ * - Model variants and scaling support
  */
 export default function ModelViewer({
   src,
   alt = '3D Model',
   poster,
   environmentImage,
+  skyboxImage,
   exposureCompensation = 1,
   shadowIntensity = 1,
   shadowSoftness = 1,
   cameraControls = true,
+  disablePan = false,
+  disableTap = false,
+  disableZoom = false,
   autoRotate = false,
   autoRotateDelay = 3000,
   rotationPerSecond = '20deg', // Reduced from 30deg for smoother rotation
@@ -84,12 +104,14 @@ export default function ModelViewer({
   interactionPromptStyle = 'wiggle',
   interactionPromptThreshold = 3000,
   cameraOrbit,
+  cameraTarget,
   fieldOfView,
   minCameraOrbit,
   maxCameraOrbit,
   minFieldOfView,
   maxFieldOfView,
   bounds = 'tight',
+  interpolationDecay = 100,
   width,
   height,
   className = '',
@@ -105,8 +127,14 @@ export default function ModelViewer({
   arScale = 'auto',
   arPlacement = 'floor',
   iosSource,
+  xrEnvironment = false,
+  toneMapping = 'neutral',
+  neutralColorSpace = 'srgb',
   size = 'medium',
   caption,
+  variant,
+  scale,
+  orientation,
 }: ModelViewerProps) {
   const modelViewerRef = useRef<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -295,21 +323,24 @@ export default function ModelViewer({
       loading,
       reveal,
       bounds,
-      'exposure-compensation': exposureCompensation,
+      'exposure': exposureCompensation,
       'shadow-intensity': shadowIntensity,
       'shadow-softness': shadowSoftness,
+      'interpolation-decay': interpolationDecay,
       // Performance optimizations
-      'disable-zoom': false, // Keep zoom enabled but optimized
       'touch-action': 'pan-y', // Improve touch performance
     };
 
     if (poster) attrs.poster = poster;
     if (environmentImage) attrs['environment-image'] = environmentImage;
+    if (skyboxImage) attrs['skybox-image'] = skyboxImage;
     if (cameraControls) attrs['camera-controls'] = '';
+    if (disablePan) attrs['disable-pan'] = '';
+    if (disableTap) attrs['disable-tap'] = '';
+    if (disableZoom) attrs['disable-zoom'] = '';
     if (autoRotate) {
       attrs['auto-rotate'] = '';
       attrs['auto-rotate-delay'] = autoRotateDelay;
-      // Use a smoother rotation speed to reduce stuttering
       attrs['rotation-per-second'] = rotationPerSecond;
     }
     if (interactionPrompt !== 'none') {
@@ -318,6 +349,7 @@ export default function ModelViewer({
       attrs['interaction-prompt-threshold'] = interactionPromptThreshold;
     }
     if (cameraOrbit) attrs['camera-orbit'] = cameraOrbit;
+    if (cameraTarget) attrs['camera-target'] = cameraTarget;
     if (fieldOfView) attrs['field-of-view'] = fieldOfView;
     if (minCameraOrbit) attrs['min-camera-orbit'] = minCameraOrbit;
     if (maxCameraOrbit) attrs['max-camera-orbit'] = maxCameraOrbit;
@@ -336,6 +368,12 @@ export default function ModelViewer({
       attrs['ar-placement'] = arPlacement;
     }
     if (iosSource) attrs['ios-src'] = iosSource;
+    if (xrEnvironment) attrs['xr-environment'] = '';
+    if (toneMapping !== 'neutral') attrs['tone-mapping'] = toneMapping;
+    if (neutralColorSpace !== 'srgb') attrs['neutral-color-space'] = neutralColorSpace;
+    if (variant) attrs.variant = variant;
+    if (scale) attrs.scale = scale;
+    if (orientation) attrs.orientation = orientation;
 
     return attrs;
   };

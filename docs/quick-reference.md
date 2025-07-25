@@ -35,6 +35,51 @@ githubUrl: "https://github.com/user/repo"
 - Optionally set `featuredOrder: N` (1-6, gaps allowed)
 - Remaining slots filled by other featured/recent projects by date
 
+### Competition & Metrics System
+
+**Project Metrics:**
+```yaml
+metrics:
+  sectionTitle: "Robot Specifications"  # Custom title
+  customFields:
+    - label: "Fighting Weight"
+      value: "3.0 lbs"
+    - label: "Weapon Tip Speed" 
+      value: "8,000+ RPM"
+    - label: "Design Iterations"
+      value: 4
+```
+
+**Competition History:**
+```yaml
+competitions:
+  - name: "RCL Nationals 2025"
+    date: "2025-01" 
+    placement: "Quarterfinals"  # Number (1,2,3) or string
+    record: "3-1"               # Optional win-loss record
+    url: "/posts/event-recap/"  # Optional link to recap
+```
+
+**Competition Statistics:**
+```yaml
+competitionStats:
+  sectionTitle: "Combat Record"
+  customStats:
+    - label: "Fight Record"
+      value: "12-4"
+    - label: "Success Rate"
+      value: "75%"
+      highlight: true
+      color: "success"
+```
+
+**Display Options:**
+```yaml
+competitionsOptions:
+  sectionTitle: "Tournament History"
+  maxDisplay: 0  # 0 = show all, N = limit to N entries
+```
+
 ## Content Formats
 
 ### Markdown (.md) Files
@@ -431,6 +476,84 @@ gallery:
 - **Mobile**: All columns stack vertically for optimal mobile experience
 - **Tablet**: 2-column layouts maintained, 3+ columns may stack
 - **Desktop**: Full multi-column layouts display side-by-side
+
+## Complete Schema Reference
+
+### All Available Fields
+
+**Posts Schema:**
+```yaml
+title: string
+description: string
+cover: string (image path)
+date: string (YYYY-MM-DD)
+tags: string[]
+featured?: boolean
+featuredOrder?: number (1-6)
+gallery?: ImageObject[]
+galleryOptions?: GalleryOptions
+```
+
+**Projects Schema:**
+```yaml
+title: string
+description: string
+cover: string (image path)
+startDate: string (YYYY-MM)
+endDate?: string (YYYY-MM)
+status: "completed" | "in-progress" | "planned"
+featured?: boolean
+featuredOrder?: number (1-6)
+tags: string[]
+githubUrl?: string
+metrics?: ProjectMetrics
+competitions?: Competition[]
+competitionStats?: CompetitionStats
+competitionsOptions?: CompetitionsOptions
+gallery?: ImageObject[]
+galleryOptions?: GalleryOptions
+```
+
+**Metrics Configuration:**
+```yaml
+metrics:
+  sectionTitle?: string
+  customFields:
+    - label: string
+      value: string | number
+```
+
+**Competition Entry:**
+```yaml
+competitions:
+  - name: string
+    date: string (YYYY-MM)
+    placement: string | number
+    record?: string (e.g., "3-1")
+    url?: string (link to event recap)
+```
+
+**Competition Statistics:**
+```yaml
+competitionStats:
+  sectionTitle?: string
+  customStats:
+    - label: string
+      value: string | number
+      highlight?: boolean
+      color?: "success" | "warning" | "error"
+```
+
+**Gallery Options:**
+```yaml
+galleryOptions:
+  autoplay?: boolean
+  autoplayInterval?: number (milliseconds)
+  showThumbnails?: boolean
+  size?: "small" | "medium" | "large"
+  columns?: number (1-4)
+  aspectRatio?: "auto" | "square" | "wide" | "tall"
+```
 
 ## File Organization
 

@@ -287,3 +287,53 @@
   border-color: #0f3460 !important;
   color: #ffffff !important; /* White text for contrast */
 }
+
+/* Unified badge and tag rounding across themes */
+.badge {
+  border-radius: 0.375rem !important; /* rounded-md equivalent for consistency */
+}
+
+/* Ensure all badge variants have consistent rounding */
+.badge-outline,
+.badge-primary,
+.badge-secondary,
+.badge-accent,
+.badge-ghost,
+.badge-info,
+.badge-success,
+.badge-warning,
+.badge-error,
+.badge-sm,
+.badge-md,
+.badge-lg {
+  border-radius: 0.375rem !important;
+}
+
+/* Custom silver badge for 2nd place */
+.badge-silver {
+  background-color: #c0c0c0 !important; /* Silver color */
+  color: #1f2937 !important; /* Dark text */
+  border: none !important; /* No border */
+  font-weight: bold !important; /* Bold text */
+}
+
+/* Dark mode override for silver badge */
+[data-theme="business"] .badge-silver {
+  background-color: #808080 !important; /* Darker silver for dark mode */
+  color: #ffffff !important; /* White text for dark mode */
+  font-weight: bold !important; /* Bold text */
+}
+
+/* Make all placement badges bold and remove borders from non-podium placements */
+.badge-warning {
+  font-weight: bold !important; /* Bold text for gold badges */
+}
+
+.badge-accent {
+  font-weight: bold !important; /* Bold text for bronze badges */
+}
+
+.badge-info {
+  font-weight: bold !important; /* Bold text for blue badges */
+  border: none !important; /* Remove border from non-podium placements */
+}

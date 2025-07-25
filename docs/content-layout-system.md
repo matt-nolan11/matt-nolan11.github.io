@@ -12,6 +12,7 @@ This documentation covers the complete content and layout system for Matt Nolan'
 - **Interactive 3D Models**: Full-featured model viewer with camera controls and AR support
 - **Advanced Gallery System**: Touch-friendly carousels with thumbnail navigation
 - **Project Versioning**: Track project evolution through multiple iterations
+- **Competition & Metrics System**: Comprehensive tracking for competitive projects and custom specifications
 - **Responsive Design**: Mobile-first approach with DaisyUI dark/light themes
 - **TypeScript Schema Validation**: Type-safe content with automatic validation
 
@@ -292,6 +293,19 @@ The construction involved several key phases...
 | `sections` | array | | Modular content sections (Markdown only) |
 | `versionsTitle` | string | | Custom versions section title |
 | `versions` | array | | Project version iterations |
+| `metrics` | object | | Custom project metrics/specifications |
+| `competitions` | array | | Competition history entries |
+| `competitionsOptions` | object | | Competition display configuration |
+| `competitionStats` | object | | Overall competition statistics |
+
+**Dynamic Project Metrics:**
+- `metrics.sectionTitle`: Custom section title (default: "Project Stats")
+- `metrics.customFields`: Array of label/value pairs for flexible project data
+
+**Competition System:**
+- `competitions`: Individual competition entries with placement tracking
+- `competitionsOptions`: Display settings (max entries, section title)
+- `competitionStats`: Aggregate statistics with highlighting options
 
 **Featured Project Ordering:**
 - Set `featured: true` and optionally `featuredOrder: N` (1-6)
@@ -718,6 +732,132 @@ versions:
 - **Flexible Galleries**: Per-version image collections with custom options
 - **Legacy Support**: Backward compatibility with simple content/images arrays
 
+## Competition & Metrics System
+
+Comprehensive tracking system for project competitions and custom metrics, ideal for combat robotics, sports projects, and competitive engineering endeavors.
+
+### Project Metrics
+
+Define custom specifications and measurements for your projects:
+
+```yaml
+metrics:
+  sectionTitle: "Robot Specifications"  # Custom section title
+  customFields:
+    - label: "Fighting Weight"
+      value: "3.0 lbs"
+    - label: "Weapon Tip Speed"
+      value: "8,000+ RPM"
+    - label: "Build Cost"
+      value: "$600-900"
+    - label: "Design Iterations"
+      value: 4
+    - label: "Current Version"
+      value: "v3.2"
+```
+
+**Metrics Features:**
+- **Flexible Labels**: Use any label text for custom project data
+- **Mixed Data Types**: Support for strings, numbers, and formatted values
+- **Grid Layout**: Automatic responsive grid display
+- **Custom Sections**: Override default "Project Stats" title
+
+### Competition History
+
+Track individual competition entries with detailed results:
+
+```yaml
+competitions:
+  - name: "RCL Nationals 2025"
+    date: "2025-01"
+    placement: "Quarterfinals"
+    record: "3-1"
+    url: "/posts/event-recap-rcl-nationals-2025/"
+  - name: "EVAC Cactus Clash 2024"
+    date: "2024-11"
+    placement: 1
+    record: "4-0"
+  - name: "ARC Roborumble 2024"
+    date: "2024-09"
+    placement: 3
+    record: "3-2"
+```
+
+**Competition Entry Fields:**
+- `name`: Competition/tournament name (required)
+- `date`: Competition date in YYYY-MM format (required)
+- `placement`: Finish position - number (1, 2, 3) or string ("Quarterfinals", "Champion")
+- `record`: Win-loss record (e.g., "3-1", "4-0") - optional
+- `url`: Link to event recap, blog post, or external results - optional
+
+**Placement Badge Colors:**
+- **1st Place / Champion**: Gold (badge-warning)
+- **2nd Place**: Green (badge-success)  
+- **3rd Place**: Bronze (badge-accent)
+- **Other Placements**: Blue (badge-info)
+
+### Competition Statistics
+
+Display aggregate statistics with highlighting:
+
+```yaml
+competitionStats:
+  sectionTitle: "Combat Record"
+  customStats:
+    - label: "Events Entered"
+      value: 4
+    - label: "Fight Record"
+      value: "12-4"
+    - label: "Success Rate"
+      value: "75%"
+      highlight: true
+      color: "success"
+    - label: "Best Tournament Finish"
+      value: "Champion"
+      highlight: true
+      color: "warning"
+    - label: "Favorite Opponent"
+      value: "Spinning Disks"
+    - label: "Nemesis"
+      value: "Horizontal Spinners"
+```
+
+**Statistics Features:**
+- **Custom Labels**: Any statistic label and value
+- **Highlighting**: Optional highlighting with color themes
+- **Flexible Display**: Responsive wrapping layout
+- **Color Options**: "success", "warning", "error", "info", etc.
+
+### Competition Display Options
+
+Control how competitions are displayed:
+
+```yaml
+competitionsOptions:
+  sectionTitle: "Tournament History"  # Custom section title
+  maxDisplay: 0                       # 0 = show all, N = limit to N entries
+```
+
+**Display Features:**
+- **Entry Limiting**: Show only recent competitions or display all
+- **Clickable Links**: Tournament names become links when URL provided
+- **Responsive Design**: Automatic layout adaptation
+- **Count Indicators**: Shows "And X more competitions..." when limited
+
+### Interactive Features
+
+**Tournament Links:**
+- White text with solid underline for linked tournaments
+- Subtle blue hover effect for interactive feedback
+- Opens in new tab with proper security attributes
+- Seamless integration with event recaps and blog posts
+
+**Badge Styling:**
+- Consistent rounded badges across light and dark themes
+- Color-coded placement indicators
+- Outline record badges for secondary information
+- Responsive sizing and spacing
+
 ## Gallery System
 
 Advanced React-based image carousel component with touch support, accessibility features, and performance optimizations. The gallery system has been recently optimized for better user experience and maintainability.
@@ -1079,6 +1219,118 @@ tags: ["iot", "home-automation", "esp32", "web-development"]
 ---
 
 Complete home automation system with custom IoT sensors, responsive web dashboard, and native mobile control applications.
+```
+
+### 5. Competitive Robotics Project (MDX)
+
+Full competition tracking with metrics and tournament history:
+
+```mdx
+---
+title: "spinny boiii - 3lb Combat Robot"
+description: "A competitive beetleweight combat robot with an egg-beater drum weapon"
+startDate: "2020-02"
+status: "in-progress"
+tags: ["spinny boiii", "combat robotics", "cnc machining", "3d printing", "rc control systems"]
+cover: "./images/cover.jpg"
+metrics:
+  sectionTitle: "Robot Specifications"
+  customFields:
+    - label: "Fighting Weight"
+      value: "3.0 lbs"
+    - label: "Weapon Tip Speed"
+      value: "8,000+ RPM"
+    - label: "Build Cost"
+      value: "$600-900"
+    - label: "Design Iterations"
+      value: 4
+    - label: "Current Version"
+      value: "v3.2"
+    - label: "Drive Motors"
+      value: "2x Fingertech Silver Spark"
+    - label: "Weapon Motor"
+      value: "Propdrive 2836"
+competitions:
+  - name: "RCL Nationals 2025"
+    date: "2025-01"
+    placement: "Quarterfinals"
+    record: "3-1"
+    url: "/posts/event-recap-rcl-nationals-2025/"
+  - name: "EVAC Cactus Clash 2024"
+    date: "2024-11"
+    placement: 1
+    record: "4-0"
+  - name: "ARC Roborumble 2024"
+    date: "2024-09"
+    placement: 3
+    record: "3-2"
+  - name: "Desert Bot Battles 2024"
+    date: "2024-06"
+    placement: "Round of 16"
+    record: "2-1"
+competitionStats:
+  sectionTitle: "Combat Record"
+  customStats:
+    - label: "Events Entered"
+      value: 4
+    - label: "Fight Record"
+      value: "12-4"
+    - label: "Success Rate"
+      value: "75%"
+      highlight: true
+      color: "success"
+    - label: "Best Tournament Finish"
+      value: "Champion"
+      highlight: true
+      color: "warning"
+    - label: "Favorite Opponent"
+      value: "Spinning Disks"
+    - label: "Nemesis"
+      value: "Horizontal Spinners"
+competitionsOptions:
+  sectionTitle: "Tournament History"
+  maxDisplay: 0
+gallery:
+  - src: "./images/cover.jpg"
+    caption: "Latest iteration of spinny boiii, with a custom CNC-machined weapon and bulky TPU armor"
+  - src: "./images/insides.jpg"
+    caption: "Internal electronics layout with motors, motor controllers, RC receiver, battery, and power distribution"
+  - src: "./images/vsZ3phyr1.jpg"
+    caption: "spinny boiii stands his ground against Z3phyr at RCL Nationals 2025"
+  - src: "./images/vsZ3phyr2.jpg"
+    caption: "Winning the face-to-face engagement with a shower of sparks!"
+galleryOptions:
+  size: 750
+  autoplay: true
+  autoplayInterval: 5000
+  showThumbnails: true
+---
+
+import ModularSection from '../../../components/ModularSection.astro';
+import spinnyBoiiiModel from './3Dmodels/spinny_boiii_v3.glb';
+
+spinny boiii is my first serious attempt at building a competitive beetleweight (3-pound) combat robot. The project combines mechanical engineering, electronics design, and manufacturing to create a robot capable of surviving and winning in combat robot competitions.
+
+<ModularSection columns={[
+  {
+    type: "content",
+    title: "Project Overview",
+    content: `spinny boiii is a 3-pound beetleweight combat robot designed for vertical spinning disk combat.
+    Built with CNC-machined aluminum frame and 3D-printed components, it features a powerful
+    brushless motor driving a hardened steel spinning disk at high RPM.`
+  },
+  {
+    type: "model",
+    title: "3D Model",
+    modelSrc: spinnyBoiiiModel,
+    alt: "Interactive 3D model of spinny boiii combat robot",
+    modelOptions: {
+      autoRotate: true,
+      cameraControls: true,
+      size: "large"
+    }
+  }
+]} />
 ```
 
 ## File Organization

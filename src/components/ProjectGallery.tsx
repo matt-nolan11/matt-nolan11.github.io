@@ -44,8 +44,8 @@ if (typeof document !== 'undefined' && !document.getElementById('project-gallery
 }
 
 interface GalleryImage {
-  src: string | { src: string; width: number; height: number; format: string };
-  alt: string;
+  src: string | { src: string; width?: number; height?: number; format?: string };
+  alt?: string; // Made optional - will fallback to caption if not provided
   caption?: string;
 }
 
@@ -104,27 +104,72 @@ export default function ProjectGallery({
   size = 'medium',
 }: ProjectGalleryProps) {
   /**
+   * Calculate optimal gallery height based on the shortest image in the collection
+   * @param images - Array of gallery images with potential width/height metadata
+   * @param galleryWidth - Target width of the gallery
+   * @returns Calculated height in pixels
+   */
+  const calculateOptimalHeight = (images: GalleryImage[], galleryWidth: number): number => {
+    const heights: number[] = [];
+    
+    for (const image of images) {
+      // Check if we have Astro image metadata with dimensions
+      if (typeof image.src === 'object' && image.src.width && image.src.height) {
+        // Calculate height this image would need at the gallery width
+        const aspectRatio = image.src.width / image.src.height;
+        const calculatedHeight = galleryWidth / aspectRatio;
+        heights.push(calculatedHeight);
+      }
+    }
+    
+    // If we have calculated heights, use the minimum (shortest)
+    if (heights.length > 0) {
+      return Math.round(Math.min(...heights));
+    }
+    
+    // Fallback to 16:10 aspect ratio if no metadata available
+    return Math.round(galleryWidth * 0.625);
+  };
+
+  /**
    * Calculate gallery container styling based on size prop
    * @param size - Either a preset size string or a numeric pixel width
    * @returns Object with className and style properties
    */
   const getGallerySize = (size: 'small' | 'medium' | 'large' | 'full' | number) => {
+    let galleryWidth: number;
+    let baseStyle: any = {};
+    let className: string;
+
     if (typeof size === 'number') {
-      return {
-        className: 'mx-auto',
-        style: { maxWidth: `${size}px` }
+      galleryWidth = size;
+      className = 'mx-auto';
+      baseStyle.maxWidth = `${size}px`;
+    } else {
+      // Preset size mappings
+      const sizeMap = {
+        small: { width: 400, className: 'max-w-md mx-auto' },
+        medium: { width: 700, className: 'max-w-2xl mx-auto' },
+        large: { width: 900, className: 'max-w-4xl mx-auto' },
+        full: { width: 1200, className: 'w-full' } // Use a reasonable max for calculations
       };
+      
+      const sizeConfig = sizeMap[size] || sizeMap.medium;
+      galleryWidth = sizeConfig.width;
+      className = sizeConfig.className;
+      
+      if (size !== 'full') {
+        baseStyle.maxWidth = `${galleryWidth}px`;
+      }
     }
+
+    // Calculate optimal height based on shortest image
+    const height = calculateOptimalHeight(images, galleryWidth);
     
-    // Preset size mappings
-    const sizeMap = {
-      small: { className: 'max-w-md mx-auto', style: {} },
-      medium: { className: 'max-w-2xl mx-auto', style: {} },
-      large: { className: 'max-w-4xl mx-auto', style: {} },
-      full: { className: 'w-full', style: {} }
+    return {
+      className,
+      style: { ...baseStyle, height: `${height}px` }
     };
-    
-    return sizeMap[size] || sizeMap.medium;
   };
 
   const gallerySize = getGallerySize(size);
@@ -443,20 +488,31 @@ export default function ProjectGallery({
   }, [loaded, isPlaying, images.length, handlePrev, handleNext, goToSlide]);
 
   // Enhanced image optimization with realistic fallback support
-  const createOptimizedImage = (src: string | { src: string }, width: number, quality: number = 80): { 
+  const createOptimizedImage = (src: string | { src: string; width?: number; height?: number; format?: string }, width: number, quality: number = 80): { 
     src: string; 
     srcSet?: string; 
     sizes?: string; 
   } => {
-    const baseSrc = typeof src === 'string' ? src : src.src;
-    
-    // If it's already an optimized Astro asset, return as-is
+    // Handle Astro raw image objects (from content collections)
     if (typeof src === 'object' && src.src) {
+      const astroSrc = src.src;
+      
+      // If it's a raw Astro object, we need to optimize it manually by creating an optimized URL
+      if (astroSrc.includes('/@fs/') && astroSrc.includes('?orig')) {
+        // Extract the base path and create an optimized version
+        const baseUrl = astroSrc.split('?')[0];
+        const optimizedUrl = `/_image?href=${encodeURIComponent(astroSrc)}&w=${width}&h=${Math.round((width * (src.height || 600)) / (src.width || 800))}&q=${quality}&f=webp`;
+        return { src: optimizedUrl };
+      }
+      
+      // Already optimized Astro URL
       return { src: src.src };
     }
     
-    // Check if the image is already optimized (contains _astro in path or is webp)
-    if (baseSrc.includes('_astro') || baseSrc.includes('.webp')) {
+    const baseSrc = typeof src === 'string' ? src : src.src;
+    
+    // Check if the image is already optimized (contains _image in path or is webp)
+    if (baseSrc.includes('/_image') || baseSrc.includes('.webp')) {
       return { src: baseSrc };
     }
     
@@ -483,7 +539,7 @@ export default function ProjectGallery({
     <div 
       ref={containerRef}
       className={`project-gallery ${gallerySize.className} ${className}`} 
-      style={gallerySize.style}
+      style={{ maxWidth: gallerySize.style.maxWidth }} // Only apply maxWidth, not height
       role="region" 
       aria-label="Project image gallery"
     >
@@ -492,6 +548,7 @@ export default function ProjectGallery({
         <div 
           ref={sliderRef} 
           className="keen-slider main-carousel rounded-xl overflow-hidden shadow-lg"
+          style={{ height: gallerySize.style.height }} // Apply height only to the image area
         >
           {images.map((image, idx) => {
             const optimizedImage = createOptimizedImage(image.src, 800, 80);
@@ -499,13 +556,14 @@ export default function ProjectGallery({
             <div 
               key={idx} 
               className="keen-slider__slide relative"
+              style={{ height: '100%' }}
             >
               <img
                 src={optimizedImage.src}
                 srcSet={optimizedImage.srcSet}
                 sizes={optimizedImage.sizes}
-                alt={image.alt}
-                className="w-full h-auto object-cover block"
+                alt={image.alt || image.caption || `Gallery image ${idx + 1}`}
+                className="w-full h-full object-cover block"
                 loading={idx === 0 ? "eager" : "lazy"}
               />
               {image.caption && (
@@ -577,7 +635,7 @@ export default function ProjectGallery({
                   return (
                     <img
                       src={optimizedThumbnail.src}
-                      alt={`Thumbnail ${idx + 1}`}
+                      alt={`Thumbnail: ${image.alt || image.caption || `Image ${idx + 1}`}`}
                       className={`w-full h-12 sm:h-14 md:h-16 object-cover rounded-lg transition-all duration-300 ${
                         idx === currentSlide
                           ? 'ring-2 ring-primary ring-offset-2 ring-offset-base-100'

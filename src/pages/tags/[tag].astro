@@ -70,13 +70,16 @@ const sortedPosts = posts.sort((a, b) =>
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedProjects.map(project => (
-              <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300">
-                <figure class="relative aspect-[16/9] rounded-t-xl overflow-hidden">
+              <article 
+                class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full cursor-pointer"
+                onclick={`window.location.href='/projects/${project.slug}/'`}
+              >
+                <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
                   <Image 
                     src={project.data.cover}
                     alt={project.data.title}
                     width={400}
-                    height={250}
+                    height={300}
                     class="w-full h-full object-cover"
                   />
                   <div class="absolute top-2 right-2">
@@ -92,9 +95,7 @@ const sortedPosts = posts.sort((a, b) =>
                 
                 <div class="card-body">
                   <h3 class="card-title">
-                    <a href={`/projects/${project.slug}/`} class="hover:text-primary transition-colors">
-                      {project.data.title}
-                    </a>
+                    {project.data.title}
                   </h3>
                   
                   <p class="text-sm text-base-content/70 mb-3">
@@ -106,8 +107,9 @@ const sortedPosts = posts.sort((a, b) =>
                       <a 
                         href={`/tags/${projectTag}/`} 
                         class={`badge badge-outline badge-sm tag-hover-light-blue transition-colors ${
-                          projectTag === tag ? 'badge-primary' : ''
+                          projectTag === tag ? 'border-primary text-base-content' : ''
                         }`}
+                        onclick="event.stopPropagation()"
                       >
                         {projectTag}
                       </a>
@@ -124,10 +126,6 @@ const sortedPosts = posts.sort((a, b) =>
                         <div>Planned: {formatProjectDate(project.data.startDate)}</div>
                       )}
                     </div>
-                    
-                    <a href={`/projects/${project.slug}/`} class="btn btn-sm btn-primary">
-                      View Project
-                    </a>
                   </div>
                 </div>
               </article>
@@ -145,22 +143,23 @@ const sortedPosts = posts.sort((a, b) =>
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedPosts.map(post => (
-              <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300">
-                <figure class="aspect-[16/9] rounded-t-xl overflow-hidden">
+              <article 
+                class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full cursor-pointer"
+                onclick={`window.location.href='/posts/${post.slug}/'`}
+              >
+                <figure class="aspect-[4/3] rounded-t-xl overflow-hidden">
                   <Image 
                     src={post.data.cover}
                     alt={post.data.title}
                     width={400}
-                    height={250}
+                    height={300}
                     class="w-full h-full object-cover"
                   />
                 </figure>
                 
                 <div class="card-body">
                   <h3 class="card-title">
-                    <a href={`/posts/${post.slug}/`} class="hover:text-primary transition-colors">
-                      {post.data.title}
-                    </a>
+                    {post.data.title}
                   </h3>
                   
                   <p class="text-sm text-base-content/70 mb-3">
@@ -172,8 +171,9 @@ const sortedPosts = posts.sort((a, b) =>
                       <a 
                         href={`/tags/${postTag}/`} 
                         class={`badge badge-outline badge-sm tag-hover-light-blue transition-colors ${
-                          postTag === tag ? 'badge-primary' : ''
+                          postTag === tag ? 'border-primary text-base-content' : ''
                         }`}
+                        onclick="event.stopPropagation()"
                       >
                         {postTag}
                       </a>
@@ -184,10 +184,6 @@ const sortedPosts = posts.sort((a, b) =>
                     <div class="text-xs text-base-content/60">
                       {new Date(post.data.date).toLocaleDateString()}
                     </div>
-                    
-                    <a href={`/posts/${post.slug}/`} class="btn btn-sm btn-primary">
-                      Read Post
-                    </a>
                   </div>
                 </div>
               </article>

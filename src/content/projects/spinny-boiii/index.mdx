@@ -1,16 +1,66 @@
 ---
 title: "spinny boiii - 3lb Combat Robot"
-description: "A 3-pound beetleweight combat robot with a powerful vertical spinning disk"
-cover: images/cover.png
+description: "A competitive beetleweight combat robot with an egg-beater drum weapon and a powerful magnet-assisted drive system"
 startDate: "2020-02"
 status: "in-progress"
-tags: ["spinny boiii", "combat robotics", "CNC machining", "3D printing", "RC control systems"]
+tags: ["spinny boiii", "combat robotics", "cnc machining", "3d printing", "rc control systems"]
+cover: "./images/cover.jpg"
+metrics:
+  sectionTitle: "Quick Facts"
+  customFields:
+    - label: "Weapon Diameter"
+      value: "2.87 in"
+    - label: "Weapon Tip Speed"
+      value: "222 mph"
+    - label: "Weapon Material"
+      value: "Hardened S7 Tool Steel"
+    - label: "Podium Finishes"
+      value: 3
+competitions:
+  - name: "RCL National Championship 2025"
+    date: "May 3-4, 2025"
+    placement: 5
+    record: "4-2"
+    url: "/posts/event-recap-rcl-nationals-2025/"
+  - name: "EVAC Cactus Clash 2024"
+    date: "November 23, 2024"
+    placement: 1
+    record: "5-0"
+  - name: "ARC Roborumble 2024"
+    date: "June 15, 2024"
+    placement: 1
+    record: "5-0"
+  - name: "ARC Roborumble 2023"
+    date: "June 10, 2023"
+    placement: 2
+    record: "5-2"
+competitionsOptions:
+  sectionTitle: "Notable Tournaments"
+  maxDisplay: 0
+gallery:
+  - src: "./images/cover.jpg"
+    caption: "Latest iteration of spinny boiii, with a custom CNC-machined weapon and bulky TPU armor"
+  - src: "./images/insides.jpg"
+    caption: "Internal electronics layout with motors, motor controllers, RC receiver, battery, and power distribution"
+  - src: "./images/vsZ3phyr1.jpg"
+    caption: "spinny boiii stands his ground against Z3phyr at RCL Nationals 2025"
+  - src: "./images/vsZ3phyr2.jpg"
+    caption: "Winning the face-to-face engagement with a shower of sparks!"
+  - src: "./images/win1.jpg"
+    caption: "Two copies of the bot celebrate 1st place at EVAC Cactus Clash 2024"
+  - src: "./images/damaged1.jpg"
+    caption: "Took some heavy damage but still eeked out the win!"
+  - src: "./images/vsActionSurge.jpg"
+    caption: "Powerful hit launches opponent Action Surge airborne at ARC Roborumble 2024"
+galleryOptions:
+  size: 750
+  autoplay: true
+  autoplayInterval: 6000
+  showThumbnails: true
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
 import spinnyBoiiiModel from './3Dmodels/spinny_boiii_v3.glb';
-
-# spinny boiii - Combat Robot Development
 
 spinny boiii is my first serious attempt at building a competitive beetleweight (3-pound) combat robot. The project combines mechanical engineering, electronics design, and manufacturing to create a robot capable of surviving and winning in combat robot competitions.
 
@@ -37,7 +87,7 @@ spinny boiii is my first serious attempt at building a competitive beetleweight 
       autoRotate: true,
       cameraControls: true,
       size: "large",
-      exposureCompensation: 0.8,
+      exposure: 0.8,
       shadowIntensity: 0.5,
       cameraOrbit: "0deg 75deg 0.5m",
       fieldOfView: "45deg"

@@ -31,17 +31,18 @@ const publishedProjects = projects
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {publishedProjects.map(project => (
-        <article class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full rounded-xl overflow-hidden border border-base-300">
-          <figure class="relative aspect-[16/9] rounded-t-xl overflow-hidden">
-            <a href={`/projects/${project.slug}/`}>
-              <Image 
-                src={project.data.cover}
-                alt={project.data.title}
-                width={560}
-                height={315}
-                class="w-full h-full object-cover"
-              />
-            </a>
+        <article 
+          class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full rounded-xl overflow-hidden border border-base-300 cursor-pointer"
+          onclick={`window.location.href='/projects/${project.slug}/'`}
+        >
+          <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
+            <Image 
+              src={project.data.cover}
+              alt={project.data.title}
+              width={560}
+              height={420}
+              class="w-full h-full object-cover"
+            />
             <div class="absolute top-2 right-2">
               <div class={`badge ${
                 project.data.status === 'completed' ? 'badge-success' : 
@@ -54,11 +55,9 @@ const publishedProjects = projects
           </figure>
           
           <div class="card-body p-6">
-            <a href={`/projects/${project.slug}/`} class="block">
-              <h2 class="card-title text-xl mb-2">
-                {project.data.title}
-              </h2>
-            </a>
+            <h2 class="card-title text-xl mb-2">
+              {project.data.title}
+            </h2>
             
             <p class="text-sm text-base-content/70 mb-4">
               {project.data.description}
@@ -68,7 +67,7 @@ const publishedProjects = projects
             {project.data.tags && project.data.tags.length > 0 && (
               <div class="flex flex-wrap gap-2 mb-4">
                 {project.data.tags.slice(0, 4).map(tag => (
-                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors">
+                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors" onclick="event.stopPropagation()">
                     {tag}
                   </a>
                 ))}
@@ -102,6 +101,7 @@ const publishedProjects = projects
                     class="btn btn-sm btn-outline"
                     target="_blank"
                     rel="noopener noreferrer"
+                    onclick="event.stopPropagation()"
                   >
                     GitHub
                   </a>
@@ -112,6 +112,7 @@ const publishedProjects = projects
                     class="btn btn-sm btn-outline"
                     target="_blank"
                     rel="noopener noreferrer"
+                    onclick="event.stopPropagation()"
                   >
                     Live Demo
                   </a>
