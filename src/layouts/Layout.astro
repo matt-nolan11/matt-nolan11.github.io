@@ -139,11 +139,18 @@ const seoConfig = {
     // Smooth layout transitions during window resize - carefully avoiding drawer interference
     let isResizing = false;
     let resizeTimeout;
+    let transitionsEnabled = false;
+    
+    // Enable smooth transitions 5 seconds after page load to prevent interference with initial layout
+    setTimeout(() => {
+      transitionsEnabled = true;
+      document.body.classList.add('transitions-enabled');
+    }, 5000);
     
     function handleResize() {
-      // Skip if drawer is open to avoid any interference
+      // Skip if drawer is open to avoid any interference, or if transitions aren't enabled yet
       const drawerOpen = document.getElementById('nav-drawer')?.checked;
-      if (drawerOpen) return;
+      if (drawerOpen || !transitionsEnabled) return;
       
       if (!isResizing) {
         isResizing = true;

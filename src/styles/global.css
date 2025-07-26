@@ -127,10 +127,10 @@
   transition: border-bottom-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 300ms, opacity 300ms, box-shadow 300ms !important;
 }
 
-/* Ultra smooth layout transitions during window resize - with drawer protection */
+/* Ultra smooth layout transitions during window resize - with drawer protection AND page load delay */
 @media (prefers-reduced-motion: no-preference) {
-  /* Apply smooth transitions only when window is being resized, excluding drawer elements but allowing navbar */
-  body.window-resizing *:not(.drawer):not(.drawer *):not(.drawer-side):not(.drawer-side *):not(.drawer-content):not(.drawer-content *):not(.drawer-overlay):not(.drawer-toggle):not(#nav-drawer):not(.modal):not(.modal *):not(.btn):not(.btn *):not(button):not(button *):not([role="button"]):not([role="button"] *) {
+  /* Apply smooth transitions only when window is being resized AND after page has been loaded for 5s */
+  body.window-resizing.transitions-enabled *:not(.drawer):not(.drawer *):not(.drawer-side):not(.drawer-side *):not(.drawer-content):not(.drawer-content *):not(.drawer-overlay):not(.drawer-toggle):not(#nav-drawer):not(.modal):not(.modal *):not(.btn):not(.btn *):not(button):not(button *):not([role="button"]):not([role="button"] *):not(.project-gallery):not(.project-gallery *) {
     transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
                 height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 margin 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -141,21 +141,21 @@
     will-change: transform, width, height, padding, margin, flex !important;
   }
   
-  /* Extra smooth transitions for main content areas and navbar */
-  body.window-resizing main,
-  body.window-resizing main *:not(.btn):not(.btn *):not(button):not(button *),
-  body.window-resizing article,
-  body.window-resizing article *:not(.btn):not(.btn *):not(button):not(button *),
-  body.window-resizing section,
-  body.window-resizing section *:not(.btn):not(.btn *):not(button):not(button *),
-  body.window-resizing .container,
-  body.window-resizing .container *:not(.btn):not(.btn *):not(button):not(button *),
-  body.window-resizing .card,
-  body.window-resizing .card *:not(.btn):not(.btn *):not(button):not(button *),
-  body.window-resizing .navbar,
-  body.window-resizing .navbar *:not(.btn):not(.btn *):not(button):not(button *),
-  body.window-resizing .search-wrapper,
-  body.window-resizing .search-wrapper * {
+  /* Extra smooth transitions for main content areas and navbar - also with delay */
+  body.window-resizing.transitions-enabled main,
+  body.window-resizing.transitions-enabled main *:not(.btn):not(.btn *):not(button):not(button *):not(.project-gallery):not(.project-gallery *),
+  body.window-resizing.transitions-enabled article,
+  body.window-resizing.transitions-enabled article *:not(.btn):not(.btn *):not(button):not(button *):not(.project-gallery):not(.project-gallery *),
+  body.window-resizing.transitions-enabled section,
+  body.window-resizing.transitions-enabled section *:not(.btn):not(.btn *):not(button):not(button *):not(.project-gallery):not(.project-gallery *),
+  body.window-resizing.transitions-enabled .container,
+  body.window-resizing.transitions-enabled .container *:not(.btn):not(.btn *):not(button):not(button *):not(.project-gallery):not(.project-gallery *),
+  body.window-resizing.transitions-enabled .card,
+  body.window-resizing.transitions-enabled .card *:not(.btn):not(.btn *):not(button):not(button *):not(.project-gallery):not(.project-gallery *),
+  body.window-resizing.transitions-enabled .navbar,
+  body.window-resizing.transitions-enabled .navbar *:not(.btn):not(.btn *):not(button):not(button *):not(.project-gallery):not(.project-gallery *),
+  body.window-resizing.transitions-enabled .search-wrapper,
+  body.window-resizing.transitions-enabled .search-wrapper *:not(.project-gallery):not(.project-gallery *) {
     transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
                 height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 margin 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -167,15 +167,15 @@
   }
   
   /* Absolutely ensure drawer elements are never affected */
-  body.window-resizing .drawer,
-  body.window-resizing .drawer *,
-  body.window-resizing .drawer-side,
-  body.window-resizing .drawer-side *,
-  body.window-resizing .drawer-content,
-  body.window-resizing .drawer-content *,
-  body.window-resizing .drawer-overlay,
-  body.window-resizing .drawer-toggle,
-  body.window-resizing #nav-drawer {
+  body.window-resizing.transitions-enabled .drawer,
+  body.window-resizing.transitions-enabled .drawer *,
+  body.window-resizing.transitions-enabled .drawer-side,
+  body.window-resizing.transitions-enabled .drawer-side *,
+  body.window-resizing.transitions-enabled .drawer-content,
+  body.window-resizing.transitions-enabled .drawer-content *,
+  body.window-resizing.transitions-enabled .drawer-overlay,
+  body.window-resizing.transitions-enabled .drawer-toggle,
+  body.window-resizing.transitions-enabled #nav-drawer {
     transition: none !important;
     will-change: auto !important;
   }

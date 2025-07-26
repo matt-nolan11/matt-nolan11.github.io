@@ -143,6 +143,10 @@ import ThemeToggle from '../components/ThemeToggle.astro';
     let isResizing = false;
     
     function handleResizeStart() {
+      // Only apply transitions if they're enabled (after 5s page load delay)
+      const transitionsEnabled = document.body.classList.contains('transitions-enabled');
+      if (!transitionsEnabled) return;
+      
       if (!isResizing) {
         isResizing = true;
         document.body.classList.add('window-resizing');

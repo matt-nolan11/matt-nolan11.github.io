@@ -1,4 +1,15 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+/**
+ * ProjectGallery - Responsive image carousel component
+ * 
+ * Features:
+ * - Responsive height calculation based on actual container width
+ * - Image optimization with WebP support for Astro assets
+ * - Swipe navigation, autoplay, thumbnails, keyboard controls
+ * - Accessibility features and proper loading behavior
+ * - Mobile-responsive design with optimized performance
+ */
+
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 
@@ -6,10 +17,21 @@ import 'keen-slider/keen-slider.min.css';
 const galleryStyles = `
   .project-gallery .keen-slider {
     display: flex;
+    overflow: hidden;
   }
   .project-gallery .keen-slider__slide {
     min-width: 100%;
+    max-width: 100%;
+    width: 100%;
     flex-shrink: 0;
+    position: relative;
+    display: flex;
+  }
+  .project-gallery .keen-slider__slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
   .project-gallery {
     overflow: hidden;
@@ -60,39 +82,10 @@ interface ProjectGalleryProps {
 }
 
 /**
- * IMPORTANT: Image Optimization Reality Check
+ * ProjectGallery - Responsive image carousel with optimized loading
  * 
- * The current implementation returns original images because adding query parameters
- * like ?w=800&f=webp doesn't actually optimize images without a backend service.
- * 
- * To get actual WebP optimization, you need one of these approaches:
- * 
- * 1. **Use Astro's Image Component in Astro files**: 
- *    ```astro
- *    import { Image } from 'astro:assets';
- *    import myImage from '../assets/image.png';
- *    <Image src={myImage} alt="..." width={800} height={600} format="webp" />
- *    ```
- * 
- * 2. **Pre-generate optimized images at build time**:
- *    - Use tools like `sharp`, `imagemin`, or `@astrojs/image`
- *    - Generate WebP versions during build process
- *    - Update your content to reference the optimized versions
- * 
- * 3. **Use a CDN/Image Service**:
- *    - Cloudinary: `https://res.cloudinary.com/demo/image/fetch/w_800,f_webp,q_auto/your-image.png`
- *    - ImageKit: `https://ik.imagekit.io/demo/w_800,f_webp,q_80/your-image.png`
- *    - Vercel Image Optimization: `/_next/image?url=image.png&w=800&q=80`
- * 
- * 4. **Configure Astro properly for React components**:
- *    - This is complex and not recommended vs using Astro components directly
- * 
- * For now, this component provides responsive sizing and proper loading behavior.
- */
-
-/**
- * Advanced React image carousel component with swipe support, autoplay, 
- * thumbnails, keyboard navigation, and accessibility features.
+ * Features: Swipe navigation, autoplay, thumbnails, keyboard controls,
+ * responsive sizing, image optimization, and accessibility support.
  */
 export default function ProjectGallery({
   images,
@@ -106,29 +99,30 @@ export default function ProjectGallery({
   /**
    * Calculate optimal gallery height based on the shortest image in the collection
    * @param images - Array of gallery images with potential width/height metadata
-   * @param galleryWidth - Target width of the gallery
+   * @param galleryWidth - Target width of the gallery (actual display width)
    * @returns Calculated height in pixels
    */
   const calculateOptimalHeight = (images: GalleryImage[], galleryWidth: number): number => {
-    const heights: number[] = [];
+    const scaledHeights: number[] = [];
     
+    // Scale all images to fit the gallery width and find the shortest
     for (const image of images) {
       // Check if we have Astro image metadata with dimensions
       if (typeof image.src === 'object' && image.src.width && image.src.height) {
-        // Calculate height this image would need at the gallery width
+        // Scale this image to fit the gallery width and calculate its height
         const aspectRatio = image.src.width / image.src.height;
-        const calculatedHeight = galleryWidth / aspectRatio;
-        heights.push(calculatedHeight);
+        const scaledHeight = galleryWidth / aspectRatio;
+        scaledHeights.push(scaledHeight);
       }
     }
     
-    // If we have calculated heights, use the minimum (shortest)
-    if (heights.length > 0) {
-      return Math.round(Math.min(...heights));
+    // Use the shortest scaled image height (if we have any)
+    if (scaledHeights.length > 0) {
+      return Math.round(Math.min(...scaledHeights));
     }
     
-    // Fallback to 16:10 aspect ratio if no metadata available
-    return Math.round(galleryWidth * 0.625);
+    // Fallback: use standard aspect ratio
+    return Math.round(galleryWidth * 0.6); // 3:5 aspect ratio fallback
   };
 
   /**
@@ -137,52 +131,124 @@ export default function ProjectGallery({
    * @returns Object with className and style properties
    */
   const getGallerySize = (size: 'small' | 'medium' | 'large' | 'full' | number) => {
-    let galleryWidth: number;
     let baseStyle: any = {};
     let className: string;
 
     if (typeof size === 'number') {
-      galleryWidth = size;
       className = 'mx-auto';
       baseStyle.maxWidth = `${size}px`;
     } else {
-      // Preset size mappings
       const sizeMap = {
-        small: { width: 400, className: 'max-w-md mx-auto' },
-        medium: { width: 700, className: 'max-w-2xl mx-auto' },
-        large: { width: 900, className: 'max-w-4xl mx-auto' },
-        full: { width: 1200, className: 'w-full' } // Use a reasonable max for calculations
+        small: 400,
+        medium: 700,
+        large: 900,
+        full: 1200
       };
+      const galleryWidth = sizeMap[size] || sizeMap.medium;
       
-      const sizeConfig = sizeMap[size] || sizeMap.medium;
-      galleryWidth = sizeConfig.width;
-      className = sizeConfig.className;
-      
+      const classMap = {
+        small: 'max-w-md mx-auto',
+        medium: 'max-w-2xl mx-auto', 
+        large: 'max-w-4xl mx-auto',
+        full: 'w-full'
+      };
+      className = classMap[size] || classMap.medium;
       if (size !== 'full') {
         baseStyle.maxWidth = `${galleryWidth}px`;
       }
     }
-
-    // Calculate optimal height based on shortest image
-    const height = calculateOptimalHeight(images, galleryWidth);
     
     return {
       className,
-      style: { ...baseStyle, height: `${height}px` }
+      style: baseStyle
     };
   };
-
-  const gallerySize = getGallerySize(size);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(autoplay);
   const [isMobile, setIsMobile] = useState(false);
+  const [gallerySize, setGallerySize] = useState(() => getGallerySize(size));
+  const [calculatedHeight, setCalculatedHeight] = useState<number | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const userInteractionRef = useRef(false);
   const isPlayingRef = useRef(isPlaying);
   const autoplayIntervalRef = useRef(autoplayInterval);
+
+  // Function to calculate height based on actual container width
+  const updateCalculatedHeight = useCallback(() => {
+    if (containerRef.current) {
+      const actualWidth = containerRef.current.offsetWidth;
+      if (actualWidth > 0) {
+        const height = calculateOptimalHeight(images, actualWidth);
+        setCalculatedHeight(height);
+        if (!isInitialized) {
+          setIsInitialized(true);
+        }
+      }
+    }
+  }, [images, isInitialized]);
+
+  // Update height when container size changes
+  useEffect(() => {
+    updateCalculatedHeight();
+  }, [updateCalculatedHeight, gallerySize]);
+
+  // Calculate height immediately on mount to prevent layout shift
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      updateCalculatedHeight();
+    }
+  }, [updateCalculatedHeight]);
+
+  // Function to get initial height estimation
+  const getInitialHeight = useCallback(() => {
+    if (calculatedHeight) return calculatedHeight;
+    
+    // Fallback calculation for initial render
+    let estimatedWidth: number;
+    if (typeof size === 'number') {
+      estimatedWidth = size;
+    } else {
+      const sizeMap = { small: 400, medium: 700, large: 900, full: 1200 };
+      estimatedWidth = sizeMap[size] || 700;
+    }
+    
+    // On mobile, use screen width minus padding
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      estimatedWidth = Math.min(estimatedWidth, window.innerWidth - 32);
+    }
+    
+    return calculateOptimalHeight(images, estimatedWidth);
+  }, [calculatedHeight, size, images]);
+
+  // Detect mobile screens and update gallery size on resize
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    const updateLayout = () => {
+      setIsMobile(window.innerWidth < 640);
+      setGallerySize(getGallerySize(size));
+      
+      // Debounce height calculation during resize
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        updateCalculatedHeight();
+      }, 150);
+    };
+
+    // Check on mount
+    if (typeof window !== 'undefined') {
+      updateLayout();
+      window.addEventListener('resize', updateLayout);
+      return () => {
+        window.removeEventListener('resize', updateLayout);
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [size, updateCalculatedHeight]); // Re-run when size prop changes
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -193,48 +259,35 @@ export default function ProjectGallery({
     autoplayIntervalRef.current = autoplayInterval;
   }, [autoplayInterval]);
 
-  // Detect mobile screens
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-
-    // Check on mount
-    if (typeof window !== 'undefined') {
-      checkMobile();
-      window.addEventListener('resize', checkMobile);
-      return () => window.removeEventListener('resize', checkMobile);
+  // Helper function to clear and set autoplay interval
+  const setAutoplayInterval = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-  }, []);
-
-  // Helper function to reset autoplay timer
-  const resetAutoplayTimer = useCallback(() => {
     if (autoplay && isPlaying) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
       intervalRef.current = setInterval(() => {
-        if (instanceRef.current && instanceRef.current.track?.details) {
+        if (instanceRef.current?.track?.details) {
           instanceRef.current.next();
         }
       }, autoplayInterval);
     }
   }, [autoplay, isPlaying, autoplayInterval]);
 
+  // Helper function to reset autoplay timer
+  const resetAutoplayTimer = useCallback(() => {
+    if (autoplay && isPlaying) {
+      setAutoplayInterval();
+    }
+  }, [autoplay, isPlaying, setAutoplayInterval]);
+
   // Helper function to start autoplay
   const startAutoplay = useCallback(() => {
     if (autoplay) {
       setIsPlaying(true);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      intervalRef.current = setInterval(() => {
-        if (instanceRef.current && instanceRef.current.track?.details) {
-          instanceRef.current.next();
-        }
-      }, autoplayInterval);
+      // Let the effect handle the interval setup
     }
-  }, [autoplay, autoplayInterval]);
+  }, [autoplay]);
 
   // Helper function to restore autoplay after user interaction
   const restoreAutoplayIfNeeded = useCallback((wasPlaying: boolean) => {
@@ -257,13 +310,13 @@ export default function ProjectGallery({
     initial: 0,
     loop,
     slides: { 
-      perView: 1, 
-      spacing: 0,
-      origin: "center"
+      perView: 1,
+      spacing: 0
     },
+    mode: "snap",
     renderMode: "precision",
     defaultAnimation: {
-      duration: 800 // Increased transition duration (default is 500ms)
+      duration: 800
     },
     created() {
       setLoaded(true);
@@ -297,20 +350,11 @@ export default function ProjectGallery({
     },
   });
 
-  // Autoplay functionality with better reliability
+  // Autoplay functionality
   useEffect(() => {
     if (!loaded || !instanceRef.current) return;
 
-    if (isPlaying && autoplay) {
-      intervalRef.current = setInterval(() => {
-        if (instanceRef.current && instanceRef.current.track?.details) {
-          instanceRef.current.next();
-        }
-      }, autoplayInterval);
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    setAutoplayInterval();
 
     return () => {
       if (intervalRef.current) {
@@ -318,7 +362,7 @@ export default function ProjectGallery({
         intervalRef.current = null;
       }
     };
-  }, [isPlaying, autoplayInterval, loaded, autoplay]);
+  }, [isPlaying, autoplayInterval, loaded, autoplay, setAutoplayInterval]);
 
   // Visibility observer to reinitialize slider when tab becomes visible
   useEffect(() => {
@@ -539,7 +583,7 @@ export default function ProjectGallery({
     <div 
       ref={containerRef}
       className={`project-gallery ${gallerySize.className} ${className}`} 
-      style={{ maxWidth: gallerySize.style.maxWidth }} // Only apply maxWidth, not height
+      style={gallerySize.style} // Apply the container styling (maxWidth, etc.)
       role="region" 
       aria-label="Project image gallery"
     >
@@ -547,8 +591,14 @@ export default function ProjectGallery({
       <div className="relative group">
         <div 
           ref={sliderRef} 
-          className="keen-slider main-carousel rounded-xl overflow-hidden shadow-lg"
-          style={{ height: gallerySize.style.height }} // Apply height only to the image area
+          className={`keen-slider main-carousel rounded-xl overflow-hidden shadow-lg ${
+            isInitialized ? 'transition-[height] duration-200 ease-out' : ''
+          }`}
+          style={{ 
+            height: `${calculatedHeight || getInitialHeight()}px`,
+            opacity: loaded ? 1 : 0,
+            transition: loaded ? 'opacity 0.3s ease-in-out' : 'none'
+          }}
         >
           {images.map((image, idx) => {
             const optimizedImage = createOptimizedImage(image.src, 800, 80);
@@ -556,7 +606,6 @@ export default function ProjectGallery({
             <div 
               key={idx} 
               className="keen-slider__slide relative"
-              style={{ height: '100%' }}
             >
               <img
                 src={optimizedImage.src}
