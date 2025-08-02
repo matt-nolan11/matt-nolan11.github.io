@@ -95,20 +95,134 @@ const getHeadingClass = (depth: number) => {
 
 const headingLevel = getHeadingLevel(depth);
 const headingClass = getHeadingClass(depth);
+
+// Calculate responsive column widths using CSS custom properties
+const getColumnWidthData = (section: any) => {
+  if (section.columns.length !== 2) {
+    return null; // Not a 2-column layout
+  }
+  
+  const col1 = section.columns[0];
+  const col2 = section.columns[1];
+  
+  // Method 1: Individual column width properties (highest priority)
+  if (col1.width !== undefined || col2.width !== undefined) {
+    const col1Width = col1.width || (100 - (col2.width || 50));
+    const col2Width = col2.width || (100 - col1Width);
+    
+    // Ensure they add up to 100%
+    const total = col1Width + col2Width;
+    const col1Percent = (col1Width / total) * 100;
+    const col2Percent = (col2Width / total) * 100;
+    
+    return {
+      col1: col1Percent,
+      col2: col2Percent
+    };
+  }
+  
+  // Method 2: Section-level layout property
+  if (section.layout) {
+    const layout = section.layout;
+    
+    // String format: "60:40", "2:1", "70:30"
+    if (typeof layout === 'string' && layout.includes(':')) {
+      const [ratio1, ratio2] = layout.split(':').map(Number);
+      const total = ratio1 + ratio2;
+      const col1Percent = (ratio1 / total) * 100;
+      const col2Percent = (ratio2 / total) * 100;
+      
+      return {
+        col1: col1Percent,
+        col2: col2Percent
+      };
+    }
+    
+    // Array format: [70, 30] or [2, 1]
+    if (Array.isArray(layout) && layout.length === 2) {
+      const [width1, width2] = layout;
+      const total = width1 + width2;
+      const col1Percent = (width1 / total) * 100;
+      const col2Percent = (width2 / total) * 100;
+      
+      return {
+        col1: col1Percent,
+        col2: col2Percent
+      };
+    }
+    
+    // Named layouts
+    const namedLayouts: { [key: string]: { col1: number, col2: number } } = {
+      'narrow-wide': { col1: 33.333, col2: 66.667 },
+      'wide-narrow': { col1: 66.667, col2: 33.333 },
+      'equal': { col1: 50, col2: 50 },
+      'golden': { col1: 38.196, col2: 61.804 }, // Golden ratio
+      'sidebar': { col1: 75, col2: 25 },
+      'reverse-sidebar': { col1: 25, col2: 75 }
+    };
+    
+    if (namedLayouts[layout]) {
+      return namedLayouts[layout];
+    }
+  }
+  
+  // Method 3: Default equal width (50:50)
+  return { col1: 50, col2: 50 };
+};
+
 ---
 
+<style>
+  .responsive-columns {
+    --col1-width: 50%;
+    --col2-width: 50%;
+  }
+  
+  .responsive-columns .column:first-child {
+    width: 100%;
+  }
+  
+  .responsive-columns .column:last-child {
+    width: 100%;
+  }
+  
+  @media (min-width: 1024px) {
+    .responsive-columns .column:first-child {
+      width: var(--col1-width);
+    }
+    
+    .responsive-columns .column:last-child {
+      width: var(--col2-width);
+    }
+  }
+</style>
+
 <div class={`modular-sections ${depth === 0 ? 'space-y-8' : 'space-y-6'}`}>
-  {optimizedSections.map((section: any, _i: number) => (
-    <div class={`section gap-6 ${
-      section.columns.length <= 2 ? 'flex flex-col lg:flex-row' :
-      'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-' + section.columns.length
-    }`}>
-      {section.columns.map((col: any, _j: number) => (
-        <div class={`column ${
-          section.columns.length === 1 ? 'w-full' :
-          section.columns.length === 2 ? 'lg:w-1/2' :
-          'min-w-0' // Grid handles sizing for 3+ columns, min-w-0 prevents overflow
-        }`}>
+  {optimizedSections.map((section: any, _i: number) => {
+    const columnWidths = getColumnWidthData(section);
+    
+    return (
+    <div 
+      class={`section gap-6 ${
+        section.columns.length <= 2 ? 'flex flex-col lg:flex-row lg:items-start' :
+        'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-' + section.columns.length
+      } ${section.columns.length === 2 && columnWidths ? 'responsive-columns' : ''}`}
+      style={columnWidths ? `--col1-width: ${columnWidths.col1}%; --col2-width: ${columnWidths.col2}%;` : ''}
+    >
+      {section.columns.map((col: any, _j: number) => {
+        let columnClass;
+        
+        if (section.columns.length === 1) {
+          columnClass = 'w-full';
+        } else if (section.columns.length === 2) {
+          // Use responsive column class with CSS custom properties
+          columnClass = 'column lg:flex-none';
+        } else {
+          columnClass = 'min-w-0'; // Grid handles sizing for 3+ columns
+        }
+        
+        return (
+        <div class={columnClass}>
           {col.type === 'content' && (
             <>
               {col.title && (
@@ -159,7 +273,6 @@ const headingClass = getHeadingClass(depth);
                 autoRotate={col.modelOptions?.autoRotate}
                 cameraControls={col.modelOptions?.cameraControls}
                 ar={col.modelOptions?.ar}
-                size={col.modelOptions?.size || 'medium'}
                 exposureCompensation={col.modelOptions?.exposureCompensation}
                 shadowIntensity={col.modelOptions?.shadowIntensity}
                 shadowSoftness={col.modelOptions?.shadowSoftness}
@@ -168,11 +281,15 @@ const headingClass = getHeadingClass(depth);
                 rotationPerSecond={col.modelOptions?.rotationPerSecond}
                 autoRotateDelay={col.modelOptions?.autoRotateDelay}
                 cameraOrbit={col.modelOptions?.cameraOrbit}
+                mobileCameraOrbit={col.modelOptions?.mobileCameraOrbit}
                 fieldOfView={col.modelOptions?.fieldOfView}
                 minCameraOrbit={col.modelOptions?.minCameraOrbit}
-                maxCameraOrbit={col.modelOptions?.maxCameraOrbit}
                 minFieldOfView={col.modelOptions?.minFieldOfView}
                 maxFieldOfView={col.modelOptions?.maxFieldOfView}
+                aspectRatio={col.modelOptions?.aspectRatio}
+                mobileAspectRatio={col.modelOptions?.mobileAspectRatio}
+                width={col.modelOptions?.width}
+                height={col.modelOptions?.height}
                 client:load
               />
             </>
@@ -184,7 +301,6 @@ const headingClass = getHeadingClass(depth);
               autoplay={col.galleryOptions?.autoplay}
               autoplayInterval={col.galleryOptions?.autoplayInterval}
               showThumbnails={col.galleryOptions?.showThumbnails}
-              size={col.galleryOptions?.size || 'medium'}
               client:load
             />
           )}
@@ -200,7 +316,44 @@ const headingClass = getHeadingClass(depth);
             </div>
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
-  ))}
+    );
+  })}
 </div>
+
+<style>
+  /* Basic layout for sections */
+  .section.lg\\:flex-row {
+    align-items: flex-start;
+  }
+  
+  /* Ensure all columns stay within bounds */
+  .column {
+    min-width: 0; /* Prevent overflow */
+    overflow: hidden; /* Ensure content doesn't spill out */
+  }
+  
+  /* Ensure galleries and models respect their column width */
+  .column .project-gallery,
+  .column .model-viewer-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Support for arbitrary width values */
+  .column[class*="lg:w-["] {
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  // Simple responsive layout for numeric model sections
+  // The layout is handled by CSS classes, this just ensures proper initialization
+  document.addEventListener('DOMContentLoaded', function() {
+    // Force a layout recalculation to ensure responsive classes work correctly
+    window.dispatchEvent(new Event('resize'));
+  });
+</script>

@@ -210,6 +210,7 @@ export const collections = {
             z.enum(['small', 'medium', 'large', 'full']),
             z.number().min(200).max(1200)
           ]).default('medium'),
+          layout: z.string().optional(), // Support layout ratios like "3:2", "60:40", "golden", etc.
           autoplay: z.boolean().default(false),
           autoplayInterval: z.number().default(4000),
           showThumbnails: z.boolean().default(true),

@@ -26,7 +26,90 @@ const { Content } = await project.render();
 
 // Get related content based on shared tags
 const relatedContent = await getRelatedContent(project.data.tags, project.slug, 3);
+
+/**
+ * Calculate responsive width percentages for cover gallery layout
+ * Returns raw percentages to be used with CSS custom properties
+ */
+function getCoverGalleryWidths(options: any) {
+  if (!options?.layout) {
+    return { gallery: 50, info: 50 }; // Default 50:50
+  }
+  
+  const layout = options.layout;
+  
+  // Percentage format: "60%"
+  if (typeof layout === 'string' && layout.endsWith('%')) {
+    const percentage = parseFloat(layout);
+    if (!isNaN(percentage) && percentage > 0 && percentage < 100) {
+      return {
+        gallery: percentage,
+        info: 100 - percentage
+      };
+    }
+  }
+  
+  // Ratio format: "55:45", "3:2", etc.
+  if (typeof layout === 'string' && layout.includes(':')) {
+    const [left, right] = layout.split(':').map(Number);
+    if (!isNaN(left) && !isNaN(right) && left > 0 && right > 0) {
+      const total = left + right;
+      const galleryPercent = (left / total) * 100;
+      const infoPercent = (right / total) * 100;
+      
+      return {
+        gallery: galleryPercent,
+        info: infoPercent
+      };
+    }
+  }
+  
+  // Named layouts
+  const namedLayouts: { [key: string]: { gallery: number, info: number } } = {
+    'narrow-wide': { gallery: 33.333, info: 66.667 },
+    'wide-narrow': { gallery: 66.667, info: 33.333 },
+    'equal': { gallery: 50, info: 50 },
+    'golden': { gallery: 61.804, info: 38.196 }, // Golden ratio (gallery gets larger portion)
+    'sidebar': { gallery: 25, info: 75 },
+    'reverse-sidebar': { gallery: 75, info: 25 }
+  };
+  
+  if (namedLayouts[layout]) {
+    return namedLayouts[layout];
+  }
+  
+  // Fallback to 50:50
+  return { gallery: 50, info: 50 };
+}
+
+// Calculate gallery/info column widths as percentages
+const coverWidths = getCoverGalleryWidths(project.data.galleryOptions);
 ---
+
+<style>
+  .responsive-cover-layout {
+    --gallery-width: 50%;
+    --info-width: 50%;
+  }
+  
+  .cover-gallery-col {
+    width: 100%;
+  }
+  
+  .cover-info-col {
+    width: 100%;
+  }
+  
+  @media (min-width: 1024px) {
+    .cover-gallery-col {
+      width: var(--gallery-width);
+    }
+    
+    .cover-info-col {
+      width: var(--info-width);
+    }
+  }
+</style>
 
 <Layout 
   seo={{
@@ -37,24 +120,19 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
   <article class="max-w-7xl mx-auto px-4 py-8">
     <!-- Project Header -->
     <header class="mb-8">
-      <div class="flex flex-col lg:flex-row gap-8">
+      <div 
+        class="flex flex-col lg:flex-row gap-8 responsive-cover-layout"
+        style={`--gallery-width: ${coverWidths.gallery}%; --info-width: ${coverWidths.info}%;`}
+      >
         <!-- Project Image/Gallery -->
-        <div class={
-          project.data.gallery && project.data.gallery.length > 0 && project.data.galleryOptions?.size && typeof project.data.galleryOptions.size === 'number' 
-            ? project.data.galleryOptions.size >= 1000 ? "lg:w-2/3" 
-              : project.data.galleryOptions.size >= 800 ? "lg:w-3/5" 
-              : project.data.galleryOptions.size >= 600 ? "lg:w-1/2" 
-              : "lg:w-2/5"
-            : "lg:w-1/2"
-        }>
+        <div class="cover-gallery-col lg:flex-none">
           {project.data.gallery && project.data.gallery.length > 0 ? (
             <ProjectGallery 
-              images={project.data.gallery}
+              images={project.data.gallery as any}
               autoplay={project.data.galleryOptions?.autoplay ?? true}
               autoplayInterval={project.data.galleryOptions?.autoplayInterval ?? 4000}
               showThumbnails={project.data.galleryOptions?.showThumbnails ?? true}
               loop={project.data.galleryOptions?.loop ?? true}
-              size={project.data.galleryOptions?.size ?? "medium"}
               client:load
             />
           ) : (
@@ -69,14 +147,7 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
         </div>
         
         <!-- Project Info -->
-        <div class={
-          project.data.gallery && project.data.gallery.length > 0 && project.data.galleryOptions?.size && typeof project.data.galleryOptions.size === 'number' 
-            ? project.data.galleryOptions.size >= 1000 ? "lg:w-1/3" 
-              : project.data.galleryOptions.size >= 800 ? "lg:w-2/5" 
-              : project.data.galleryOptions.size >= 600 ? "lg:w-1/2" 
-              : "lg:w-3/5"
-            : "lg:w-1/2"
-        }>
+        <div class="cover-info-col lg:flex-none">
             <h1 class="text-4xl font-bold mb-4">{project.data.title}</h1>
             <p class="text-lg text-base-content/70 mb-6">{project.data.description}</p>
             
@@ -478,7 +549,6 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
                           autoplay={version.galleryOptions?.autoplay !== undefined ? version.galleryOptions.autoplay : version.gallery.length > 1}
                           autoplayInterval={version.galleryOptions?.autoplayInterval || 5000}
                           showThumbnails={version.galleryOptions?.showThumbnails !== undefined ? version.galleryOptions.showThumbnails : version.gallery.length > 2}
-                          size={version.galleryOptions?.size || 'medium'}
                           client:load
                         />
                       ) : version.images && version.images.length > 0 && (

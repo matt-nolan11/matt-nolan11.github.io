@@ -53,7 +53,7 @@ gallery:
   - src: "./images/vsActionSurge.jpg"
     caption: "Powerful hit launches opponent Action Surge airborne at ARC Roborumble 2024"
 galleryOptions:
-  size: 750
+  layout: "55%"
   autoplay: true
   autoplayInterval: 6000
   showThumbnails: true
@@ -68,6 +68,7 @@ spinny boiii is my first serious attempt at building a competitive beetleweight 
   {
     type: "content",
     title: "Project Overview",
+    width: 55,
     content: `spinny boiii is a 3-pound beetleweight combat robot designed for vertical spinning disk combat.
     Built with CNC-machined aluminum frame and 3D-printed components, it features a powerful
     brushless motor driving a hardened steel spinning disk at high RPM.
@@ -81,16 +82,18 @@ spinny boiii is my first serious attempt at building a competitive beetleweight 
   {
     type: "model",
     title: "3D Model",
+    width: 45,
     modelSrc: spinnyBoiiiModel,
     alt: "Interactive 3D model of spinny boiii combat robot",
     modelOptions: {
       autoRotate: true,
       cameraControls: true,
-      size: "large",
       exposure: 0.8,
       shadowIntensity: 0.5,
-      cameraOrbit: "0deg 75deg 0.5m",
-      fieldOfView: "45deg"
+      cameraOrbit: "0deg 75deg 0.45m",
+      mobileCameraOrbit: "0deg 75deg 0.52m",
+      aspectRatio: "5:4",
+      mobileAspectRatio: "1:1"
     }
   }
 ]} />
@@ -114,7 +117,9 @@ Combat robots operate in a unique environment where durability and weapon effect
 - Arena compatibility (size, ground clearance, materials)
 - Radio control requirements and fail-safe systems
 
-<ModularSection columns={[
+<ModularSection 
+  layout="golden"
+  columns={[
   {
     type: "content",
     title: "Technical Specifications",
@@ -170,6 +175,7 @@ The robot uses a hybrid manufacturing approach combining different techniques fo
 <ModularSection columns={[
   {
     type: "content",
+    width: 40,
     title: "Safety Systems",
     content: `Combat robots require extensive safety features to protect operators and spectators:
 
@@ -188,6 +194,7 @@ The robot uses a hybrid manufacturing approach combining different techniques fo
   },
   {
     type: "content",
+    width: 60,
     title: "Competition Experience",
     content: `spinny boiii has competed in several beetleweight competitions with mixed results:
 
@@ -201,7 +208,15 @@ The robot uses a hybrid manufacturing approach combining different techniques fo
     - Upgraded drive system for better maneuverability
     - Improved weapon mounting for reduced vibration
     - Better weight distribution for stability
-    - Enhanced electronics protection`
+    - Enhanced electronics protection
+
+    **Recent Competition Results:**
+    - **RCL Nationals 2025**: 5th place (4-2 record)
+    - **EVAC Cactus Clash 2024**: 1st place (5-0 record)
+    - **ARC Roborumble 2024**: 1st place (5-0 record)
+    - **ARC Roborumble 2023**: 2nd place (5-2 record)
+
+    These results show steady improvement in design and competition strategy.`
   }
 ]} />
 

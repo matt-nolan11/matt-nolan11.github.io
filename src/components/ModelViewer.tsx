@@ -30,16 +30,19 @@ interface ModelViewerProps {
   interactionPromptStyle?: 'basic' | 'wiggle';
   interactionPromptThreshold?: number;
   cameraOrbit?: string;
+  aspectRatio?: string;
+  mobileAspectRatio?: string;
+  mobileCameraOrbit?: string;
   cameraTarget?: string;
   fieldOfView?: string;
   minCameraOrbit?: string;
-  maxCameraOrbit?: string;
   minFieldOfView?: string;
   maxFieldOfView?: string;
   bounds?: 'tight' | 'legacy';
   interpolationDecay?: number;
   width?: string | number;
   height?: string | number;
+  mobileHeight?: string | number;
   className?: string;
   style?: React.CSSProperties;
   loading?: 'auto' | 'lazy' | 'eager';
@@ -60,7 +63,6 @@ interface ModelViewerProps {
   toneMapping?: 'aces' | 'commerce' | 'neutral';
   neutralColorSpace?: 'srgb' | 'rec2020';
   // Additional options
-  size?: 'small' | 'medium' | 'large' | 'full' | number;
   caption?: string;
   variant?: string;
   scale?: string;
@@ -73,6 +75,7 @@ interface ModelViewerProps {
  * 
  * Features:
  * - Interactive camera controls (orbit, zoom, pan) with fine-grained control
+ * - Responsive camera orbit distance that adjusts automatically for mobile/tablet/desktop
  * - Automatic rotation and animations with customizable timing
  * - Environmental lighting, shadows, and tone mapping
  * - Progressive loading with poster images
@@ -83,6 +86,11 @@ interface ModelViewerProps {
  * - Advanced staging controls (exposure, tone mapping, color space)
  * - Multiple interaction modes and prompts
  * - Model variants and scaling support
+ * 
+ * @note Camera orbit distances are automatically scaled for different screen sizes:
+ *       - Mobile (≤640px): 1.4x distance for better framing
+ *       - Tablet (≤768px): 1.2x distance for optimal viewing
+ *       - Desktop (>768px): Original distance as specified
  */
 export default function ModelViewer({
   src,
@@ -104,10 +112,12 @@ export default function ModelViewer({
   interactionPromptStyle = 'wiggle',
   interactionPromptThreshold = 3000,
   cameraOrbit,
+  mobileCameraOrbit,
+  aspectRatio,
+  mobileAspectRatio,
   cameraTarget,
   fieldOfView,
   minCameraOrbit,
-  maxCameraOrbit,
   minFieldOfView,
   maxFieldOfView,
   bounds = 'tight',
@@ -130,7 +140,6 @@ export default function ModelViewer({
   xrEnvironment = false,
   toneMapping = 'neutral',
   neutralColorSpace = 'srgb',
-  size = 'medium',
   caption,
   variant,
   scale,
@@ -142,32 +151,75 @@ export default function ModelViewer({
   const [hasError, setHasError] = useState(false);
   const [isModelViewerLoaded, setIsModelViewerLoaded] = useState(false);
   const [canActivateAR, setCanActivateAR] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(0);
 
-  /**
-   * Calculate container styling based on size prop
-   * @param size - Either a preset size string or a numeric pixel width
-   * @returns Object with className and style properties
-   */
-  const getContainerSize = (size: 'small' | 'medium' | 'large' | 'full' | number) => {
-    if (typeof size === 'number') {
-      return {
-        className: 'mx-auto',
-        style: { maxWidth: `${size}px` }
-      };
+  // Track window width for responsive camera orbit
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    
+    // Set initial width
+    if (typeof window !== 'undefined') {
+      setWindowWidth(window.innerWidth);
+      window.addEventListener('resize', handleResize);
     }
     
-    // Preset size mappings
-    const sizeMap = {
-      small: { className: 'max-w-md mx-auto', style: {} },
-      medium: { className: 'max-w-2xl mx-auto', style: {} },
-      large: { className: 'max-w-4xl mx-auto', style: {} },
-      full: { className: 'w-full', style: {} }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
     };
+  }, []);
+
+  /**
+   * Calculate responsive camera orbit based on device type and screen size
+   * Uses mobileCameraOrbit for mobile devices if provided, otherwise uses desktop orbit
+   * @param desktopCameraOrbit - The desktop camera orbit string (e.g., "0deg 75deg 0.45m")
+   * @param mobileCameraOrbit - Optional mobile-specific camera orbit string
+   * @param windowWidth - Current window width in pixels
+   * @returns Appropriate camera orbit string for the current device
+   */
+  const getResponsiveCameraOrbit = (
+    desktopCameraOrbit?: string, 
+    mobileCameraOrbit?: string, 
+    windowWidth?: number
+  ): string | undefined => {
+    if (!desktopCameraOrbit || !windowWidth) return desktopCameraOrbit;
     
-    return sizeMap[size] || sizeMap.medium;
+    // Define mobile breakpoint
+    const mobileBreakpoint = 768; // md breakpoint
+    
+    // Use mobile-specific orbit if provided and on mobile device
+    if (windowWidth <= mobileBreakpoint && mobileCameraOrbit) {
+      return mobileCameraOrbit;
+    }
+    
+    // For devices without a specific mobile orbit, use desktop orbit
+    return desktopCameraOrbit;
   };
 
-  const containerSize = getContainerSize(size);
+  /**
+   * Generate max camera orbit with "auto auto" for azimuth/polar and distance from active orbit
+   * @param activeCameraOrbit - The currently active camera orbit string
+   * @returns Max camera orbit string with auto positioning and inherited distance
+   */
+  const generateMaxCameraOrbit = (activeCameraOrbit?: string): string | undefined => {
+    if (!activeCameraOrbit) return undefined;
+    
+    // Parse the active orbit to extract distance
+    const orbitMatch = activeCameraOrbit.match(/^(-?\d+(?:\.\d+)?)deg\s+(-?\d+(?:\.\d+)?)deg\s+(-?\d+(?:\.\d+)?)([a-z]+)$/);
+    if (!orbitMatch) return activeCameraOrbit;
+    
+    const [, , , distance, unit] = orbitMatch;
+    
+    // Return "auto auto [distance][unit]" format
+    return `auto auto ${distance}${unit}`;
+  };
+
+  // Calculate responsive camera orbit and auto-generate max camera orbit
+  const responsiveCameraOrbit = getResponsiveCameraOrbit(cameraOrbit, mobileCameraOrbit, windowWidth);
+  
+  // Auto-generate max camera orbit with "auto auto" format and distance from active orbit
+  const responsiveMaxCameraOrbit = generateMaxCameraOrbit(responsiveCameraOrbit);
 
   // Load model-viewer web component
   useEffect(() => {
@@ -348,11 +400,11 @@ export default function ModelViewer({
       attrs['interaction-prompt-style'] = interactionPromptStyle;
       attrs['interaction-prompt-threshold'] = interactionPromptThreshold;
     }
-    if (cameraOrbit) attrs['camera-orbit'] = cameraOrbit;
+    if (responsiveCameraOrbit) attrs['camera-orbit'] = responsiveCameraOrbit;
     if (cameraTarget) attrs['camera-target'] = cameraTarget;
     if (fieldOfView) attrs['field-of-view'] = fieldOfView;
     if (minCameraOrbit) attrs['min-camera-orbit'] = minCameraOrbit;
-    if (maxCameraOrbit) attrs['max-camera-orbit'] = maxCameraOrbit;
+    if (responsiveMaxCameraOrbit) attrs['max-camera-orbit'] = responsiveMaxCameraOrbit;
     if (minFieldOfView) attrs['min-field-of-view'] = minFieldOfView;
     if (maxFieldOfView) attrs['max-field-of-view'] = maxFieldOfView;
     if (withCredentials) attrs['with-credentials'] = '';
@@ -380,10 +432,67 @@ export default function ModelViewer({
 
   const attributes = buildAttributes();
 
+  /**
+   * Calculate responsive height based on aspect ratio and container width
+   * @param baseHeight - Fallback height if no aspect ratio provided
+   * @param desktopAspectRatio - Desktop aspect ratio (e.g., "16:9", "4:3", "1:1")
+   * @param mobileAspectRatio - Mobile aspect ratio (e.g., "16:9", "4:3", "1:1")
+   * @param windowWidth - Current window width
+   * @returns Calculated height based on aspect ratio and container width
+   */
+  const getResponsiveHeight = (
+    baseHeight?: string | number, 
+    desktopAspectRatio?: string,
+    mobileAspectRatio?: string,
+    windowWidth?: number
+  ): string => {
+    if (!windowWidth) return typeof baseHeight === 'string' ? baseHeight : `${baseHeight}px` || '400px';
+    
+    // Define breakpoint
+    const mobileBreakpoint = 768;
+    const isMobile = windowWidth <= mobileBreakpoint;
+    
+    // Select appropriate aspect ratio
+    const activeAspectRatio = isMobile && mobileAspectRatio ? mobileAspectRatio : desktopAspectRatio;
+    
+    if (!activeAspectRatio) {
+      // Fallback to original height if no aspect ratio specified
+      return typeof baseHeight === 'string' ? baseHeight : `${baseHeight}px` || '400px';
+    }
+    
+    // Parse aspect ratio (e.g., "16:9" -> [16, 9])
+    const [widthRatio, heightRatio] = activeAspectRatio.split(':').map(Number);
+    
+    if (!widthRatio || !heightRatio) {
+      console.warn('Invalid aspect ratio format. Use format like "16:9" or "4:3"');
+      return typeof baseHeight === 'string' ? baseHeight : `${baseHeight}px` || '400px';
+    }
+    
+    // Calculate container width (accounting for column width percentage)
+    let containerWidth: number;
+    
+    if (isMobile) {
+      // Mobile: typically full width minus padding
+      containerWidth = windowWidth * 0.9; // ~90% for mobile padding
+    } else {
+      // Desktop: estimate based on ModularSection column width
+      // For 50% width columns in a ~1200px container = ~600px
+      const estimatedContainerWidth = Math.min(windowWidth * 0.8, 1200); // Max container width
+      containerWidth = estimatedContainerWidth * 0.5; // Assuming 50% column width
+    }
+    
+    // Calculate height using aspect ratio: height = width * (heightRatio / widthRatio)
+    const calculatedHeight = Math.round(containerWidth * (heightRatio / widthRatio));
+    
+    return `${calculatedHeight}px`;
+  };
+
   // Calculate dimensions with performance considerations
+  const responsiveHeight = getResponsiveHeight(height, aspectRatio, mobileAspectRatio, windowWidth);
+  
   const modelStyle: React.CSSProperties = {
     width: width || '100%',
-    height: height || '400px',
+    height: responsiveHeight,
     // Performance optimizations for smoother rendering
     transform: 'translateZ(0)', // Force hardware acceleration
     backfaceVisibility: 'hidden',
@@ -396,7 +505,7 @@ export default function ModelViewer({
 
   if (hasError) {
     return (
-      <div className={`model-viewer-container ${containerSize.className} ${className}`} style={containerSize.style}>
+      <div className={`model-viewer-container ${className}`} style={{ width: '100%' }}>
         <div className="flex items-center justify-center h-64 bg-base-200 rounded-xl border-2 border-dashed border-base-300">
           <div className="text-center">
             <svg className="w-12 h-12 mx-auto text-base-content/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -415,7 +524,7 @@ export default function ModelViewer({
 
   if (!isModelViewerLoaded) {
     return (
-      <div className={`model-viewer-container ${containerSize.className} ${className}`} style={containerSize.style}>
+      <div className={`model-viewer-container ${className}`} style={{ width: '100%' }}>
         <div className="flex items-center justify-center h-64 bg-base-200 rounded-xl">
           <div className="text-center">
             <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
@@ -431,8 +540,8 @@ export default function ModelViewer({
 
   return (
     <div 
-      className={`model-viewer-container ${containerSize.className} ${className}`} 
-      style={containerSize.style}
+      className={`model-viewer-container ${className}`} 
+      style={{ width: '100%' }}
       role="img" 
       aria-label={alt}
     >

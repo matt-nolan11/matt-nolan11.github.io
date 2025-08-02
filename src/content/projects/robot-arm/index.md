@@ -29,7 +29,7 @@ sections:
           alt: "Project Evolution"
           caption: "Evolution from basic servo control to AI-powered autonomous operation"
       galleryOptions:
-        size: "medium"
+        size: 1000
         autoplay: true
         autoplayInterval: 4000
 

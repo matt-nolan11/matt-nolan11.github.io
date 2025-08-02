@@ -9,6 +9,22 @@
   themes: corporate --default, business --prefersdark;
 }
 
+/* Ensure width classes are available for cover gallery */
+@media (min-width: 1024px) {
+  .lg\:w-3\/5 { width: 60% !important; }
+  .lg\:w-2\/5 { width: 40% !important; }
+  .lg\:w-\[55\%\] { width: 55% !important; }
+  .lg\:w-\[45\%\] { width: 45% !important; }
+  .lg\:w-\[60\%\] { width: 60% !important; }
+  .lg\:w-\[40\%\] { width: 40% !important; }
+  .lg\:w-\[65\%\] { width: 65% !important; }
+  .lg\:w-\[35\%\] { width: 35% !important; }
+  .lg\:w-\[70\%\] { width: 70% !important; }
+  .lg\:w-\[30\%\] { width: 30% !important; }
+  .lg\:w-\[75\%\] { width: 75% !important; }
+  .lg\:w-\[25\%\] { width: 25% !important; }
+}
+
 /* Pagefind UI Overrides */
   .pagefind-ui {
     --pagefind-ui-scale: 0.75;

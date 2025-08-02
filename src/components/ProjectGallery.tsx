@@ -78,7 +78,6 @@ interface ProjectGalleryProps {
   showThumbnails?: boolean;
   loop?: boolean;
   className?: string;
-  size?: 'small' | 'medium' | 'large' | 'full' | number; // Support both preset and numeric sizing
 }
 
 /**
@@ -94,7 +93,6 @@ export default function ProjectGallery({
   showThumbnails = true,
   loop = true,
   className = '',
-  size = 'medium',
 }: ProjectGalleryProps) {
   /**
    * Calculate optimal gallery height based on the shortest image in the collection
@@ -130,45 +128,11 @@ export default function ProjectGallery({
    * @param size - Either a preset size string or a numeric pixel width
    * @returns Object with className and style properties
    */
-  const getGallerySize = (size: 'small' | 'medium' | 'large' | 'full' | number) => {
-    let baseStyle: any = {};
-    let className: string;
-
-    if (typeof size === 'number') {
-      className = 'mx-auto';
-      baseStyle.maxWidth = `${size}px`;
-    } else {
-      const sizeMap = {
-        small: 400,
-        medium: 700,
-        large: 900,
-        full: 1200
-      };
-      const galleryWidth = sizeMap[size] || sizeMap.medium;
-      
-      const classMap = {
-        small: 'max-w-md mx-auto',
-        medium: 'max-w-2xl mx-auto', 
-        large: 'max-w-4xl mx-auto',
-        full: 'w-full'
-      };
-      className = classMap[size] || classMap.medium;
-      if (size !== 'full') {
-        baseStyle.maxWidth = `${galleryWidth}px`;
-      }
-    }
-    
-    return {
-      className,
-      style: baseStyle
-    };
-  };
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(autoplay);
   const [isMobile, setIsMobile] = useState(false);
-  const [gallerySize, setGallerySize] = useState(() => getGallerySize(size));
   const [calculatedHeight, setCalculatedHeight] = useState<number | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -191,10 +155,10 @@ export default function ProjectGallery({
     }
   }, [images, isInitialized]);
 
-  // Update height when container size changes
+  // Update height when container changes
   useEffect(() => {
     updateCalculatedHeight();
-  }, [updateCalculatedHeight, gallerySize]);
+  }, [updateCalculatedHeight]);
 
   // Calculate height immediately on mount to prevent layout shift
   useLayoutEffect(() => {
@@ -207,14 +171,8 @@ export default function ProjectGallery({
   const getInitialHeight = useCallback(() => {
     if (calculatedHeight) return calculatedHeight;
     
-    // Fallback calculation for initial render
-    let estimatedWidth: number;
-    if (typeof size === 'number') {
-      estimatedWidth = size;
-    } else {
-      const sizeMap = { small: 400, medium: 700, large: 900, full: 1200 };
-      estimatedWidth = sizeMap[size] || 700;
-    }
+    // Fallback calculation for initial render - use a reasonable default
+    let estimatedWidth = 700;
     
     // On mobile, use screen width minus padding
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -222,15 +180,14 @@ export default function ProjectGallery({
     }
     
     return calculateOptimalHeight(images, estimatedWidth);
-  }, [calculatedHeight, size, images]);
+  }, [calculatedHeight, images]);
 
-  // Detect mobile screens and update gallery size on resize
+  // Detect mobile screens and update layout on resize
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     
     const updateLayout = () => {
       setIsMobile(window.innerWidth < 640);
-      setGallerySize(getGallerySize(size));
       
       // Debounce height calculation during resize
       clearTimeout(timeoutId);
@@ -248,7 +205,7 @@ export default function ProjectGallery({
         clearTimeout(timeoutId);
       };
     }
-  }, [size, updateCalculatedHeight]); // Re-run when size prop changes
+  }, [updateCalculatedHeight]); // Re-run when update function changes
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -582,8 +539,8 @@ export default function ProjectGallery({
   return (
     <div 
       ref={containerRef}
-      className={`project-gallery ${gallerySize.className} ${className}`} 
-      style={gallerySize.style} // Apply the container styling (maxWidth, etc.)
+      className={`project-gallery ${className}`} 
+      style={{ width: '100%' }} // Always use full width of column
       role="region" 
       aria-label="Project image gallery"
     >
