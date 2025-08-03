@@ -69,7 +69,7 @@ spinny boiii is my first serious attempt at building a competitive beetleweight 
   {
     type: "content",
     title: "Project Overview",
-    width: 50,
+    width: 65,
     content: `spinny boiii is a 3-pound beetleweight combat robot designed for vertical spinning disk combat.
     Built with CNC-machined aluminum frame and 3D-printed components, it features a powerful
     brushless motor driving a hardened steel spinning disk at high RPM.
@@ -83,7 +83,7 @@ spinny boiii is my first serious attempt at building a competitive beetleweight 
   {
     type: "model",
     title: "3D Model",
-    width: 50,
+    width: 35,
     modelSrc: spinnyBoiiiModel,
     alt: "Interactive 3D model of spinny boiii combat robot",
     modelOptions: {
@@ -99,138 +99,3 @@ spinny boiii is my first serious attempt at building a competitive beetleweight 
     }
   }
 ]} />
-
-## Project Goals
-
-The primary objectives for this robot are:
-
-- **Competitive Performance**: Design a robot capable of winning matches in beetleweight competitions
-- **Reliability**: Build robust systems that can survive multiple fights without major repairs  
-- **Manufacturability**: Use accessible manufacturing methods (3D printing, basic CNC)
-- **Learning Platform**: Develop skills in robotics, manufacturing, and combat robot design
-
-## Combat Robot Fundamentals
-
-Combat robots operate in a unique environment where durability and weapon effectiveness are paramount. Unlike other robotics applications, combat bots must be designed to both inflict and withstand significant damage while maintaining functionality.
-
-**Key Design Constraints:**
-- Weight limit of exactly 3.0 pounds including all components
-- Safety requirements for electronics and weapon systems
-- Arena compatibility (size, ground clearance, materials)
-- Radio control requirements and fail-safe systems
-
-<ModularSection 
-  layout="golden"
-  columns={[
-  {
-    type: "content",
-    title: "Technical Specifications",
-    content: `**Weight Class:** 3 pounds (beetleweight)
-
-    **Drive System:** Two-wheel differential drive with CIM motors
-
-    **Weapon:** 6-inch hardened steel disk powered by brushless motor
-
-    **Frame:** CNC-machined 6061-T6 aluminum with integrated weapon mount
-
-    **Electronics:** Custom PCB with brushless ESC and radio receiver
-
-    **Power:** LiPo battery pack with safety disconnect
-
-    **Dimensions:** 12" x 8" x 4" (length x width x height)`
-  },
-  {
-    type: "content",
-    title: "Design Philosophy", 
-    content: `The design prioritizes weapon power and reliability over complex drive systems.
-    The vertical spinner configuration allows for devastating hits while maintaining
-    good mobility. The low-profile design helps avoid getting caught on arena hazards.
-
-    **Key Design Decisions:**
-
-    - Single large spinning disk instead of multiple small weapons
-    - Direct motor mount to minimize power transmission losses  
-    - Minimal ground clearance for stability
-    - Removable weapon system for easy maintenance
-    - Integrated safety features and fail-safes`
-  }
-]} />
-
-## Manufacturing and Assembly
-
-The robot uses a hybrid manufacturing approach combining different techniques for optimal results:
-
-**CNC Machining:** The main frame is machined from 6061-T6 aluminum plate for maximum strength and precision. This provides the structural integrity needed to handle weapon reaction forces and impact loads.
-
-**3D Printing:** Non-structural components like covers, mounts, and spacers are 3D printed in PETG for rapid iteration and weight optimization. This allows for quick design changes and custom-fit components.
-
-**Commercial Components:** Motors, electronics, and hardware are sourced from specialized suppliers to ensure reliability and performance in the demanding combat environment.
-
-### Assembly Process
-
-1. **Frame Preparation**: Machine the main chassis and weapon mount from aluminum stock
-2. **Electronics Integration**: Install motor controllers, radio receiver, and safety systems
-3. **Drive System**: Mount drive motors and wheels with proper alignment
-4. **Weapon Assembly**: Balance and mount the spinning disk with safety checks
-5. **Testing and Tuning**: Comprehensive testing of all systems before competition
-
-<ModularSection columns={[
-  {
-    type: "content",
-    width: 40,
-    title: "Safety Systems",
-    content: `Combat robots require extensive safety features to protect operators and spectators:
-
-    **Primary Safety Features:**
-    - Removable link for main power disconnect
-    - Radio failsafe that stops all motion if signal is lost
-    - Weapon spin-down timer (60 seconds maximum)
-    - Impact-resistant electronics enclosure
-    - Secure weapon mounting with safety factor > 5x
-
-    **Operational Safety:**
-    - Pre-fight inspection checklist
-    - Weapon safety testing procedures
-    - Emergency stop protocols
-    - Proper handling and transport procedures`
-  },
-  {
-    type: "content",
-    width: 60,
-    title: "Competition Experience",
-    content: `spinny boiii has competed in several beetleweight competitions with mixed results:
-
-    **Lessons Learned:**
-    - Weapon reliability is more important than maximum power
-    - Drive system robustness affects overall performance
-    - Weight distribution significantly impacts handling
-    - Simple designs are often more successful than complex ones
-
-    **Future Improvements:**
-    - Upgraded drive system for better maneuverability
-    - Improved weapon mounting for reduced vibration
-    - Better weight distribution for stability
-    - Enhanced electronics protection
-
-    **Recent Competition Results:**
-    - **RCL Nationals 2025**: 5th place (4-2 record)
-    - **EVAC Cactus Clash 2024**: 1st place (5-0 record)
-    - **ARC Roborumble 2024**: 1st place (5-0 record)
-    - **ARC Roborumble 2023**: 2nd place (5-2 record)
-
-    These results show steady improvement in design and competition strategy.`
-  }
-]} />
-
-## Results and Future Development
-
-The project has been a valuable learning experience in combat robot design and manufacturing. While the robot has faced challenges in competition, each iteration has provided insights for improvement.
-
-**Current Status:** The robot is functional but requires refinements for competitive performance. The primary focus areas are drive system reliability and weapon effectiveness.
-
-**Next Steps:**
-- Redesign the drive system for improved reliability
-- Optimize weapon geometry for better performance
-- Implement lessons learned from competition experience
-- Develop version 2 with improved manufacturing processes
-

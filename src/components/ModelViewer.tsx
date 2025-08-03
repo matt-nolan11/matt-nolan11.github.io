@@ -407,8 +407,6 @@ export default function ModelViewer({
       'shadow-intensity': shadowIntensity,
       'shadow-softness': shadowSoftness,
       'interpolation-decay': interpolationDecay,
-      // Performance optimizations
-      'touch-action': 'pan-y', // Improve touch performance
       // Hide progress bar to prevent flash
       'data-js-focus-visible': '',
     };
@@ -463,20 +461,18 @@ export default function ModelViewer({
   const attributes = buildAttributes();
 
   /**
-   * Calculate responsive height based on aspect ratio and container width
-   * @param baseHeight - Fallback height if no aspect ratio provided
+   * Get the CSS aspect ratio string for responsive sizing
    * @param desktopAspectRatio - Desktop aspect ratio (e.g., "16:9", "4:3", "1:1")
    * @param mobileAspectRatio - Mobile aspect ratio (e.g., "16:9", "4:3", "1:1")
    * @param windowWidth - Current window width
-   * @returns Calculated height based on aspect ratio and container width
+   * @returns CSS aspect-ratio value or undefined if no aspect ratio specified
    */
-  const getResponsiveHeight = (
-    baseHeight?: string | number, 
+  const getResponsiveAspectRatio = (
     desktopAspectRatio?: string,
     mobileAspectRatio?: string,
     windowWidth?: number
-  ): string => {
-    if (!windowWidth) return typeof baseHeight === 'string' ? baseHeight : `${baseHeight}px` || '400px';
+  ): string | undefined => {
+    if (!windowWidth) return undefined;
     
     // Define breakpoint
     const mobileBreakpoint = 768;
@@ -486,8 +482,7 @@ export default function ModelViewer({
     const activeAspectRatio = isMobile && mobileAspectRatio ? mobileAspectRatio : desktopAspectRatio;
     
     if (!activeAspectRatio) {
-      // Fallback to original height if no aspect ratio specified
-      return typeof baseHeight === 'string' ? baseHeight : `${baseHeight}px` || '400px';
+      return undefined;
     }
     
     // Parse aspect ratio (e.g., "16:9" -> [16, 9])
@@ -495,34 +490,20 @@ export default function ModelViewer({
     
     if (!widthRatio || !heightRatio) {
       console.warn('Invalid aspect ratio format. Use format like "16:9" or "4:3"');
-      return typeof baseHeight === 'string' ? baseHeight : `${baseHeight}px` || '400px';
+      return undefined;
     }
     
-    // Calculate container width (accounting for column width percentage)
-    let containerWidth: number;
-    
-    if (isMobile) {
-      // Mobile: typically full width minus padding
-      containerWidth = windowWidth * 0.9; // ~90% for mobile padding
-    } else {
-      // Desktop: estimate based on ModularSection column width
-      // For 50% width columns in a ~1200px container = ~600px
-      const estimatedContainerWidth = Math.min(windowWidth * 0.8, 1200); // Max container width
-      containerWidth = estimatedContainerWidth * 0.5; // Assuming 50% column width
-    }
-    
-    // Calculate height using aspect ratio: height = width * (heightRatio / widthRatio)
-    const calculatedHeight = Math.round(containerWidth * (heightRatio / widthRatio));
-    
-    return `${calculatedHeight}px`;
+    // Return CSS aspect-ratio value
+    return `${widthRatio} / ${heightRatio}`;
   };
 
-  // Calculate dimensions with performance considerations
-  const responsiveHeight = getResponsiveHeight(height, aspectRatio, mobileAspectRatio, windowWidth);
+  // Calculate responsive aspect ratio for CSS
+  const responsiveAspectRatio = getResponsiveAspectRatio(aspectRatio, mobileAspectRatio, windowWidth);
   
   const modelStyle: React.CSSProperties = {
     width: width || '100%',
-    height: responsiveHeight,
+    height: height || 'auto', // Use auto height when aspect ratio is set
+    aspectRatio: responsiveAspectRatio, // Use CSS aspect-ratio for proper responsive sizing
     // Performance optimizations for smoother rendering
     transform: 'translateZ(0)', // Force hardware acceleration
     backfaceVisibility: 'hidden',
