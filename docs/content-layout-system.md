@@ -426,16 +426,18 @@ sections:
   alt: "Interactive 3D model of robot arm"
   poster: "./model-preview.jpg"
   caption: "Click and drag to rotate the model"
+  aspectRatio: "16:10"        # Desktop aspect ratio (optional)
+  mobileAspectRatio: "4:3"    # Mobile aspect ratio (optional)
   modelOptions:
     autoRotate: true
     cameraControls: true
     ar: true
-    size: "large"
     exposureCompensation: 1.2
     shadowIntensity: 0.8
     interactionPrompt: "auto"
     loading: "lazy"
-    cameraOrbit: "45deg 75deg 1.2m"
+    cameraOrbit: "45deg 75deg 1.2m"      # Desktop camera position
+    mobileCameraOrbit: "0deg 85deg 1.5m" # Mobile camera position (optional)
     fieldOfView: "30deg"
     rotationPerSecond: "15deg"
     autoRotateDelay: 3000
@@ -448,26 +450,46 @@ sections:
 | `autoRotate` | boolean | false | Enable automatic rotation |
 | `cameraControls` | boolean | true | Allow user camera control |
 | `ar` | boolean | false | Enable AR viewing on supported devices |
-| `size` | string/number | "medium" | "small", "medium", "large", "full" or pixel width |
 | `exposureCompensation` | number | 1 | Lighting brightness adjustment |
 | `shadowIntensity` | number | 1 | Shadow strength (0-2) |
 | `shadowSoftness` | number | 1 | Shadow blur amount (0-2) |
 | `interactionPrompt` | string | "auto" | "auto", "when-focused", "none" |
 | `loading` | string | "lazy" | "auto", "lazy", "eager" |
-| `cameraOrbit` | string | "0deg 75deg 105%" | Initial camera position (azimuth elevation distance) |
+| `cameraOrbit` | string | "0deg 75deg 105%" | Desktop camera position (azimuth elevation distance) |
+| `mobileCameraOrbit` | string | same as `cameraOrbit` | Mobile camera position (optional override) |
 | `fieldOfView` | string | "auto" | Camera field of view (e.g., "30deg") |
 | `minCameraOrbit` | string | "auto" | Minimum camera constraints |
-| `maxCameraOrbit` | string | "auto" | Maximum camera constraints |
+| `maxCameraOrbit` | string | "auto auto [distance]" | Maximum camera constraints (auto-generated) |
 | `minFieldOfView` | string | "auto" | Minimum zoom constraint |
 | `maxFieldOfView` | string | "auto" | Maximum zoom constraint |
 | `rotationPerSecond` | string | "20deg" | Auto-rotation speed |
 | `autoRotateDelay` | number | 3000 | Delay before auto-rotation starts (ms) |
 
+**Responsive Layout Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `aspectRatio` | string | "16:10" | Desktop aspect ratio (width:height) |
+| `mobileAspectRatio` | string | same as `aspectRatio` | Mobile aspect ratio override |
+
+**Responsive Camera System:**
+The ModelViewer automatically provides responsive camera positioning:
+- **Device Detection**: Automatically switches between desktop and mobile camera positions at 768px breakpoint
+- **Camera Orbits**: Use `cameraOrbit` for desktop, `mobileCameraOrbit` for mobile-specific positioning
+- **Auto Constraints**: `maxCameraOrbit` is automatically generated as "auto auto [distance]" to prevent over-zooming
+- **Aspect Ratios**: Desktop and mobile can have different aspect ratios for optimal viewing
+
 **Camera Positioning Examples:**
-- **Closer view**: `cameraOrbit: "0deg 75deg 0.8m"`, `fieldOfView: "25deg"`
-- **Wide view**: `cameraOrbit: "0deg 60deg 2m"`, `fieldOfView: "45deg"`
-- **Top-down**: `cameraOrbit: "0deg 30deg 1.5m"`
-- **Side view**: `cameraOrbit: "90deg 90deg 1.5m"`
+- **Desktop focused**: `cameraOrbit: "0deg 75deg 0.8m"`, `mobileCameraOrbit: "0deg 85deg 1.2m"`
+- **Wide desktop view**: `cameraOrbit: "0deg 60deg 2m"`, `mobileCameraOrbit: "0deg 70deg 1.5m"`
+- **Top-down desktop**: `cameraOrbit: "0deg 30deg 1.5m"`, `mobileCameraOrbit: "0deg 45deg 1.8m"`
+- **Side view**: `cameraOrbit: "90deg 90deg 1.5m"`, `mobileCameraOrbit: "90deg 80deg 1.8m"`
+
+**Aspect Ratio Examples:**
+- **Widescreen**: `aspectRatio: "16:9"`, `mobileAspectRatio: "16:9"`
+- **Desktop wide, mobile square**: `aspectRatio: "16:10"`, `mobileAspectRatio: "1:1"`
+- **Classic proportions**: `aspectRatio: "4:3"`, `mobileAspectRatio: "4:3"`
+- **Ultra-wide**: `aspectRatio: "21:9"`, `mobileAspectRatio: "16:9"`
 
 **Model Features:**
 - **Interactive Controls**: Mouse/touch orbit, zoom, and pan

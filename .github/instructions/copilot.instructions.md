@@ -5,6 +5,10 @@ Coding standards, domain knowledge, and preferences that AI should follow.
 
 # Agent Guidelines
 
+## User Preferences
+- No need to start the dev server or run the build process yourself, you can ask the user to do that.
+- If you need to check background terminal output, be sure to wait long enough for the process to complete, or ask the user to manually paste the output.
+
 ## General Development
 - **Always use Conventional Commits** format.
 - **Always use Vitest v3** for testing React components.  

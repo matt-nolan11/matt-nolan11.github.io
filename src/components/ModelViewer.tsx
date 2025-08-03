@@ -29,10 +29,14 @@ interface ModelViewerProps {
   interactionPrompt?: 'auto' | 'when-focused' | 'none';
   interactionPromptStyle?: 'basic' | 'wiggle';
   interactionPromptThreshold?: number;
+  /** Desktop camera orbit position (e.g., "0deg 75deg 0.5m") */
   cameraOrbit?: string;
-  aspectRatio?: string;
-  mobileAspectRatio?: string;
+  /** Mobile camera orbit position for optimal mobile viewing (e.g., "0deg 75deg 0.65m") */
   mobileCameraOrbit?: string;
+  /** Desktop aspect ratio for responsive height calculation (e.g., "16:9", "4:3", "1:1") */
+  aspectRatio?: string;
+  /** Mobile aspect ratio for responsive height calculation (e.g., "4:3", "1:1") */
+  mobileAspectRatio?: string;
   cameraTarget?: string;
   fieldOfView?: string;
   minCameraOrbit?: string;
@@ -75,22 +79,46 @@ interface ModelViewerProps {
  * 
  * Features:
  * - Interactive camera controls (orbit, zoom, pan) with fine-grained control
- * - Responsive camera orbit distance that adjusts automatically for mobile/tablet/desktop
+ * - Responsive camera positioning with separate desktop and mobile camera orbits
+ * - Automatic max camera orbit generation (uses "auto auto [distance]" format)
+ * - Aspect ratio-based responsive sizing for consistent proportions across devices
  * - Automatic rotation and animations with customizable timing
  * - Environmental lighting, shadows, and tone mapping
  * - Progressive loading with poster images
  * - Augmented Reality support (iOS/Android)
- * - Responsive sizing with presets
  * - Accessibility support
  * - Performance optimizations for smooth rendering
  * - Advanced staging controls (exposure, tone mapping, color space)
  * - Multiple interaction modes and prompts
  * - Model variants and scaling support
  * 
- * @note Camera orbit distances are automatically scaled for different screen sizes:
- *       - Mobile (≤640px): 1.4x distance for better framing
- *       - Tablet (≤768px): 1.2x distance for optimal viewing
- *       - Desktop (>768px): Original distance as specified
+ * Camera System:
+ * - `cameraOrbit`: Desktop camera position (e.g., "0deg 75deg 0.5m")
+ * - `mobileCameraOrbit`: Mobile-specific camera position for optimal viewing on small screens
+ * - `maxCameraOrbit`: Automatically generated as "auto auto [distance]" from active camera orbit
+ * - Breakpoint: 768px (mobile ≤768px, desktop >768px)
+ * 
+ * Responsive Sizing:
+ * - `aspectRatio`: Desktop aspect ratio (e.g., "16:9", "4:3", "1:1")
+ * - `mobileAspectRatio`: Mobile aspect ratio for different proportions on mobile devices
+ * - Height automatically calculated: containerWidth × (heightRatio / widthRatio)
+ * - Fallback to `height` prop if no aspect ratios specified
+ * - Container width estimated based on viewport and column layout
+ * 
+ * @example
+ * ```jsx
+ * <ModelViewer
+ *   src="/path/to/model.glb"
+ *   alt="3D Model Description"
+ *   cameraOrbit="0deg 75deg 0.5m"
+ *   mobileCameraOrbit="0deg 75deg 0.65m"
+ *   aspectRatio="3:2"
+ *   mobileAspectRatio="4:3"
+ *   autoRotate={true}
+ *   cameraControls={true}
+ *   ar={true}
+ * />
+ * ```
  */
 export default function ModelViewer({
   src,
@@ -127,7 +155,7 @@ export default function ModelViewer({
   className = '',
   style,
   loading = 'lazy',
-  reveal = 'auto',
+  reveal = 'auto', // Revert to auto but with better background handling
   withCredentials = false,
   animationName,
   autoplay = false,
@@ -381,6 +409,8 @@ export default function ModelViewer({
       'interpolation-decay': interpolationDecay,
       // Performance optimizations
       'touch-action': 'pan-y', // Improve touch performance
+      // Hide progress bar to prevent flash
+      'data-js-focus-visible': '',
     };
 
     if (poster) attrs.poster = poster;
@@ -498,10 +528,15 @@ export default function ModelViewer({
     backfaceVisibility: 'hidden',
     perspective: '1000px',
     willChange: autoRotate ? 'transform' : 'auto',
-    // Ensure smooth animations
+    // Ensure smooth animations and prevent flash
     transition: 'none', // Disable transitions that might interfere with model-viewer
+    backgroundColor: 'transparent', // Prevent background color flash
+    // Additional properties to prevent flash
+    '--progress-bar-color': 'transparent', // Hide progress bar color
+    '--progress-bar-height': '0px', // Completely remove progress bar height
+    '--progress-mask-base': 'transparent', // Hide progress mask
     ...style,
-  };
+  } as React.CSSProperties;
 
   if (hasError) {
     return (
@@ -559,8 +594,14 @@ export default function ModelViewer({
         {/* Model viewer */}
         {React.createElement('model-viewer', {
           ref: modelViewerRef,
-          style: modelStyle,
-          className: "w-full rounded-xl bg-base-100", // Removed shadow-lg
+          style: {
+            ...modelStyle,
+            '--poster-color': 'transparent', // Prevent poster background flash
+            '--progress-bar-color': 'transparent', // Hide progress bar completely
+            '--progress-bar-height': '0px', // Remove progress bar height
+            '--progress-mask-base': 'transparent', // Hide progress mask
+          },
+          className: "w-full rounded-xl bg-base-100", // Theme background class
           // Explicitly set AR attributes
           ...(ar ? { 'ar': '', 'ar-modes': arModes, 'ar-scale': arScale, 'ar-placement': arPlacement } : {}),
           ...attributes

@@ -62,13 +62,14 @@ galleryOptions:
 import ModularSection from '../../../components/ModularSection.astro';
 import spinnyBoiiiModel from './3Dmodels/spinny_boiii_v3.glb';
 
+
 spinny boiii is my first serious attempt at building a competitive beetleweight (3-pound) combat robot. The project combines mechanical engineering, electronics design, and manufacturing to create a robot capable of surviving and winning in combat robot competitions.
 
 <ModularSection columns={[
   {
     type: "content",
     title: "Project Overview",
-    width: 55,
+    width: 50,
     content: `spinny boiii is a 3-pound beetleweight combat robot designed for vertical spinning disk combat.
     Built with CNC-machined aluminum frame and 3D-printed components, it features a powerful
     brushless motor driving a hardened steel spinning disk at high RPM.
@@ -82,17 +83,18 @@ spinny boiii is my first serious attempt at building a competitive beetleweight 
   {
     type: "model",
     title: "3D Model",
-    width: 45,
+    width: 50,
     modelSrc: spinnyBoiiiModel,
     alt: "Interactive 3D model of spinny boiii combat robot",
     modelOptions: {
       autoRotate: true,
       cameraControls: true,
+      ar: true,
       exposure: 0.8,
       shadowIntensity: 0.5,
-      cameraOrbit: "0deg 75deg 0.45m",
+      cameraOrbit: "0deg 75deg 0.5m",
       mobileCameraOrbit: "0deg 75deg 0.52m",
-      aspectRatio: "5:4",
+      aspectRatio: "1:1",
       mobileAspectRatio: "1:1"
     }
   }
@@ -231,3 +233,4 @@ The project has been a valuable learning experience in combat robot design and m
 - Optimize weapon geometry for better performance
 - Implement lessons learned from competition experience
 - Develop version 2 with improved manufacturing processes
+

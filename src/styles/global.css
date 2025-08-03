@@ -353,3 +353,39 @@
   font-weight: bold !important; /* Bold text for blue badges */
   border: none !important; /* Remove border from non-podium placements */
 }
+
+/* Model Viewer Optimizations - Prevent Flash */
+model-viewer {
+  --poster-color: transparent !important; /* Remove default poster background */
+  --progress-bar-color: oklch(var(--p)) !important; /* Use theme primary color */
+  --progress-bar-height: 2px !important;
+  background-color: oklch(var(--b1)) !important; /* Match theme background */
+}
+
+/* Model viewer before first render - prevent black flash */
+model-viewer:not([loaded]) {
+  background-color: oklch(var(--b1)) !important;
+  opacity: 1 !important;
+}
+
+/* Smooth transition when model loads */
+model-viewer[loaded] {
+  transition: opacity 0.3s ease-in-out !important;
+}
+
+/* Hide the progress bar completely to eliminate top bar flash */
+model-viewer::part(default-progress-bar) {
+  display: none !important;
+}
+
+/* Alternative approach - hide progress mask that might cause the bar */
+model-viewer::part(progress-mask) {
+  display: none !important;
+}
+
+/* Hide any internal progress elements */
+model-viewer .progress-bar,
+model-viewer [slot="progress-bar"] {
+  display: none !important;
+  opacity: 0 !important;
+}
