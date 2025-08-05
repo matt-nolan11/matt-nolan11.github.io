@@ -36,11 +36,13 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
 
 /**
  * Calculate responsive width percentages for cover gallery layout
- * Returns raw percentages to be used with CSS custom properties
+ * Returns CSS calc() values that account for gap spacing
  */
 function getCoverGalleryWidths(options: any) {
+  const gap = '2rem'; // This should match the gap-8 class (2rem = 32px)
+  
   if (!options?.layout) {
-    return { gallery: 50, info: 50 }; // Default 50:50
+    return { gallery: `calc(50% - ${gap} / 2)`, info: `calc(50% - ${gap} / 2)` }; // Default 50:50
   }
   
   const layout = options.layout;
@@ -49,9 +51,11 @@ function getCoverGalleryWidths(options: any) {
   if (typeof layout === 'string' && layout.endsWith('%')) {
     const percentage = parseFloat(layout);
     if (!isNaN(percentage) && percentage > 0 && percentage < 100) {
+      const galleryPercent = percentage;
+      const infoPercent = 100 - percentage;
       return {
-        gallery: percentage,
-        info: 100 - percentage
+        gallery: `calc(${galleryPercent}% - ${gap} * ${infoPercent / 100})`,
+        info: `calc(${infoPercent}% - ${gap} * ${galleryPercent / 100})`
       };
     }
   }
@@ -65,20 +69,38 @@ function getCoverGalleryWidths(options: any) {
       const infoPercent = (right / total) * 100;
       
       return {
-        gallery: galleryPercent,
-        info: infoPercent
+        gallery: `calc(${galleryPercent}% - ${gap} * ${infoPercent / 100})`,
+        info: `calc(${infoPercent}% - ${gap} * ${galleryPercent / 100})`
       };
     }
   }
   
   // Named layouts
-  const namedLayouts: { [key: string]: { gallery: number, info: number } } = {
-    'narrow-wide': { gallery: 33.333, info: 66.667 },
-    'wide-narrow': { gallery: 66.667, info: 33.333 },
-    'equal': { gallery: 50, info: 50 },
-    'golden': { gallery: 61.804, info: 38.196 }, // Golden ratio (gallery gets larger portion)
-    'sidebar': { gallery: 25, info: 75 },
-    'reverse-sidebar': { gallery: 75, info: 25 }
+  const namedLayouts: { [key: string]: { gallery: string, info: string } } = {
+    'narrow-wide': { 
+      gallery: `calc(33.333% - ${gap} * 0.66667)`, 
+      info: `calc(66.667% - ${gap} * 0.33333)` 
+    },
+    'wide-narrow': { 
+      gallery: `calc(66.667% - ${gap} * 0.33333)`, 
+      info: `calc(33.333% - ${gap} * 0.66667)` 
+    },
+    'equal': { 
+      gallery: `calc(50% - ${gap} / 2)`, 
+      info: `calc(50% - ${gap} / 2)` 
+    },
+    'golden': { 
+      gallery: `calc(61.804% - ${gap} * 0.38196)`, 
+      info: `calc(38.196% - ${gap} * 0.61804)` 
+    },
+    'sidebar': { 
+      gallery: `calc(25% - ${gap} * 0.75)`, 
+      info: `calc(75% - ${gap} * 0.25)` 
+    },
+    'reverse-sidebar': { 
+      gallery: `calc(75% - ${gap} * 0.25)`, 
+      info: `calc(25% - ${gap} * 0.75)` 
+    }
   };
   
   if (namedLayouts[layout]) {
@@ -86,17 +108,17 @@ function getCoverGalleryWidths(options: any) {
   }
   
   // Fallback to 50:50
-  return { gallery: 50, info: 50 };
+  return { gallery: `calc(50% - ${gap} / 2)`, info: `calc(50% - ${gap} / 2)` };
 }
 
-// Calculate gallery/info column widths as percentages
+// Calculate gallery/info column widths with gap compensation
 const coverWidths = getCoverGalleryWidths(project.data.galleryOptions);
 ---
 
 <style>
   .responsive-cover-layout {
-    --gallery-width: 50%;
-    --info-width: 50%;
+    --gallery-width: calc(50% - 1rem);
+    --info-width: calc(50% - 1rem);
   }
   
   .cover-gallery-col {
@@ -129,7 +151,7 @@ const coverWidths = getCoverGalleryWidths(project.data.galleryOptions);
     <header class="mb-8">
       <div 
         class="flex flex-col lg:flex-row gap-8 responsive-cover-layout"
-        style={`--gallery-width: ${coverWidths.gallery}%; --info-width: ${coverWidths.info}%;`}
+        style={`--gallery-width: ${coverWidths.gallery}; --info-width: ${coverWidths.info};`}
       >
         <!-- Project Image/Gallery -->
         <div class="cover-gallery-col lg:flex-none">

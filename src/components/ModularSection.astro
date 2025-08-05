@@ -118,7 +118,7 @@ const getColumnGap = (columnGap: string) => {
 const sectionSpacingClass = getSectionSpacing(spacing, depth);
 const columnGapClass = getColumnGap(columnGap);
 
-// Calculate responsive column widths using CSS custom properties
+// Calculate responsive column widths using CSS calc() with gap compensation
 const getColumnWidthData = (section: any) => {
   if (section.columns.length !== 2) {
     return null; // Not a 2-column layout
@@ -126,6 +126,18 @@ const getColumnWidthData = (section: any) => {
   
   const col1 = section.columns[0];
   const col2 = section.columns[1];
+  
+  // Get the gap value - should match the columnGapClass
+  const gapMap: { [key: string]: string } = {
+    'gap-0': '0px',
+    'gap-2': '0.5rem',
+    'gap-4': '1rem', 
+    'gap-6': '1.5rem', // normal default
+    'gap-8': '2rem',
+    'gap-12': '3rem'
+  };
+  
+  const gap = gapMap[columnGapClass] || '1.5rem'; // Default to gap-6
   
   // Method 1: Individual column width properties (highest priority)
   if (col1.width !== undefined || col2.width !== undefined) {
@@ -138,8 +150,8 @@ const getColumnWidthData = (section: any) => {
     const col2Percent = (col2Width / total) * 100;
     
     return {
-      col1: col1Percent,
-      col2: col2Percent
+      col1: `calc(${col1Percent}% - ${gap} * ${col2Percent / 100})`,
+      col2: `calc(${col2Percent}% - ${gap} * ${col1Percent / 100})`
     };
   }
   
@@ -155,8 +167,8 @@ const getColumnWidthData = (section: any) => {
       const col2Percent = (ratio2 / total) * 100;
       
       return {
-        col1: col1Percent,
-        col2: col2Percent
+        col1: `calc(${col1Percent}% - ${gap} * ${col2Percent / 100})`,
+        col2: `calc(${col2Percent}% - ${gap} * ${col1Percent / 100})`
       };
     }
     
@@ -168,19 +180,37 @@ const getColumnWidthData = (section: any) => {
       const col2Percent = (width2 / total) * 100;
       
       return {
-        col1: col1Percent,
-        col2: col2Percent
+        col1: `calc(${col1Percent}% - ${gap} * ${col2Percent / 100})`,
+        col2: `calc(${col2Percent}% - ${gap} * ${col1Percent / 100})`
       };
     }
     
     // Named layouts
-    const namedLayouts: { [key: string]: { col1: number, col2: number } } = {
-      'narrow-wide': { col1: 33.333, col2: 66.667 },
-      'wide-narrow': { col1: 66.667, col2: 33.333 },
-      'equal': { col1: 50, col2: 50 },
-      'golden': { col1: 38.196, col2: 61.804 }, // Golden ratio
-      'sidebar': { col1: 75, col2: 25 },
-      'reverse-sidebar': { col1: 25, col2: 75 }
+    const namedLayouts: { [key: string]: { col1: string, col2: string } } = {
+      'narrow-wide': { 
+        col1: `calc(33.333% - ${gap} * 0.66667)`, 
+        col2: `calc(66.667% - ${gap} * 0.33333)` 
+      },
+      'wide-narrow': { 
+        col1: `calc(66.667% - ${gap} * 0.33333)`, 
+        col2: `calc(33.333% - ${gap} * 0.66667)` 
+      },
+      'equal': { 
+        col1: `calc(50% - ${gap} / 2)`, 
+        col2: `calc(50% - ${gap} / 2)` 
+      },
+      'golden': { 
+        col1: `calc(38.196% - ${gap} * 0.61804)`, 
+        col2: `calc(61.804% - ${gap} * 0.38196)` 
+      },
+      'sidebar': { 
+        col1: `calc(75% - ${gap} * 0.25)`, 
+        col2: `calc(25% - ${gap} * 0.75)` 
+      },
+      'reverse-sidebar': { 
+        col1: `calc(25% - ${gap} * 0.75)`, 
+        col2: `calc(75% - ${gap} * 0.25)` 
+      }
     };
     
     if (namedLayouts[layout]) {
@@ -189,15 +219,18 @@ const getColumnWidthData = (section: any) => {
   }
   
   // Method 3: Default equal width (50:50)
-  return { col1: 50, col2: 50 };
+  return { 
+    col1: `calc(50% - ${gap} / 2)`, 
+    col2: `calc(50% - ${gap} / 2)` 
+  };
 };
 
 ---
 
 <style>
   .responsive-columns {
-    --col1-width: 50%;
-    --col2-width: 50%;
+    --col1-width: calc(50% - 0.75rem);
+    --col2-width: calc(50% - 0.75rem);
   }
   
   .responsive-columns .column:first-child {
@@ -227,9 +260,11 @@ const getColumnWidthData = (section: any) => {
     <div 
       class={`section ${columnGapClass} ${
         section.columns.length <= 2 ? 'flex flex-col lg:flex-row lg:items-start' :
-        'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-' + section.columns.length
+        section.columns.length === 3 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
+        section.columns.length === 4 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4' :
+        'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' // Fallback for 5+ columns
       } ${section.columns.length === 2 && columnWidths ? 'responsive-columns' : ''}`}
-      style={columnWidths ? `--col1-width: ${columnWidths.col1}%; --col2-width: ${columnWidths.col2}%;` : ''}
+      style={columnWidths ? `--col1-width: ${columnWidths.col1}; --col2-width: ${columnWidths.col2};` : ''}
     >
       {section.columns.map((col: any, _j: number) => {
         let columnClass;

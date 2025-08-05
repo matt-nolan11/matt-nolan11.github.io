@@ -23,6 +23,11 @@
   .lg\:w-\[30\%\] { width: 30% !important; }
   .lg\:w-\[75\%\] { width: 75% !important; }
   .lg\:w-\[25\%\] { width: 25% !important; }
+  
+  /* Ensure grid column classes are available for ModularSection */
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 }
 
 /* Pagefind UI Overrides */
