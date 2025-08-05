@@ -8,10 +8,10 @@ This documentation covers the complete content and layout system for Matt Nolan'
 
 - **Dual Content Format Support**: Both Markdown (.md) and MDX (.mdx) files supported
 - **Flexible Content Architecture**: Support for posts and projects with different complexity levels
-- **Enhanced ModularSection Component**: Simplified API with both legacy and modern syntax
+- **Enhanced ModularSection Component**: Simplified API with spacing controls, className support, and flexible layout options
 - **Interactive 3D Models**: Full-featured model viewer with camera controls and AR support
 - **Advanced Gallery System**: Touch-friendly carousels with thumbnail navigation
-- **Project Versioning**: Track project evolution through multiple iterations
+- **File-Based Project Versioning**: Interactive tabbed version system using separate MDX files with full component support
 - **Competition & Metrics System**: Comprehensive tracking for competitive projects and custom specifications
 - **Responsive Design**: Mobile-first approach with DaisyUI dark/light themes
 - **TypeScript Schema Validation**: Type-safe content with automatic validation
@@ -351,6 +351,9 @@ sections:
 
 **ModularSection Props:**
 - `columns`: Array of column objects (see Column Types below)
+- `className`: Additional CSS classes for the section container
+- `spacing`: Section spacing variant - 'default', 'compact', 'relaxed', 'none'
+- `columnGap`: Gap between columns - 'sm', 'md', 'lg', 'xl', 'none'
 - `cameraOrbit`: Default camera position for all 3D models in this section
 - `fieldOfView`: Default field of view for all 3D models in this section
 - `minCameraOrbit`: Minimum camera orbit constraint
@@ -359,6 +362,34 @@ sections:
 - `maxFieldOfView`: Maximum field of view constraint
 
 **Note:** Camera props are passed to all model columns within the section. Individual model columns can override these settings via their `modelOptions`.
+
+### Layout Controls
+
+**Spacing Options:**
+```mdx
+<ModularSection spacing="compact" />     # Tighter spacing, minimal gaps
+<ModularSection spacing="default" />     # Standard spacing (default)
+<ModularSection spacing="relaxed" />     # Generous spacing, more breathing room
+<ModularSection spacing="none" />        # No internal spacing, custom control
+```
+
+**Column Gap Control:**
+```mdx
+<ModularSection columnGap="sm" />        # Small gap between columns
+<ModularSection columnGap="md" />        # Medium gap (default)
+<ModularSection columnGap="lg" />        # Large gap
+<ModularSection columnGap="xl" />        # Extra large gap
+<ModularSection columnGap="none" />      # No gap between columns
+```
+
+**Custom Styling:**
+```mdx
+<ModularSection 
+  className="bg-base-200 rounded-xl p-6" 
+  spacing="compact"
+  columnGap="lg"
+/>
+```
 
 ## Column Types
 
@@ -614,90 +645,135 @@ sections:
 
 ## Project Versions System
 
-Track project evolution through multiple iterations with rich documentation and media.
+Track project evolution through multiple iterations using file-based versioning with rich MDX content and interactive components.
 
-### Version Schema Fields
+### File-Based Version Architecture
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `version` | string | ✓ | Version identifier (e.g., "v1", "2.0") |
-| `title` | string | ✓ | Version name/title |
-| `description` | string | ✓ | Brief version description |
-| `startDate` | date/string | ✓ | Development start date |
-| `endDate` | date/string | | Completion date |
-| `status` | enum | | "completed", "in-progress", "planned" |
-| `githubUrl` | url | | Version-specific repository link |
-| `liveUrl` | url | | Version-specific demo link |
-| `achievements` | array | | Key accomplishments |
-| `learnings` | array | | Insights gained |
-| `content` | string | | Legacy markdown content |
-| `images` | array | | Legacy image array |
-| `gallery` | array | | Version gallery |
-| `galleryOptions` | object | | Gallery configuration |
-| `sections` | array | | Modular sections |
+The modern approach uses separate MDX files for each version, providing maximum flexibility:
 
-### Basic Version Structure
-
-```yaml
-versions:
-  - version: "v2.0"
-    title: "Advanced Control System"
-    description: "Upgraded to stepper motors with precise positioning"
-    startDate: "2023-06"
-    endDate: "2023-12"
-    status: "completed"
-    githubUrl: "https://github.com/user/project/tree/v2"
-    achievements:
-      - "Implemented precision control"
-      - "Added feedback systems"
-    learnings:
-      - "Stepper motors provide better accuracy"
-      
-  - version: "v1.0"
-    title: "Basic Prototype" 
-    description: "Initial servo-based design"
-    startDate: "2023-01"
-    endDate: "2023-05"
-    status: "completed"
+```
+src/content/projects/project-name/
+├── index.mdx              # Main project file
+├── v1.mdx                 # Version 1 content
+├── v2.mdx                 # Version 2 content  
+├── v3.mdx                 # Version 3 content
+├── images/                # Shared project images
+├── 3Dmodels/             # Project 3D models
+└── cover.png             # Project thumbnail
 ```
 
-### Versions with Rich Content
+### ProjectVersionsSection Component
 
-```yaml
-versions:
-  - version: "v3.0"
-    title: "ROS Integration"
-    description: "Professional-grade control with ROS framework"
-    startDate: "2024-01"
-    status: "in-progress"
-    achievements:
-      - "Implemented ROS control nodes"
-      - "Added trajectory planning"
-    gallery:
-      - src: "./v3-overview.jpg"
-        alt: "ROS control interface"
-      - src: "./v3-trajectory.jpg"
-        alt: "Trajectory visualization"
-    sections:
-      - columns:
-        - type: "content"
-          title: "ROS Architecture"
-          content: |
-            The v3.0 upgrade introduces a complete ROS-based control system...
-        - type: "model"
-          modelSrc: "./v3-robot.glb"
-          modelOptions:
-            autoRotate: true
-            cameraOrbit: "45deg 75deg 1.2m"
+The `ProjectVersionsSection` component automatically detects and displays version files as interactive tabs:
+
+```mdx
+import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
+
+<ProjectVersionsSection 
+  sectionTitle="Design Iterations"
+  titleDepth={0}
+  tabSize="lg"
+  tabStyle="bordered"
+  className="mt-12"
+/>
 ```
 
-### Custom Version Headers
+### Component Props
 
-```yaml
-versionsTitle: "Development History"  # Custom header
-versionsTitle: ""                    # Hide header completely  
-# versionsTitle: undefined           # Default "Project Versions"
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `projectSlug` | string | auto-detected | Project identifier (auto-detected from URL) |
+| `className` | string | `''` | Additional CSS classes |
+| `sectionTitle` | string | `'Evolution Timeline'` | Section heading text |
+| `showTitle` | boolean | `true` | Whether to show the section title |
+| `titleDepth` | number | `1` | Title hierarchy (0=h2/text-3xl, 1=h3/text-2xl, etc.) |
+| `titleSpacing` | string | `'1.5rem'` | Space between title and tabs |
+| `contentSpacing` | string | `'2rem'` | Space between tabs and content |
+| `tabSize` | string | `'lg'` | Tab size: 'sm', 'md', 'lg', 'xl' |
+| `tabStyle` | string | `'boxed'` | Tab style: 'boxed', 'bordered', 'lifted' |
+| `tabWidth` | string | - | Custom tab width override |
+| `tabHeight` | string | - | Custom tab height override |
+| `tabPadding` | string | - | Custom tab padding override |
+| `fontSize` | string | - | Custom tab font size override |
+
+### Tab Style Options
+
+**Boxed (Default)**: Clean, simple tabs with background color
+```mdx
+<ProjectVersionsSection tabStyle="boxed" />
 ```
+
+**Bordered**: Outlined tabs with transparent background
+```mdx
+<ProjectVersionsSection tabStyle="bordered" />
+```
+
+**Lifted**: Elevated tabs with shadow and border
+```mdx
+<ProjectVersionsSection tabStyle="lifted" />
+```
+
+### Version File Structure
+
+Each version file (e.g., `v1.mdx`, `v2.mdx`) contains full MDX content with frontmatter:
+
+```mdx
+---
+title: "Version 2.0 - Advanced Control"
+description: "Complete redesign with stepper motors and precision control"
+startDate: "2023-06"
+status: "completed"
+---
+
+import ModularSection from '../../../components/ModularSection.astro';
+import robotModel from './3Dmodels/v2-robot.glb';
+
+## Major Improvements
+
+This version introduced several key enhancements...
+
+<ModularSection 
+  columns={[
+    {
+      type: "content", 
+      width: 60,
+      content: `**Key Features:**
+      - Stepper motor precision
+      - Feedback control systems
+      - Advanced trajectory planning`
+    },
+    {
+      type: "model",
+      width: 40,
+      modelSrc: robotModel,
+      modelOptions: { autoRotate: true }
+    }
+  ]}
+  spacing="compact"
+/>
+```
+
+### Theme Integration
+
+The version tabs automatically adapt to your DaisyUI theme colors:
+- **Light mode (corporate)**: `#0082ce` - Professional blue
+- **Dark mode (business)**: `#1c4e7f` - Darker blue for contrast
+
+Tab colors match the primary badge colors used throughout the site for consistency.
+
+### Mobile Responsiveness
+
+- Tabs automatically stack and resize on mobile devices
+- Touch-friendly interaction with proper spacing
+- Maintains accessibility across all screen sizes
+
+### Best Practices
+
+1. **Naming Convention**: Use `v1.mdx`, `v2.mdx`, `v3.mdx` for sequential versions
+2. **Content Organization**: Keep each version focused on specific improvements
+3. **Asset Management**: Store version-specific assets in appropriate subdirectories
+4. **Progressive Enhancement**: Start with simple content and enhance with components
+5. **Consistent Styling**: Use consistent ModularSection patterns across versions
       - "Integrated with MoveIt!"
     learnings:
       - "ROS learning curve was steeper than expected"

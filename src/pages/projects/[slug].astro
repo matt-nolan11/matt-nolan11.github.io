@@ -11,7 +11,14 @@ import TagList from '../../components/TagList.tsx';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
-  return projects.map((project) => ({
+  
+  // Filter out version files - only include index.mdx files (main project files)
+  const mainProjects = projects.filter(project => {
+    const fileName = project.id.split('/').pop();
+    return fileName === 'index.mdx' || fileName === 'index.md';
+  });
+  
+  return mainProjects.map((project) => ({
     params: { slug: project.slug },
     props: { project },
   }));

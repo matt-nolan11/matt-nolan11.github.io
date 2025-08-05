@@ -60,12 +60,14 @@ galleryOptions:
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
+import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
 import spinnyBoiiiModel from './3Dmodels/spinny_boiii_v3.glb';
 
 
 spinny boiii is my first serious attempt at building a competitive beetleweight (3-pound) combat robot. The project combines mechanical engineering, electronics design, and manufacturing to create a robot capable of surviving and winning in combat robot competitions.
 
-<ModularSection columns={[
+<ModularSection 
+  columns={[
   {
     type: "content",
     title: "Project Overview",
@@ -99,3 +101,13 @@ spinny boiii is my first serious attempt at building a competitive beetleweight 
     }
   }
 ]} />
+
+<ProjectVersionsSection 
+  sectionTitle="Design Iterations"
+  titleDepth={0}
+  tabSize="lg"
+  tabStyle="bordered"
+  tabWidth="100px"
+  tabHeight="36px"
+  className="mt-12" 
+/>

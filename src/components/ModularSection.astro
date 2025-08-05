@@ -58,7 +58,7 @@ async function optimizeSectionGalleries(sections: any[]) {
 }
 
 // Optimize the sections
-const { sections, columns, depth = 0 } = Astro.props;
+const { sections, columns, depth = 0, className = '', spacing = 'normal', columnGap = 'normal' } = Astro.props;
 
 // Support both the old sections API and new columns API
 let sectionsToProcess;
@@ -95,6 +95,28 @@ const getHeadingClass = (depth: number) => {
 
 const headingLevel = getHeadingLevel(depth);
 const headingClass = getHeadingClass(depth);
+
+// Spacing control functions
+const getSectionSpacing = (spacing: string, depth: number) => {
+  if (spacing === 'none') return '';
+  if (spacing === 'compact') return depth === 0 ? 'space-y-4' : 'space-y-3';
+  if (spacing === 'relaxed') return depth === 0 ? 'space-y-12' : 'space-y-8';
+  // normal (default)
+  return depth === 0 ? 'space-y-8' : 'space-y-6';
+};
+
+const getColumnGap = (columnGap: string) => {
+  if (columnGap === 'none') return 'gap-0';
+  if (columnGap === 'tight') return 'gap-2';
+  if (columnGap === 'compact') return 'gap-4';
+  if (columnGap === 'relaxed') return 'gap-8';
+  if (columnGap === 'loose') return 'gap-12';
+  // normal (default)
+  return 'gap-6';
+};
+
+const sectionSpacingClass = getSectionSpacing(spacing, depth);
+const columnGapClass = getColumnGap(columnGap);
 
 // Calculate responsive column widths using CSS custom properties
 const getColumnWidthData = (section: any) => {
@@ -197,13 +219,13 @@ const getColumnWidthData = (section: any) => {
   }
 </style>
 
-<div class={`modular-sections ${depth === 0 ? 'space-y-8' : 'space-y-6'}`}>
+<div class={`modular-sections ${sectionSpacingClass} ${className}`.trim()}>
   {optimizedSections.map((section: any, _i: number) => {
     const columnWidths = getColumnWidthData(section);
     
     return (
     <div 
-      class={`section gap-6 ${
+      class={`section ${columnGapClass} ${
         section.columns.length <= 2 ? 'flex flex-col lg:flex-row lg:items-start' :
         'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-' + section.columns.length
       } ${section.columns.length === 2 && columnWidths ? 'responsive-columns' : ''}`}
@@ -221,8 +243,11 @@ const getColumnWidthData = (section: any) => {
           columnClass = 'min-w-0'; // Grid handles sizing for 3+ columns
         }
         
+        // Add custom className if provided
+        const finalColumnClass = col.className ? `${columnClass} ${col.className}` : columnClass;
+        
         return (
-        <div class={columnClass}>
+        <div class={finalColumnClass}>
           {col.type === 'content' && (
             <>
               {col.title && (

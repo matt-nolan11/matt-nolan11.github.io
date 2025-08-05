@@ -309,27 +309,47 @@ src/content/
 
 ## Project Versions
 
-Add versioning to projects for iterative development:
-```yaml
-versions:
-  - version: "v2.0"
-    title: "Major Redesign"
-    description: "Complete overhaul with new features"
-    startDate: "2024-06"
-    status: "completed"
-    achievements: ["Improved performance", "New UI design"]
-    learnings: ["Important lesson learned"]
-    githubUrl: "https://github.com/user/repo/tree/v2.0"
-    content: "Optional detailed markdown content"
+Create interactive version timelines using file-based architecture:
+
+### File Structure
+```
+src/content/projects/project-name/
+├── index.mdx              # Main project
+├── v1.mdx                 # Version 1 
+├── v2.mdx                 # Version 2
+└── v3.mdx                 # Version 3
 ```
 
-### Version Headers
-Customize or hide the versions section header:
-```yaml
-versionsTitle: "Development History"  # Custom header
-versionsTitle: ""                    # Hide header completely  
-# versionsTitle: undefined           # Default "Project Versions"
+### Component Usage
+```mdx
+import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
+
+<ProjectVersionsSection 
+  sectionTitle="Design Iterations"
+  titleDepth={0}
+  tabSize="lg"
+  tabStyle="bordered"
+  className="mt-12"
+/>
 ```
+
+### Version File Example
+```mdx
+---
+title: "Version 2.0 - Advanced Control"
+description: "Complete redesign with stepper motors"
+startDate: "2023-06"
+status: "completed"
+---
+
+## Major Improvements
+Content for this version...
+```
+
+### Tab Styles
+- `boxed`: Clean background tabs (default)
+- `bordered`: Outlined transparent tabs  
+- `lifted`: Elevated tabs with shadow
 
 ## Best Practices
 
