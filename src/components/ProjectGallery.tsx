@@ -164,6 +164,13 @@ export default function ProjectGallery({
   useLayoutEffect(() => {
     if (containerRef.current) {
       updateCalculatedHeight();
+      
+      // Also try again after a small delay to catch any CSS layout settling
+      const timeoutId = setTimeout(() => {
+        updateCalculatedHeight();
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [updateCalculatedHeight]);
 
@@ -206,6 +213,26 @@ export default function ProjectGallery({
       };
     }
   }, [updateCalculatedHeight]); // Re-run when update function changes
+
+  // ResizeObserver to track container size changes
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === containerRef.current) {
+          // Container size changed, update height calculation
+          updateCalculatedHeight();
+        }
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [updateCalculatedHeight]);
 
   // Keep refs in sync with state
   useEffect(() => {

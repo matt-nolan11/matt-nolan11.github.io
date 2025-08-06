@@ -186,6 +186,7 @@ export const collections = {
             z.enum(['small', 'medium', 'large', 'full']),
             z.string() // Allow custom widths like "60%", "400px", etc.
           ]).optional(),
+          placement: z.enum(['left', 'right']).default('left'), // Control whether cover image appears on left or right
         }).optional(),
         
         // Project metrics and statistics
@@ -226,6 +227,7 @@ export const collections = {
             z.number().min(200).max(1200)
           ]).default('medium'),
           layout: z.string().optional(), // Support layout ratios like "3:2", "60:40", "golden", etc.
+          placement: z.enum(['left', 'right']).default('left'), // Control whether header image/gallery appears on left or right
           autoplay: z.boolean().default(false),
           autoplayInterval: z.number().default(4000),
           showThumbnails: z.boolean().default(true),
@@ -253,6 +255,15 @@ export const collections = {
           headerDescription: z.string().optional(), // Override description for header
           cover: image().optional(), // Version-specific cover image
           coverCaption: z.string().optional(),
+          
+          // Cover image options (similar to main project coverOptions)
+          coverOptions: z.object({
+            width: z.union([
+              z.enum(['small', 'medium', 'large', 'full']),
+              z.string() // Allow custom widths like "60%", "400px", etc.
+            ]).optional(),
+            placement: z.enum(['left', 'right']).default('left'), // Control whether cover image appears on left or right
+          }).optional(),
           
           // Version-specific metrics (same schema as main project)
           metrics: z.object({
@@ -295,6 +306,7 @@ export const collections = {
               z.number().min(200).max(1200)
             ]).default('medium'),
             layout: z.string().optional(), // Support layout ratios like "3:2", "60:40", "golden", etc.
+            placement: z.enum(['left', 'right']).default('left'), // Control whether header image/gallery appears on left or right
             autoplay: z.boolean().default(false),
             autoplayInterval: z.number().default(4000),
             showThumbnails: z.boolean().default(true),

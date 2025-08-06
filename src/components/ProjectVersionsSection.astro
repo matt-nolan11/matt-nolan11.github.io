@@ -60,7 +60,7 @@ function getVersionHeaderWidths(version: any) {
   const gap = '2rem'; // This should match the gap-8 class (2rem = 32px)
   
   // Check for cover options first, then gallery options
-  const layoutSource = version?.coverOptions?.width || version?.galleryOptions?.layout;
+  const layoutSource = version?.coverOptions?.width || version?.coverOptions?.layout || version?.galleryOptions?.layout;
   
   if (!layoutSource) {
     return { gallery: `calc(50% - ${gap} / 2)`, info: `calc(50% - ${gap} / 2)` }; // Default 50:50
@@ -196,10 +196,17 @@ const headingClass = getHeadingClass(titleDepth);
     /* Remove any default padding/margin that might cause extra space */
     padding: 0;
     margin: 0;
-    /* Make container fit content exactly */
-    display: inline-block;
+    /* Force positioning to eliminate any inherited spacing */
+    display: block;
     line-height: 0;
-    vertical-align: top;
+    font-size: 0;
+    position: relative;
+  }
+
+  /* Specifically target ProjectGallery within version headers */
+  .cover-gallery-col .project-gallery {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
   
   .cover-info-col {
@@ -419,7 +426,7 @@ const headingClass = getHeadingClass(titleDepth);
   .version-tabs .tab-contents {
     margin-top: var(--content-spacing, 2rem);
   }
-
+  
   /* Custom dimension overrides - these take precedence over size presets */
   .version-tabs.custom-dimensions .tab-buttons .tab-button {
     width: var(--tab-width, auto);
@@ -485,7 +492,11 @@ const headingClass = getHeadingClass(titleDepth);
             {(version.data.headerTitle || version.data.headerDescription || version.data.cover || (version.data.gallery && version.data.gallery.length > 0) || version.data.metrics || version.data.competitions) && (
               <header class="mb-8">
                 <div 
-                  class="flex flex-col lg:flex-row gap-8 responsive-cover-layout items-start"
+                  class={`flex flex-col gap-8 responsive-cover-layout items-start ${
+                    (version.data.galleryOptions?.placement === 'right' || version.data.coverOptions?.placement === 'right')
+                      ? 'lg:flex-row-reverse' 
+                      : 'lg:flex-row'
+                  }`}
                   style={`--gallery-width: ${versionHeaderWidths.gallery}; --info-width: ${versionHeaderWidths.info};`}
                 >
                   {/* Version Image/Gallery */}

@@ -170,7 +170,11 @@ function getVersionHeaderWidths(version: any) {
     <!-- Project Header -->
     <header class="mb-8">
       <div 
-        class="flex flex-col lg:flex-row gap-8 responsive-cover-layout items-start"
+        class={`flex flex-col gap-8 responsive-cover-layout items-start ${
+          project.data.galleryOptions?.placement === 'right' 
+            ? 'lg:flex-row-reverse' 
+            : 'lg:flex-row'
+        }`}
         style={`--gallery-width: ${coverWidths.gallery}; --info-width: ${coverWidths.info};`}
       >
         <!-- Project Image/Gallery -->
