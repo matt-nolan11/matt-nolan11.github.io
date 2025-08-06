@@ -14,6 +14,16 @@ import { defineCollection, z } from "astro:content";
  *   - custom string: shows your custom title
  *   - empty string "": hides the header completely
  * 
+ * Version header support:
+ * - Optional header information for each version in the same format as main project header
+ * - headerTitle: separate title for version header (defaults to title)
+ * - tabTitle: separate title for tab button (defaults to version)
+ * - headerDescription: override description for header (defaults to description)
+ * - cover: version-specific cover image
+ * - metrics, competitions: version-specific data
+ * - If any header fields are present, shows full header layout
+ * - If no header fields, shows compact legacy layout
+ * 
  * Nested sections support:
  * - Sections can contain columns with content, galleries, images, or nested sections
  * - This enables complex multi-level layouts and nested content structures
@@ -163,6 +173,21 @@ export const collections = {
         status: z.enum(["completed", "in-progress", "planned"]).default("completed"),
         githubUrl: z.string().url().optional(),
         liveUrl: z.string().url().optional(),
+        
+        // Version header fields (for standalone version files like v2.mdx)
+        headerTitle: z.string().optional(), // Separate title for version headers
+        tabTitle: z.string().optional(), // Separate title for tab buttons
+        headerDescription: z.string().optional(), // Override description for headers
+        headerTitleSize: z.enum(['sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl']).optional(), // Control title size
+        
+        // Cover image options (similar to gallery options)
+        coverOptions: z.object({
+          width: z.union([
+            z.enum(['small', 'medium', 'large', 'full']),
+            z.string() // Allow custom widths like "60%", "400px", etc.
+          ]).optional(),
+        }).optional(),
+        
         // Project metrics and statistics
         metrics: z.object({
           // Custom section title (defaults to "Project Stats")
@@ -172,6 +197,8 @@ export const collections = {
             label: z.string(), // The display label (e.g., "Fighting Weight", "Weapon Tip Speed")
             value: z.union([z.string(), z.number()]), // The value (e.g., "3.0 lbs", 8000)
             unit: z.string().optional(), // Optional unit (e.g., "RPM", "lbs", "$")
+            highlight: z.boolean().optional(), // Whether to highlight this field
+            color: z.enum(['success', 'warning', 'error', 'info']).optional(), // Color theme for highlighted fields
           })).optional(),
         }).optional(),
         // Competition history
@@ -186,18 +213,6 @@ export const collections = {
         competitionsOptions: z.object({
           sectionTitle: z.string().optional(), // Custom title (defaults to "Competition History")
           maxDisplay: z.number().optional(), // Max competitions to show (defaults to 3, set to 0 for all)
-        }).optional(),
-        // Overall competition statistics
-        competitionStats: z.object({
-          // Custom section title (defaults to "Competition Record")
-          sectionTitle: z.string().optional(),
-          // Dynamic custom stats - you can add any stat with any label
-          customStats: z.array(z.object({
-            label: z.string(), // The display label (e.g., "Events Entered", "Fight Record")
-            value: z.union([z.string(), z.number()]), // The value (e.g., "4", "12-4", "75%")
-            highlight: z.boolean().optional(), // Whether to highlight this stat (e.g., win rate, best placement)
-            color: z.enum(['success', 'warning', 'error', 'info']).optional(), // Color theme for highlighted stats
-          })).optional(),
         }).optional(),
         // Gallery support (for header)
         gallery: z.array(z.object({
@@ -231,6 +246,39 @@ export const collections = {
           status: z.enum(["completed", "in-progress", "planned"]).default("completed"),
           githubUrl: z.string().url().optional(), // Optional: Version-specific repository link
           liveUrl: z.string().url().optional(),
+          
+          // Header information (optional, same format as main project header)
+          headerTitle: z.string().optional(), // Separate title for the version header (defaults to title)
+          tabTitle: z.string().optional(), // Separate title for the tab button (defaults to version)
+          headerDescription: z.string().optional(), // Override description for header
+          cover: image().optional(), // Version-specific cover image
+          coverCaption: z.string().optional(),
+          
+          // Version-specific metrics (same schema as main project)
+          metrics: z.object({
+            sectionTitle: z.string().optional(),
+            customFields: z.array(z.object({
+              label: z.string(),
+              value: z.union([z.string(), z.number()]),
+              unit: z.string().optional(),
+              highlight: z.boolean().optional(),
+              color: z.enum(['success', 'warning', 'error', 'info']).optional(),
+            })).optional(),
+          }).optional(),
+          
+          // Version-specific competition history
+          competitions: z.array(z.object({
+            name: z.string(),
+            date: z.string(),
+            placement: z.union([z.number(), z.string()]),
+            record: z.string().optional(),
+            url: z.string().optional(),
+          })).optional(),
+          competitionsOptions: z.object({
+            sectionTitle: z.string().optional(),
+            maxDisplay: z.number().optional(),
+          }).optional(),
+          
           achievements: z.array(z.string()).optional(), // Optional: Key accomplishments for this version
           learnings: z.array(z.string()).optional(), // Optional: Insights gained during this version
           // Legacy support
@@ -246,9 +294,11 @@ export const collections = {
               z.enum(['small', 'medium', 'large', 'full']),
               z.number().min(200).max(1200)
             ]).default('medium'),
+            layout: z.string().optional(), // Support layout ratios like "3:2", "60:40", "golden", etc.
             autoplay: z.boolean().default(false),
             autoplayInterval: z.number().default(4000),
             showThumbnails: z.boolean().default(true),
+            loop: z.boolean().default(true),
           }).optional(),
           // Nested modular sections per version
           sections: z.array(z.object({

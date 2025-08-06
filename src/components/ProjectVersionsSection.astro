@@ -1,5 +1,8 @@
 ---
 import { getProjectVersions, hasMultipleVersions } from '../utils/versionUtils';
+import ProjectGallery from './ProjectGallery';
+import { Image } from 'astro:assets';
+import { formatProjectDate, calculateDuration } from '../utils/dateUtils';
 
 interface Props {
   projectSlug?: string;
@@ -49,6 +52,86 @@ if (!projectSlug) {
   }
 }
 
+/**
+ * Calculate responsive width percentages for version header gallery layout
+ * Reuses the same logic as the main project header
+ */
+function getVersionHeaderWidths(version: any) {
+  const gap = '2rem'; // This should match the gap-8 class (2rem = 32px)
+  
+  // Check for cover options first, then gallery options
+  const layoutSource = version?.coverOptions?.width || version?.galleryOptions?.layout;
+  
+  if (!layoutSource) {
+    return { gallery: `calc(50% - ${gap} / 2)`, info: `calc(50% - ${gap} / 2)` }; // Default 50:50
+  }
+  
+  const layout = layoutSource;
+  
+  // Percentage format: "60%"
+  if (typeof layout === 'string' && layout.endsWith('%')) {
+    const percentage = parseFloat(layout);
+    if (!isNaN(percentage) && percentage > 0 && percentage < 100) {
+      const galleryPercent = percentage;
+      const infoPercent = 100 - percentage;
+      return {
+        gallery: `calc(${galleryPercent}% - ${gap} * ${infoPercent / 100})`,
+        info: `calc(${infoPercent}% - ${gap} * ${galleryPercent / 100})`
+      };
+    }
+  }
+  
+  // Ratio format: "55:45", "3:2", etc.
+  if (typeof layout === 'string' && layout.includes(':')) {
+    const [left, right] = layout.split(':').map(Number);
+    if (!isNaN(left) && !isNaN(right) && left > 0 && right > 0) {
+      const total = left + right;
+      const galleryPercent = (left / total) * 100;
+      const infoPercent = (right / total) * 100;
+      
+      return {
+        gallery: `calc(${galleryPercent}% - ${gap} * ${infoPercent / 100})`,
+        info: `calc(${infoPercent}% - ${gap} * ${galleryPercent / 100})`
+      };
+    }
+  }
+  
+  // Named layouts
+  const namedLayouts: { [key: string]: { gallery: string, info: string } } = {
+    'narrow-wide': { 
+      gallery: `calc(33.333% - ${gap} * 0.66667)`, 
+      info: `calc(66.667% - ${gap} * 0.33333)` 
+    },
+    'wide-narrow': { 
+      gallery: `calc(66.667% - ${gap} * 0.33333)`, 
+      info: `calc(33.333% - ${gap} * 0.66667)` 
+    },
+    'equal': { 
+      gallery: `calc(50% - ${gap} / 2)`, 
+      info: `calc(50% - ${gap} / 2)` 
+    },
+    'golden': { 
+      gallery: `calc(61.804% - ${gap} * 0.38196)`, 
+      info: `calc(38.196% - ${gap} * 0.61804)` 
+    },
+    'sidebar': { 
+      gallery: `calc(25% - ${gap} * 0.75)`, 
+      info: `calc(75% - ${gap} * 0.25)` 
+    },
+    'reverse-sidebar': { 
+      gallery: `calc(75% - ${gap} * 0.25)`, 
+      info: `calc(25% - ${gap} * 0.75)` 
+    }
+  };
+  
+  if (namedLayouts[layout]) {
+    return namedLayouts[layout];
+  }
+  
+  // Fallback to 50:50
+  return { gallery: `calc(50% - ${gap} / 2)`, info: `calc(50% - ${gap} / 2)` };
+}
+
 // Check if this project has multiple versions
 let hasVersions = false;
 let versionContents: any[] = [];
@@ -65,6 +148,7 @@ try {
         return {
           version: version.version,
           title: version.title,
+          data: version.content.data, // Include the full frontmatter data
           Content
         };
       })
@@ -99,6 +183,43 @@ const headingClass = getHeadingClass(titleDepth);
 <style>
   .version-tabs {
     display: block;
+  }
+  
+  /* Responsive cover layout for version headers */
+  .responsive-cover-layout {
+    --gallery-width: calc(50% - 1rem);
+    --info-width: calc(50% - 1rem);
+  }
+  
+  .cover-gallery-col {
+    width: 100%;
+    /* Remove any default padding/margin that might cause extra space */
+    padding: 0;
+    margin: 0;
+    /* Make container fit content exactly */
+    display: inline-block;
+    line-height: 0;
+    vertical-align: top;
+  }
+  
+  .cover-info-col {
+    width: 100%;
+    /* Remove any default padding/margin */
+    padding: 0;
+    margin: 0;
+    /* Ensure the container fits its content exactly */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  @media (min-width: 1024px) {
+    .cover-gallery-col {
+      width: var(--gallery-width);
+    }
+    
+    .cover-info-col {
+      width: var(--info-width);
+    }
   }
   
   .version-tabs input[type="radio"] {
@@ -291,6 +412,7 @@ const headingClass = getHeadingClass(titleDepth);
       height: auto;
       min-width: 0;
       flex: 1;
+      font-size: calc(var(--tab-font-size, 1.125rem) * 0.85); /* Slightly smaller text on mobile */
     }
   }
   
@@ -347,20 +469,292 @@ const headingClass = getHeadingClass(titleDepth);
             for={`tab-${index}`}
             class="tab-button"
           >
-            <span class="font-semibold">{version.title}</span>
+            <span class="font-semibold">{version.data.tabTitle || version.data.title}</span>
           </label>
         ))}
       </div>
 
       <!-- Tab content sections -->
       <div class="tab-contents">
-        {versionContents.map((version, index) => (
+        {versionContents.map((version, index) => {
+          const versionHeaderWidths = getVersionHeaderWidths(version.data);
+          
+          return (
           <div class="tab-content">
+            {/* Optional Version Header - same format as main project header */}
+            {(version.data.headerTitle || version.data.headerDescription || version.data.cover || (version.data.gallery && version.data.gallery.length > 0) || version.data.metrics || version.data.competitions) && (
+              <header class="mb-8">
+                <div 
+                  class="flex flex-col lg:flex-row gap-8 responsive-cover-layout items-start"
+                  style={`--gallery-width: ${versionHeaderWidths.gallery}; --info-width: ${versionHeaderWidths.info};`}
+                >
+                  {/* Version Image/Gallery */}
+                  <div class="cover-gallery-col lg:flex-none">
+                    {version.data.gallery && version.data.gallery.length > 0 ? (
+                      <ProjectGallery 
+                        images={version.data.gallery as any}
+                        autoplay={version.data.galleryOptions?.autoplay ?? true}
+                        autoplayInterval={version.data.galleryOptions?.autoplayInterval ?? 4000}
+                        showThumbnails={version.data.galleryOptions?.showThumbnails ?? true}
+                        loop={version.data.galleryOptions?.loop ?? true}
+                        client:load
+                      />
+                    ) : version.data.cover ? (
+                      <Image 
+                        src={version.data.cover}
+                        alt={version.data.coverCaption || version.data.headerTitle || version.data.title}
+                        width={600}
+                        height={400}
+                        class="w-full h-auto rounded-lg shadow-lg"
+                      />
+                    ) : (
+                      /* Spacer div to maintain layout when only info side has content */
+                      <div class="aspect-[4/3] bg-base-200/30 rounded-lg flex items-center justify-center">
+                        <span class="text-base-content/40">No image available</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Version Header Info */}
+                  <div class="cover-info-col lg:flex-none">
+                    <h1 class={`font-bold mb-4 ${
+                      version.data.headerTitleSize === 'sm' ? 'text-lg' :
+                      version.data.headerTitleSize === 'md' ? 'text-xl' :
+                      version.data.headerTitleSize === 'lg' ? 'text-2xl' :
+                      version.data.headerTitleSize === 'xl' ? 'text-3xl' :
+                      version.data.headerTitleSize === '2xl' ? 'text-4xl' :
+                      version.data.headerTitleSize === '3xl' ? 'text-5xl' :
+                      version.data.headerTitleSize === '4xl' ? 'text-6xl' :
+                      'text-4xl' // default
+                    }`}>{version.data.headerTitle || version.data.title}</h1>
+                    <p class="text-lg text-base-content/70 mb-6">{version.data.headerDescription || version.data.description}</p>
+                    
+                    {/* Version Timeline */}
+                    <div class="mb-4">
+                      <div class="text-sm text-base-content/60">
+                        {version.data.status === 'completed' && version.data.endDate ? (
+                          <div class="flex items-center gap-4">
+                            <span class="badge badge-success">Completed</span>
+                            <span>{formatProjectDate(version.data.startDate)} → {formatProjectDate(version.data.endDate)}</span>
+                            <span class="font-medium">({calculateDuration(version.data.startDate, version.data.endDate)})</span>
+                          </div>
+                        ) : version.data.status === 'in-progress' ? (
+                          <div class="flex items-center gap-4">
+                            <span class="badge badge-warning">In Progress</span>
+                            <span>Started {formatProjectDate(version.data.startDate)}</span>
+                          </div>
+                        ) : (
+                          <div class="flex items-center gap-4">
+                            <span class="badge badge-info">Planned</span>
+                            <span>Planned for {formatProjectDate(version.data.startDate)}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Version Metrics */}
+                    {version.data.metrics && version.data.metrics.customFields && version.data.metrics.customFields.length > 0 && (
+                      <div class="mb-6">
+                        <h3 class="text-sm font-semibold mb-2">{version.data.metrics.sectionTitle || "Version Stats"}</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
+                          {version.data.metrics.customFields.map((field: any) => (
+                            <div class="stat-item text-left">
+                              <div class="text-base-content/60">{field.label}:</div>
+                              <div class={`font-medium ${
+                                field.highlight && field.color ? `text-${field.color}` : ''
+                              }`}>
+                                {field.value}{field.unit ? ` ${field.unit}` : ''}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Version Competition History */}
+                    {version.data.competitions && version.data.competitions.length > 0 && (
+                      <div class="mb-6">
+                        {(() => {
+                          const hasRecords = version.data.competitions.some((comp: any) => comp.record);
+                          const maxDisplay = version.data.competitionsOptions?.maxDisplay ?? 3;
+                          const competitionsToShow = maxDisplay === 0 ? version.data.competitions : version.data.competitions.slice(0, maxDisplay);
+                          
+                          return (
+                            <div class="space-y-2">
+                              {/* Mobile Layout */}
+                              <div class="lg:hidden">
+                                {/* Mobile Headers */}
+                                <div class="flex items-center justify-between text-xs pb-1 border-b border-base-content/70">
+                                  <span class="text-sm text-base-content/70">{version.data.competitionsOptions?.sectionTitle || "Competition History"}</span>
+                                  <div class="flex items-center gap-4 text-sm text-base-content/70">
+                                    {hasRecords && <span class="w-12 text-center">Record</span>}
+                                    <span class="w-16 text-center">Placement</span>
+                                  </div>
+                                </div>
+                                
+                                {/* Mobile Entries */}
+                                {competitionsToShow.map((comp: any) => (
+                                  <div class="pt-1 pb-1 border-b border-base-content/25">
+                                    <div class="flex items-center justify-between">
+                                      <div class="flex flex-col flex-1 min-w-0">
+                                        <div class="mb-0.5">
+                                          {comp.url ? (
+                                            <a 
+                                              href={comp.url} 
+                                              class="font-medium text-base-content hover:text-blue-400 transition-colors underline decoration-solid underline-offset-2 text-sm truncate"
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              title={`Read more about ${comp.name}`}
+                                            >
+                                              {comp.name}
+                                            </a>
+                                          ) : (
+                                            <span class="font-medium text-sm truncate">{comp.name}</span>
+                                          )}
+                                        </div>
+                                        <div class="text-xs text-base-content/70">{comp.date}</div>
+                                      </div>
+                                      
+                                      <div class="flex items-center gap-4 flex-shrink-0 ml-3">
+                                        {comp.record && (
+                                          <div class="w-12 flex justify-center">
+                                            <span class="badge badge-sm badge-outline min-w-12 text-center">{comp.record}</span>
+                                          </div>
+                                        )}
+                                        {!comp.record && hasRecords && (
+                                          <span class="w-12"></span>
+                                        )}
+                                        <div class="w-16 flex justify-center">
+                                          <span class={`badge badge-sm min-w-16 text-center ${
+                                            typeof comp.placement === 'number' && comp.placement === 1 ? 'badge-warning' :
+                                            typeof comp.placement === 'string' && (comp.placement.toLowerCase().includes('1st') || comp.placement.toLowerCase().includes('champion')) ? 'badge-warning' :
+                                            typeof comp.placement === 'number' && comp.placement === 2 ? 'badge-silver' :
+                                            typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('2nd') ? 'badge-silver' :
+                                            typeof comp.placement === 'number' && comp.placement === 3 ? 'badge-accent' :
+                                            typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('3rd') ? 'badge-accent' :
+                                            'badge-info'
+                                          }`}>
+                                            {typeof comp.placement === 'number' ? 
+                                              comp.placement === 1 ? '1st' :
+                                              comp.placement === 2 ? '2nd' :
+                                              comp.placement === 3 ? '3rd' :
+                                              `${comp.placement}th` :
+                                              comp.placement
+                                            }
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Desktop Layout */}
+                              <div class="hidden lg:block">
+                                {/* Desktop Headers */}
+                                <div class="flex items-center justify-between text-xs pb-1 border-b border-base-content/70">
+                                  <span class="text-sm text-base-content/70">{version.data.competitionsOptions?.sectionTitle || "Competition History"}</span>
+                                  <div class="flex items-center gap-6 text-sm text-base-content/70">
+                                    <span class="w-32 text-right">Date</span>
+                                    {hasRecords && <span class="w-12 text-center">Record</span>}
+                                    <span class="w-16 text-center">Placement</span>
+                                  </div>
+                                </div>
+                                
+                                {/* Desktop Entries */}
+                                {competitionsToShow.map((comp: any) => (
+                                  <div class="flex items-center justify-between text-sm py-2 border-b border-base-content/25">
+                                    <div class="flex items-center gap-3">
+                                      {comp.url ? (
+                                        <a 
+                                          href={comp.url} 
+                                          class="font-medium text-base-content hover:text-blue-400 transition-colors underline decoration-solid underline-offset-2"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          title={`Read more about ${comp.name}`}
+                                        >
+                                          {comp.name}
+                                        </a>
+                                      ) : (
+                                        <span class="font-medium">{comp.name}</span>
+                                      )}
+                                    </div>
+                                    <div class="flex items-center gap-6">
+                                      <span class="w-32 text-right text-base-content">{comp.date}</span>
+                                      {comp.record && (
+                                        <span class="badge badge-sm badge-outline w-12 text-center">{comp.record}</span>
+                                      )}
+                                      {!comp.record && hasRecords && (
+                                        <span class="w-12"></span>
+                                      )}
+                                      <span class={`badge badge-sm w-16 text-center ${
+                                        typeof comp.placement === 'number' && comp.placement === 1 ? 'badge-warning' :
+                                        typeof comp.placement === 'string' && (comp.placement.toLowerCase().includes('1st') || comp.placement.toLowerCase().includes('champion')) ? 'badge-warning' :
+                                        typeof comp.placement === 'number' && comp.placement === 2 ? 'badge-silver' :
+                                        typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('2nd') ? 'badge-silver' :
+                                        typeof comp.placement === 'number' && comp.placement === 3 ? 'badge-accent' :
+                                        typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('3rd') ? 'badge-accent' :
+                                        'badge-info'
+                                      }`}>
+                                        {typeof comp.placement === 'number' ? 
+                                          comp.placement === 1 ? '1st' :
+                                          comp.placement === 2 ? '2nd' :
+                                          comp.placement === 3 ? '3rd' :
+                                          `${comp.placement}th` :
+                                          comp.placement
+                                        }
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              {version.data.competitions.length > (version.data.competitionsOptions?.maxDisplay ?? 3) && (version.data.competitionsOptions?.maxDisplay ?? 3) > 0 && (
+                                <div class="text-xs text-base-content/60 text-center mt-2">
+                                  And {version.data.competitions.length - (version.data.competitionsOptions?.maxDisplay ?? 3)} more competition{version.data.competitions.length - (version.data.competitionsOptions?.maxDisplay ?? 3) !== 1 ? 's' : ''}...
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+                    
+                    {/* Version Action Links */}
+                    <div class="flex flex-wrap gap-3">
+                      {version.data.githubUrl && (
+                        <a 
+                          href={version.data.githubUrl} 
+                          class="btn btn-outline"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          View on GitHub
+                        </a>
+                      )}
+                      {version.data.liveUrl && (
+                        <a 
+                          href={version.data.liveUrl} 
+                          class="btn btn-primary"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Live Demo
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </header>
+            )}
+
+            {/* Content (always shown) */}
             <div class="prose prose-lg max-w-none dark:prose-invert">
               <version.Content />
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   </section>

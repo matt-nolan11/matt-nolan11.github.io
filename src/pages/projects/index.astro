@@ -6,7 +6,12 @@ import { formatProjectDate, getSortableDate } from '../../utils/dateUtils';
 
 const projects = await getCollection('projects');
 const publishedProjects = projects
-  .filter(project => !project.data.draft)
+  .filter(project => {
+    // Only show main project files (index.mdx), not version files (v1.mdx, v2.mdx, etc.)
+    const fileName = project.id.split('/').pop();
+    const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
+    return !project.data.draft && baseName === 'index';
+  })
   .sort((a, b) => {
     // Sort by most recent end date, or start date if no end date
     const aDate = a.data.endDate || a.data.startDate;
