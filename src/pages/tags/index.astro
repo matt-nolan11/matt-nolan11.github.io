@@ -49,11 +49,11 @@ const tags = await getAllTags();
               {tags.filter(tag => tag.count > 1).slice(0, 6).map(tag => (
                 <a 
                   href={`/tags/${tag.name}/`}
-                  class="stat bg-base-100 shadow rounded-lg hover:shadow-lg transition-shadow duration-200 border border-base-300 hover:border-primary"
+                  class="block bg-base-100 shadow rounded-lg hover:shadow-lg transition-all duration-200 border border-base-300 hover:border-primary p-4 text-center"
                 >
-                  <div class="stat-title text-sm">{tag.name}</div>
-                  <div class="stat-value text-2xl">{tag.count}</div>
-                  <div class="stat-desc">
+                  <div class="text-sm text-base-content/70 mb-1">{tag.name}</div>
+                  <div class="text-2xl font-bold text-base-content">{tag.count}</div>
+                  <div class="text-xs text-base-content/60">
                     {tag.count === 1 ? 'item' : 'items'}
                   </div>
                 </a>

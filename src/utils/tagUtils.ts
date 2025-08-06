@@ -15,10 +15,17 @@ export async function getAllTags() {
     getCollection('posts')
   ]);
 
+  // Filter to only include main project files (index.mdx), not version files (v1.mdx, v2.mdx, etc.)
+  const mainProjects = projects.filter(project => {
+    const fileName = project.id.split('/').pop();
+    const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
+    return baseName === 'index';
+  });
+
   const tagCounts = new Map<string, number>();
 
   // Count tags from projects
-  projects.forEach(project => {
+  mainProjects.forEach(project => {
     if (!project.data.draft) {
       project.data.tags.forEach(tag => {
         tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
@@ -55,7 +62,14 @@ export async function getContentByTag(tag: string) {
     getCollection('posts')
   ]);
 
-  const filteredProjects = projects.filter(project => 
+  // Filter to only include main project files (index.mdx), not version files (v1.mdx, v2.mdx, etc.)
+  const mainProjects = projects.filter(project => {
+    const fileName = project.id.split('/').pop();
+    const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
+    return baseName === 'index';
+  });
+
+  const filteredProjects = mainProjects.filter(project => 
     !project.data.draft && project.data.tags.includes(tag)
   );
 
@@ -87,8 +101,15 @@ export async function getRelatedContent(
     getCollection('posts')
   ]);
 
+  // Filter to only include main project files (index.mdx), not version files (v1.mdx, v2.mdx, etc.)
+  const mainProjects = projects.filter(project => {
+    const fileName = project.id.split('/').pop();
+    const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
+    return baseName === 'index';
+  });
+
   const allContent = [
-    ...projects.map(p => ({ ...p, type: 'project' as const })),
+    ...mainProjects.map(p => ({ ...p, type: 'project' as const })),
     ...posts.map(p => ({ ...p, type: 'post' as const }))
   ];
 

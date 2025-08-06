@@ -14,8 +14,15 @@ export function getFeaturedProjects(
   projects: CollectionEntry<'projects'>[],
   maxCount: number = 6
 ): CollectionEntry<'projects'>[] {
+  // Filter to only include main project files (index.mdx), not version files (v1.mdx, v2.mdx, etc.)
+  const mainProjects = projects.filter(project => {
+    const fileName = project.id.split('/').pop();
+    const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
+    return baseName === 'index';
+  });
+
   // Collect all featured projects with their order
-  const featured = projects.filter(p => !p.data.draft && p.data.featured === true);
+  const featured = mainProjects.filter(p => !p.data.draft && p.data.featured === true);
   const manualOrder: Array<{ project: CollectionEntry<'projects'>; order: number }> = [];
   const usedOrders = new Set<number>();
   for (const p of featured) {
@@ -58,7 +65,7 @@ export function getFeaturedProjects(
   }
 
   // Get recent non-featured projects
-  const recentProjects = projects
+  const recentProjects = mainProjects
     .filter(p => !p.data.draft && p.data.featured !== true)
     .sort((a, b) => {
       const aDate = a.data.endDate || a.data.startDate;

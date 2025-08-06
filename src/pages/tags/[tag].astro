@@ -68,7 +68,7 @@ const sortedPosts = posts.sort((a, b) =>
             Projects
             <div class="badge badge-secondary">{projects.length}</div>
           </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {sortedProjects.map(project => (
               <article 
                 class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full cursor-pointer"
@@ -106,8 +106,8 @@ const sortedPosts = posts.sort((a, b) =>
                     {project.data.tags.map(projectTag => (
                       <a 
                         href={`/tags/${projectTag}/`} 
-                        class={`badge badge-outline badge-sm tag-hover-light-blue transition-colors ${
-                          projectTag === tag ? 'border-primary text-base-content' : ''
+                        class={`badge badge-sm tag-hover-light-blue transition-colors ${
+                          projectTag === tag ? 'badge-primary' : 'badge-outline'
                         }`}
                         onclick="event.stopPropagation()"
                       >
@@ -141,7 +141,7 @@ const sortedPosts = posts.sort((a, b) =>
             Blog Posts
             <div class="badge badge-secondary">{posts.length}</div>
           </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {sortedPosts.map(post => (
               <article 
                 class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full cursor-pointer"
@@ -170,8 +170,8 @@ const sortedPosts = posts.sort((a, b) =>
                     {post.data.tags.map(postTag => (
                       <a 
                         href={`/tags/${postTag}/`} 
-                        class={`badge badge-outline badge-sm tag-hover-light-blue transition-colors ${
-                          postTag === tag ? 'border-primary text-base-content' : ''
+                        class={`badge badge-sm tag-hover-light-blue transition-colors ${
+                          postTag === tag ? 'badge-primary' : 'badge-outline'
                         }`}
                         onclick="event.stopPropagation()"
                       >
