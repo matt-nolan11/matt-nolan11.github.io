@@ -395,3 +395,23 @@ model-viewer [slot="progress-bar"] {
   display: none !important;
   opacity: 0 !important;
 }
+
+/* Fix caption overlay height consistency between main and version galleries */
+.cover-gallery-col .project-gallery div[class*="absolute"][class*="bottom-0"] {
+  /* Force consistent padding and prevent height expansion */
+  padding: 1rem !important; /* p-4 equivalent */
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  /* Ensure gradient background is consistent */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%) !important;
+}
+
+.cover-gallery-col .project-gallery div[class*="absolute"][class*="bottom-0"] p {
+  /* Reset all text properties to match main gallery exactly */
+  font-size: 0.875rem !important; /* text-sm */
+  line-height: 1.25rem !important; /* text-sm line-height */
+  margin: 0 !important;
+  padding: 0 !important;
+  color: white !important;
+}

@@ -207,6 +207,9 @@ const headingClass = getHeadingClass(titleDepth);
   .cover-gallery-col .project-gallery {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
+    /* Reset font properties that were zeroed out on the container */
+    font-size: initial !important;
+    line-height: initial !important;
   }
   
   .cover-info-col {
@@ -511,13 +514,18 @@ const headingClass = getHeadingClass(titleDepth);
                         client:load
                       />
                     ) : version.data.cover ? (
-                      <Image 
-                        src={version.data.cover}
-                        alt={version.data.coverCaption || version.data.headerTitle || version.data.title}
-                        width={600}
-                        height={400}
-                        class="w-full h-auto rounded-lg shadow-lg"
-                      />
+                      <figure>
+                        <Image 
+                          src={version.data.cover}
+                          alt={version.data.coverCaption || version.data.headerTitle || version.data.title}
+                          width={600}
+                          height={400}
+                          class="w-full h-auto rounded-lg shadow-lg"
+                        />
+                        {version.data.coverCaption && (
+                          <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={version.data.coverCaption}></figcaption>
+                        )}
+                      </figure>
                     ) : (
                       /* Spacer div to maintain layout when only info side has content */
                       <div class="aspect-[4/3] bg-base-200/30 rounded-lg flex items-center justify-center">

@@ -189,23 +189,28 @@ function getVersionHeaderWidths(version: any) {
               client:load
             />
           ) : (
-            <Image 
-              src={project.data.cover}
-              alt={project.data.coverCaption || project.data.title}
-              width={600}
-              height={400}
-              class={`h-auto rounded-lg shadow-lg ${
-                project.data.coverOptions?.width === 'small' ? 'w-1/2' :
-                project.data.coverOptions?.width === 'medium' ? 'w-3/4' :
-                project.data.coverOptions?.width === 'large' ? 'w-full' :
-                project.data.coverOptions?.width === 'full' ? 'w-full' :
-                project.data.coverOptions?.width && !['small', 'medium', 'large', 'full'].includes(project.data.coverOptions.width) ? 'max-w-full' :
-                'w-full'
-              }`}
-              style={project.data.coverOptions?.width && 
-                     !['small', 'medium', 'large', 'full'].includes(project.data.coverOptions.width) 
-                     ? `width: ${project.data.coverOptions.width}; max-width: 100%;` : undefined}
-            />
+            <figure>
+              <Image 
+                src={project.data.cover}
+                alt={project.data.coverCaption || project.data.title}
+                width={600}
+                height={400}
+                class={`h-auto rounded-lg shadow-lg ${
+                  project.data.coverOptions?.width === 'small' ? 'w-1/2' :
+                  project.data.coverOptions?.width === 'medium' ? 'w-3/4' :
+                  project.data.coverOptions?.width === 'large' ? 'w-full' :
+                  project.data.coverOptions?.width === 'full' ? 'w-full' :
+                  project.data.coverOptions?.width && !['small', 'medium', 'large', 'full'].includes(project.data.coverOptions.width) ? 'max-w-full' :
+                  'w-full'
+                }`}
+                style={project.data.coverOptions?.width && 
+                       !['small', 'medium', 'large', 'full'].includes(project.data.coverOptions.width) 
+                       ? `width: ${project.data.coverOptions.width}; max-width: 100%;` : undefined}
+              />
+              {project.data.coverCaption && (
+                <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={project.data.coverCaption}></figcaption>
+              )}
+            </figure>
           )}
         </div>
         
