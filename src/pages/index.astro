@@ -38,12 +38,14 @@ const displayProjects = getFeaturedProjects(projects, 6);
 				  </div>
 				)}
 				<div class="absolute top-2 right-2">
-				  <div class={`badge ${
+				  <div class={`badge status-badge ${
 					project.data.status === 'completed' ? 'badge-success' : 
 					project.data.status === 'in-progress' ? 'badge-warning' : 
 					'badge-info'
 				  }`}>
-					{project.data.status}
+					{project.data.status === 'completed' ? 'Completed' : 
+					 project.data.status === 'in-progress' ? 'In Progress' : 
+					 'Planned'}
 				  </div>
 				</div>
 			  </figure>

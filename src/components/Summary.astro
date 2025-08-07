@@ -96,18 +96,18 @@ const hasRecords = competitions.some(comp => comp.record);
     <div class="text-sm text-base-content/60">
       {status === 'completed' && endDate ? (
         <div class="flex items-center gap-4">
-          <span class="badge badge-success">Completed</span>
+          <span class="badge status-badge badge-success">Completed</span>
           <span>{formatProjectDate(startDate)} → {formatProjectDate(endDate)}</span>
           <span class="font-medium">({calculateDuration(startDate, endDate)})</span>
         </div>
       ) : status === 'in-progress' ? (
         <div class="flex items-center gap-4">
-          <span class="badge badge-warning">In Progress</span>
+          <span class="badge status-badge badge-warning">In Progress</span>
           <span>Started {formatProjectDate(startDate)}</span>
         </div>
       ) : (
         <div class="flex items-center gap-4">
-          <span class="badge badge-info">Planned</span>
+          <span class="badge status-badge badge-info">Planned</span>
           <span>Planned for {formatProjectDate(startDate)}</span>
         </div>
       )}

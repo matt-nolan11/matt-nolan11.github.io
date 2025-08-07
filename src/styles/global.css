@@ -389,6 +389,17 @@
   border: none !important; /* Remove border from non-podium placements */
 }
 
+/* Override bold font for status badges - they should be bold */
+.badge-warning:not(.badge-sm):not(.badge-md):not(.badge-lg),
+.badge-info:not(.badge-sm):not(.badge-md):not(.badge-lg) {
+  font-weight: bold !important;
+}
+
+/* Specific class for status badges to ensure bold font weight */
+.status-badge {
+  font-weight: bold !important;
+}
+
 /* Model Viewer Optimizations - Prevent Flash */
 model-viewer {
   --poster-color: transparent !important; /* Remove default poster background */
