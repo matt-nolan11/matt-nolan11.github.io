@@ -1,419 +1,402 @@
 ---
-import { Image, getImage } from 'astro:assets';
+import { Image } from 'astro:assets';
 import { marked } from 'marked';
 import ProjectGallery from './ProjectGallery';
 import ModelViewer from './ModelViewer';
+import Summary from './Summary.astro';
 
-// Helper function to optimize gallery images using Astro's image optimization
-async function optimizeGalleryImages(gallery: any[]) {
-  if (!gallery || gallery.length === 0) return [];
+const { columns } = Astro.props;
+
+if (!columns || columns.length === 0) {
+  throw new Error('ModularSection requires a columns prop with at least one column');
+}
+
+// Check if this is a responsive cover layout (gallery + summary in 2-column)
+function isResponsiveCoverLayout(): boolean {
+  return columns.length === 2 && 
+         columns.some((col: any) => col.type === 'gallery') &&
+         columns.some((col: any) => col.type === 'summary');
+}
+
+/**
+ * Calculate responsive width percentages for cover gallery layout
+ * Returns CSS calc() values that account for gap spacing
+ * EXACT COPY from frontmatter version
+ */
+function getCoverGalleryWidths(options: any) {
+  const gap = '2rem'; // This should match the gap-8 class (2rem = 32px)
   
-  return await Promise.all(
-    gallery.map(async (image: any) => {
-      try {
-        const optimizedImage = await getImage({
-          src: image.src,
-          width: 800,
-          height: 600,
-          quality: 80,
-          format: 'webp'
-        });
-        
-        return {
-          src: optimizedImage.src,
-          alt: image.alt,
-          caption: image.caption
-        };
-      } catch (error) {
-        // Fallback to original image if optimization fails
-        console.warn('Failed to optimize image:', image.src, error);
-        return {
-          src: image.src,
-          alt: image.alt,
-          caption: image.caption
-        };
-      }
-    })
-  );
-}
-
-// Pre-optimize gallery images for all sections
-async function optimizeSectionGalleries(sections: any[]) {
-  if (!sections || sections.length === 0) return sections;
-  
-  return await Promise.all(
-    sections.map(async (section: any) => {
-      const optimizedColumns = await Promise.all(
-        section.columns.map(async (col: any) => {
-          if (col.type === 'gallery' && col.gallery) {
-            const optimizedGallery = await optimizeGalleryImages(col.gallery);
-            return { ...col, gallery: optimizedGallery };
-          }
-          return col;
-        })
-      );
-      return { ...section, columns: optimizedColumns };
-    })
-  );
-}
-
-// Optimize the sections
-const { sections, columns, depth = 0, className = '', spacing = 'normal', columnGap = 'normal' } = Astro.props;
-
-// Support both the old sections API and new columns API
-let sectionsToProcess;
-if (columns) {
-  // New simplified API: just pass columns directly
-  sectionsToProcess = [{ columns }];
-} else if (sections) {
-  // Backward compatibility: use the existing sections structure
-  sectionsToProcess = sections;
-} else {
-  // No data provided
-  sectionsToProcess = [];
-}
-
-// Optimize the sections
-const optimizedSections = await optimizeSectionGalleries(sectionsToProcess);
-
-// Calculate appropriate heading levels based on nesting depth
-const getHeadingLevel = (depth: number) => {
-  if (depth === 0) return 'h2';
-  if (depth === 1) return 'h3'; 
-  if (depth === 2) return 'h4';
-  if (depth === 3) return 'h5';
-  return 'h6';
-};
-
-const getHeadingClass = (depth: number) => {
-  if (depth === 0) return 'text-3xl font-bold mb-4';
-  if (depth === 1) return 'text-2xl font-bold mb-4';
-  if (depth === 2) return 'text-xl font-bold mb-4';
-  if (depth === 3) return 'text-lg font-bold mb-3';
-  return 'text-base font-bold mb-3';
-};
-
-const headingLevel = getHeadingLevel(depth);
-const headingClass = getHeadingClass(depth);
-
-// Spacing control functions
-const getSectionSpacing = (spacing: string, depth: number) => {
-  if (spacing === 'none') return '';
-  if (spacing === 'compact') return depth === 0 ? 'space-y-4' : 'space-y-3';
-  if (spacing === 'relaxed') return depth === 0 ? 'space-y-12' : 'space-y-8';
-  // normal (default)
-  return depth === 0 ? 'space-y-8' : 'space-y-6';
-};
-
-const getColumnGap = (columnGap: string) => {
-  if (columnGap === 'none') return 'gap-0';
-  if (columnGap === 'tight') return 'gap-2';
-  if (columnGap === 'compact') return 'gap-4';
-  if (columnGap === 'relaxed') return 'gap-8';
-  if (columnGap === 'loose') return 'gap-12';
-  // normal (default)
-  return 'gap-6';
-};
-
-const sectionSpacingClass = getSectionSpacing(spacing, depth);
-const columnGapClass = getColumnGap(columnGap);
-
-// Calculate responsive column widths using CSS calc() with gap compensation
-const getColumnWidthData = (section: any) => {
-  if (section.columns.length !== 2) {
-    return null; // Not a 2-column layout
+  if (!options?.layout) {
+    return { gallery: `calc(50% - ${gap} / 2)`, info: `calc(50% - ${gap} / 2)` }; // Default 50:50
   }
   
-  const col1 = section.columns[0];
-  const col2 = section.columns[1];
+  const layout = options.layout;
   
-  // Get the gap value - should match the columnGapClass
-  const gapMap: { [key: string]: string } = {
-    'gap-0': '0px',
-    'gap-2': '0.5rem',
-    'gap-4': '1rem', 
-    'gap-6': '1.5rem', // normal default
-    'gap-8': '2rem',
-    'gap-12': '3rem'
-  };
-  
-  const gap = gapMap[columnGapClass] || '1.5rem'; // Default to gap-6
-  
-  // Method 1: Individual column width properties (highest priority)
-  if (col1.width !== undefined || col2.width !== undefined) {
-    const col1Width = col1.width || (100 - (col2.width || 50));
-    const col2Width = col2.width || (100 - col1Width);
-    
-    // Ensure they add up to 100%
-    const total = col1Width + col2Width;
-    const col1Percent = (col1Width / total) * 100;
-    const col2Percent = (col2Width / total) * 100;
-    
-    return {
-      col1: `calc(${col1Percent}% - ${gap} * ${col2Percent / 100})`,
-      col2: `calc(${col2Percent}% - ${gap} * ${col1Percent / 100})`
-    };
-  }
-  
-  // Method 2: Section-level layout property
-  if (section.layout) {
-    const layout = section.layout;
-    
-    // String format: "60:40", "2:1", "70:30"
-    if (typeof layout === 'string' && layout.includes(':')) {
-      const [ratio1, ratio2] = layout.split(':').map(Number);
-      const total = ratio1 + ratio2;
-      const col1Percent = (ratio1 / total) * 100;
-      const col2Percent = (ratio2 / total) * 100;
-      
+  // Percentage format: "60%"
+  if (typeof layout === 'string' && layout.endsWith('%')) {
+    const percentage = parseFloat(layout);
+    if (!isNaN(percentage) && percentage > 0 && percentage < 100) {
+      const galleryPercent = percentage;
+      const infoPercent = 100 - percentage;
       return {
-        col1: `calc(${col1Percent}% - ${gap} * ${col2Percent / 100})`,
-        col2: `calc(${col2Percent}% - ${gap} * ${col1Percent / 100})`
+        gallery: `calc(${galleryPercent}% - ${gap} * ${infoPercent / 100})`,
+        info: `calc(${infoPercent}% - ${gap} * ${galleryPercent / 100})`
       };
     }
-    
-    // Array format: [70, 30] or [2, 1]
-    if (Array.isArray(layout) && layout.length === 2) {
-      const [width1, width2] = layout;
-      const total = width1 + width2;
-      const col1Percent = (width1 / total) * 100;
-      const col2Percent = (width2 / total) * 100;
+  }
+  
+  // Ratio format: "55:45", "3:2", etc.
+  if (typeof layout === 'string' && layout.includes(':')) {
+    const [left, right] = layout.split(':').map(Number);
+    if (!isNaN(left) && !isNaN(right) && left > 0 && right > 0) {
+      const total = left + right;
+      const galleryPercent = (left / total) * 100;
+      const infoPercent = (right / total) * 100;
       
       return {
-        col1: `calc(${col1Percent}% - ${gap} * ${col2Percent / 100})`,
-        col2: `calc(${col2Percent}% - ${gap} * ${col1Percent / 100})`
+        gallery: `calc(${galleryPercent}% - ${gap} * ${infoPercent / 100})`,
+        info: `calc(${infoPercent}% - ${gap} * ${galleryPercent / 100})`
       };
-    }
-    
-    // Named layouts
-    const namedLayouts: { [key: string]: { col1: string, col2: string } } = {
-      'narrow-wide': { 
-        col1: `calc(33.333% - ${gap} * 0.66667)`, 
-        col2: `calc(66.667% - ${gap} * 0.33333)` 
-      },
-      'wide-narrow': { 
-        col1: `calc(66.667% - ${gap} * 0.33333)`, 
-        col2: `calc(33.333% - ${gap} * 0.66667)` 
-      },
-      'equal': { 
-        col1: `calc(50% - ${gap} / 2)`, 
-        col2: `calc(50% - ${gap} / 2)` 
-      },
-      'golden': { 
-        col1: `calc(38.196% - ${gap} * 0.61804)`, 
-        col2: `calc(61.804% - ${gap} * 0.38196)` 
-      },
-      'sidebar': { 
-        col1: `calc(75% - ${gap} * 0.25)`, 
-        col2: `calc(25% - ${gap} * 0.75)` 
-      },
-      'reverse-sidebar': { 
-        col1: `calc(25% - ${gap} * 0.75)`, 
-        col2: `calc(75% - ${gap} * 0.25)` 
-      }
-    };
-    
-    if (namedLayouts[layout]) {
-      return namedLayouts[layout];
     }
   }
   
-  // Method 3: Default equal width (50:50)
-  return { 
-    col1: `calc(50% - ${gap} / 2)`, 
-    col2: `calc(50% - ${gap} / 2)` 
+  // Named layouts
+  const namedLayouts: { [key: string]: { gallery: string, info: string } } = {
+    'narrow-wide': { 
+      gallery: `calc(33.333% - ${gap} * 0.66667)`, 
+      info: `calc(66.667% - ${gap} * 0.33333)` 
+    },
+    'wide-narrow': { 
+      gallery: `calc(66.667% - ${gap} * 0.33333)`, 
+      info: `calc(33.333% - ${gap} * 0.66667)` 
+    },
+    'equal': { 
+      gallery: `calc(50% - ${gap} / 2)`, 
+      info: `calc(50% - ${gap} / 2)` 
+    },
+    'golden': { 
+      gallery: `calc(61.804% - ${gap} * 0.38196)`, 
+      info: `calc(38.196% - ${gap} * 0.61804)` 
+    },
+    'sidebar': { 
+      gallery: `calc(25% - ${gap} * 0.75)`, 
+      info: `calc(75% - ${gap} * 0.25)` 
+    },
+    'reverse-sidebar': { 
+      gallery: `calc(75% - ${gap} * 0.25)`, 
+      info: `calc(25% - ${gap} * 0.75)` 
+    }
   };
-};
-
+  
+  if (namedLayouts[layout]) {
+    return namedLayouts[layout];
+  }
+  
+  // Fallback to 50:50
+  return { gallery: `calc(50% - ${gap} / 2)`, info: `calc(50% - ${gap} / 2)` };
+}
 ---
 
 <style>
-  .responsive-columns {
-    --col1-width: calc(50% - 0.75rem);
-    --col2-width: calc(50% - 0.75rem);
+  .responsive-cover-layout {
+    --gallery-width: calc(50% - 1rem);
+    --info-width: calc(50% - 1rem);
   }
   
-  .responsive-columns .column:first-child {
+  .cover-gallery-col {
     width: 100%;
+    /* Remove any default padding/margin that might cause extra space */
+    padding: 0;
+    margin: 0;
+    /* Force positioning to eliminate any inherited spacing */
+    display: block;
+    line-height: 0;
+    font-size: 0;
+    position: relative;
+  }
+
+  /* Specifically target ProjectGallery within cover layout */
+  .cover-gallery-col .project-gallery {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    /* Reset font properties that were zeroed out on the container */
+    font-size: initial !important;
+    line-height: initial !important;
   }
   
-  .responsive-columns .column:last-child {
+  .cover-gallery-col > :first-child {
+    margin-top: 0 !important;
+  }
+  
+  .cover-info-col {
     width: 100%;
+    /* Remove any default padding/margin */
+    padding: 0;
+    margin: 0;
+    /* Ensure the container fits its content exactly */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Specifically target Summary within cover layout */
+  .cover-info-col .summary-content {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  
+  .cover-info-col > :first-child {
+    margin-top: 0 !important;
+  }
+  
+  /* Ensure regular columns have proper styling for components */
+  .column {
+    display: block;
+    line-height: initial;
+    font-size: initial;
+  }
+  
+  /* Specifically reset for ModelViewer components */
+  .column model-viewer {
+    line-height: initial !important;
+    font-size: initial !important;
+    display: block !important;
+    min-height: 300px !important;
+  }
+  
+  /* Ensure ModelViewer containers maintain proper dimensions */
+  .column .model-viewer-container {
+    line-height: initial !important;
+    font-size: initial !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: 300px !important;
+  }
+  
+  /* Ensure figure elements have clean spacing */
+  .column figure {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .column img {
+    display: block;
   }
   
   @media (min-width: 1024px) {
-    .responsive-columns .column:first-child {
-      width: var(--col1-width);
+    .cover-gallery-col {
+      width: var(--gallery-width);
     }
     
-    .responsive-columns .column:last-child {
-      width: var(--col2-width);
+    .cover-info-col {
+      width: var(--info-width);
     }
   }
 </style>
 
-<div class={`modular-sections ${sectionSpacingClass} ${className}`.trim()}>
-  {optimizedSections.map((section: any, _i: number) => {
-    const columnWidths = getColumnWidthData(section);
+{(() => {
+  // Check if this is a responsive cover layout (gallery + summary in 2-column)
+  if (isResponsiveCoverLayout()) {
+    const galleryCol = columns.find((col: any) => col.type === 'gallery');
+    const summaryCol = columns.find((col: any) => col.type === 'summary');
+    
+    // Map ModularSection column structure to frontmatter structure
+    const galleryOptions = {
+      layout: galleryCol?.width ? `${galleryCol.width}%` : galleryCol?.galleryOptions?.layout,
+      placement: galleryCol?.placement || galleryCol?.galleryOptions?.placement,
+      autoplay: galleryCol?.galleryOptions?.autoplay,
+      autoplayInterval: galleryCol?.galleryOptions?.autoplayInterval,
+      showThumbnails: galleryCol?.galleryOptions?.showThumbnails,
+      loop: galleryCol?.galleryOptions?.loop
+    };
+    
+    // Calculate gallery/info column widths using EXACT frontmatter logic
+    const coverWidths = getCoverGalleryWidths(galleryOptions);
     
     return (
-    <div 
-      class={`section ${columnGapClass} ${
-        section.columns.length <= 2 ? 'flex flex-col lg:flex-row lg:items-start' :
-        section.columns.length === 3 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
-        section.columns.length === 4 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4' :
-        'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' // Fallback for 5+ columns
-      } ${section.columns.length === 2 && columnWidths ? 'responsive-columns' : ''}`}
-      style={columnWidths ? `--col1-width: ${columnWidths.col1}; --col2-width: ${columnWidths.col2};` : ''}
-    >
-      {section.columns.map((col: any, _j: number) => {
-        let columnClass;
-        
-        if (section.columns.length === 1) {
-          columnClass = 'w-full';
-        } else if (section.columns.length === 2) {
-          // Use responsive column class with CSS custom properties
-          columnClass = 'column lg:flex-none';
-        } else {
-          columnClass = 'min-w-0'; // Grid handles sizing for 3+ columns
-        }
-        
-        // Add custom className if provided
-        const finalColumnClass = col.className ? `${columnClass} ${col.className}` : columnClass;
-        
-        return (
-        <div class={finalColumnClass}>
-          {col.type === 'content' && (
-            <>
-              {col.title && (
-                <Fragment>
-                  {headingLevel === 'h2' && <h2 class={headingClass}>{col.title}</h2>}
-                  {headingLevel === 'h3' && <h3 class={headingClass}>{col.title}</h3>}
-                  {headingLevel === 'h4' && <h4 class={headingClass}>{col.title}</h4>}
-                  {headingLevel === 'h5' && <h5 class={headingClass}>{col.title}</h5>}
-                  {headingLevel === 'h6' && <h6 class={headingClass}>{col.title}</h6>}
-                </Fragment>
-              )}
-              <div class="prose prose-lg max-w-none" set:html={marked(col.content || '')} />
-            </>
-          )}
-          
-          {col.type === 'image' && col.src && (
-            <figure class="flex flex-col items-center mb-2">
-              <Image 
-                src={col.src} 
-                alt={col.alt || col.caption || ''} 
-                width={600} 
-                height={400} 
-                class="w-full h-auto rounded-xl shadow-lg" 
-              />
-              {col.caption && (
-                <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={col.caption}></figcaption>
-              )}
-            </figure>
-          )}
-          
-          {col.type === 'model' && col.modelSrc && (
-            <>
-              {col.title && (
-                <Fragment>
-                  {headingLevel === 'h2' && <h2 class={headingClass}>{col.title}</h2>}
-                  {headingLevel === 'h3' && <h3 class={headingClass}>{col.title}</h3>}
-                  {headingLevel === 'h4' && <h4 class={headingClass}>{col.title}</h4>}
-                  {headingLevel === 'h5' && <h5 class={headingClass}>{col.title}</h5>}
-                  {headingLevel === 'h6' && <h6 class={headingClass}>{col.title}</h6>}
-                </Fragment>
-              )}
-              <ModelViewer
-                src={col.modelSrc}
-                alt={col.alt}
-                poster={col.poster}
-                environmentImage={col.environmentImage}
-                caption={col.caption}
-                autoRotate={col.modelOptions?.autoRotate}
-                cameraControls={col.modelOptions?.cameraControls}
-                ar={col.modelOptions?.ar}
-                exposureCompensation={col.modelOptions?.exposureCompensation}
-                shadowIntensity={col.modelOptions?.shadowIntensity}
-                shadowSoftness={col.modelOptions?.shadowSoftness}
-                interactionPrompt={col.modelOptions?.interactionPrompt}
-                loading={col.modelOptions?.loading}
-                rotationPerSecond={col.modelOptions?.rotationPerSecond}
-                autoRotateDelay={col.modelOptions?.autoRotateDelay}
-                cameraOrbit={col.modelOptions?.cameraOrbit}
-                mobileCameraOrbit={col.modelOptions?.mobileCameraOrbit}
-                fieldOfView={col.modelOptions?.fieldOfView}
-                minCameraOrbit={col.modelOptions?.minCameraOrbit}
-                minFieldOfView={col.modelOptions?.minFieldOfView}
-                maxFieldOfView={col.modelOptions?.maxFieldOfView}
-                aspectRatio={col.modelOptions?.aspectRatio}
-                mobileAspectRatio={col.modelOptions?.mobileAspectRatio}
-                width={col.modelOptions?.width}
-                height={col.modelOptions?.height}
+      <header class="mb-8">
+        <div 
+          class={`flex flex-col gap-8 responsive-cover-layout items-start ${
+            galleryOptions.placement === 'right' 
+              ? 'lg:flex-row-reverse' 
+              : 'lg:flex-row'
+          }`}
+          style={`--gallery-width: ${coverWidths.gallery}; --info-width: ${coverWidths.info};`}
+        >
+          <!-- Gallery Column - EXACT frontmatter structure -->
+          <div class="cover-gallery-col lg:flex-none">
+            {galleryCol.gallery && galleryCol.gallery.length > 0 ? (
+              <ProjectGallery 
+                images={galleryCol.gallery}
+                autoplay={galleryOptions.autoplay ?? true}
+                autoplayInterval={galleryOptions.autoplayInterval ?? 4000}
+                showThumbnails={galleryOptions.showThumbnails ?? true}
+                loop={galleryOptions.loop ?? true}
                 client:load
               />
-            </>
-          )}
+            ) : galleryCol.src ? (
+              <figure>
+                <Image 
+                  src={galleryCol.src}
+                  alt={galleryCol.alt || 'Gallery image'}
+                  width={600}
+                  height={400}
+                  class={`h-auto rounded-lg shadow-lg ${
+                    galleryCol.coverOptions?.width === 'small' ? 'w-1/2' :
+                    galleryCol.coverOptions?.width === 'medium' ? 'w-3/4' :
+                    galleryCol.coverOptions?.width === 'large' ? 'w-full' :
+                    galleryCol.coverOptions?.width === 'full' ? 'w-full' :
+                    galleryCol.coverOptions?.width && !['small', 'medium', 'large', 'full'].includes(galleryCol.coverOptions.width) ? 'max-w-full' :
+                    'w-full'
+                  }`}
+                  style={galleryCol.coverOptions?.width && 
+                         !['small', 'medium', 'large', 'full'].includes(galleryCol.coverOptions.width) 
+                         ? `width: ${galleryCol.coverOptions.width}; max-width: 100%;` : undefined}
+                />
+                {galleryCol.caption && (
+                  <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={galleryCol.caption}></figcaption>
+                )}
+              </figure>
+            ) : null}
+          </div>
           
-          {col.type === 'gallery' && col.gallery && (
-            <ProjectGallery
-              images={col.gallery}
-              autoplay={col.galleryOptions?.autoplay}
-              autoplayInterval={col.galleryOptions?.autoplayInterval}
-              showThumbnails={col.galleryOptions?.showThumbnails}
-              client:load
+          <!-- Summary Column - EXACT frontmatter structure -->
+          <div class="cover-info-col lg:flex-none">
+            <Summary 
+              title={summaryCol.summaryTitle || summaryCol.title}
+              description={summaryCol.summaryDescription || summaryCol.description}
+              startDate={summaryCol.startDate}
+              endDate={summaryCol.endDate}
+              status={summaryCol.status}
+              headerTitleSize={summaryCol.headerTitleSize}
+              metrics={summaryCol.metrics}
+              competitions={summaryCol.competitions}
+              competitionsOptions={summaryCol.competitionsOptions}
+              tags={summaryCol.tags || []}
+              githubUrl={summaryCol.githubUrl}
+              liveUrl={summaryCol.liveUrl}
             />
-          )}
-          
-          {col.type === 'sections' && col.sections && (
-            <div class={`nested-sections ${
-              depth > 0 ? 'border-l-4 border-base-300/30 pl-6 ml-2 mt-4' : 'mt-6'
-            }`}>
-              <Astro.self 
-                sections={col.sections} 
-                depth={depth + 1} 
-              />
-            </div>
-          )}
+          </div>
         </div>
+      </header>
+    );
+  }
+  
+  // For all other content combinations, use the working responsive flex layout
+  const columnCount = columns.length;
+  const gap = '2rem'; // Match gap-8 (32px)
+  
+  // Calculate column widths based on custom widths or equal distribution
+  const columnWidths = (() => {
+    // Check if any columns have custom widths
+    const customWidthColumns = columns.filter((col: any) => col.width !== undefined);
+    
+    if (customWidthColumns.length === 0) {
+      // No custom widths, distribute equally
+      return columns.map(() => 100 / columnCount);
+    }
+    
+    if (customWidthColumns.length === columns.length) {
+      // All columns have custom widths - calculate proportionally
+      const widthValues = columns.map((col: any) => col.width);
+      const totalWidth = widthValues.reduce((sum: number, width: number) => sum + width, 0);
+      
+      // Convert to percentages based on proportional relationship
+      return widthValues.map((width: number) => (width / totalWidth) * 100);
+    }
+    
+    // Mixed case: some have custom widths, some don't
+    // This is more complex - for now, treat unspecified as equal distribution of remaining space
+    const specifiedWidths = customWidthColumns.map((col: any) => col.width);
+    const totalSpecified = specifiedWidths.reduce((sum: number, width: number) => sum + width, 0);
+    const unspecifiedCount = columns.length - customWidthColumns.length;
+    
+    // Assume specified widths are proportional parts, calculate what percentage they represent
+    const totalProportionalUnits = totalSpecified + unspecifiedCount; // Assume unspecified columns get 1 unit each
+    
+    return columns.map((col: any) => {
+      if (col.width !== undefined) {
+        return (col.width / totalProportionalUnits) * 100;
+      } else {
+        return (1 / totalProportionalUnits) * 100; // 1 unit for unspecified columns
+      }
+    });
+  })();
+  
+  return (
+    <div class="flex flex-col md:flex-row gap-8 mb-8 items-start">
+      {columns.map((column: any, columnIndex: number) => {
+        const width = columnWidths[columnIndex];
+        return (
+          <div 
+            class="column" 
+            style={`flex: 0 0 calc(${width}% - ${gap} * ${(100 - width) / 100}); max-width: calc(${width}% - ${gap} * ${(100 - width) / 100});`}
+          >
+            {column.type === 'content' && (
+              <div class="prose prose-lg max-w-none">
+                {column.title && (
+                  <h2 class="text-2xl font-bold mb-4">{column.title}</h2>
+                )}
+                <div set:html={marked(column.content || '')} />
+              </div>
+            )}
+            
+            {column.type === 'image' && column.image && (
+              <figure>
+                <Image 
+                  src={column.image}
+                  alt={column.imageAlt || `Image ${columnIndex + 1}`}
+                  width={600}
+                  height={400}
+                  class="w-full h-auto object-cover rounded-lg shadow"
+                />
+                {column.imageCaption && (
+                  <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={column.imageCaption}></figcaption>
+                )}
+              </figure>
+            )}
+            
+            {column.type === 'gallery' && column.gallery && (
+              <div class="cover-gallery-col">
+                <ProjectGallery 
+                  images={column.gallery}
+                  autoplay={column.autoplay !== undefined ? column.autoplay : column.gallery.length > 1}
+                  autoplayInterval={column.autoplayInterval || 5000}
+                  showThumbnails={column.showThumbnails !== undefined ? column.showThumbnails : column.gallery.length > 2}
+                  client:load
+                />
+              </div>
+            )}
+            
+            {column.type === 'summary' && (
+              <div class="cover-info-col">
+                <Summary 
+                  title={column.summaryTitle || column.title}
+                  description={column.summaryDescription || column.description}
+                  startDate={column.startDate}
+                  endDate={column.endDate}
+                  status={column.status}
+                  headerTitleSize={column.headerTitleSize}
+                  metrics={column.metrics}
+                  competitions={column.competitions}
+                  competitionsOptions={column.competitionsOptions}
+                  tags={column.tags || []}
+                  githubUrl={column.githubUrl}
+                  liveUrl={column.liveUrl}
+                />
+              </div>
+            )}
+            
+            {column.type === 'model' && column.modelSrc && (
+              <ModelViewer 
+                src={column.modelSrc}
+                alt={column.modelAlt || 'Interactive 3D model'}
+                {...(column.modelOptions || {})}
+                client:load
+              />
+            )}
+          </div>
         );
       })}
     </div>
-    );
-  })}
-</div>
-
-<style>
-  /* Basic layout for sections */
-  .section.lg\\:flex-row {
-    align-items: flex-start;
-  }
-  
-  /* Ensure all columns stay within bounds */
-  .column {
-    min-width: 0; /* Prevent overflow */
-    overflow: hidden; /* Ensure content doesn't spill out */
-  }
-  
-  /* Ensure galleries and models respect their column width */
-  .column .project-gallery,
-  .column .model-viewer-container {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  
-  /* Support for arbitrary width values */
-  .column[class*="lg:w-["] {
-    flex-shrink: 0;
-  }
-</style>
-
-<script>
-  // Simple responsive layout for numeric model sections
-  // The layout is handled by CSS classes, this just ensures proper initialization
-  document.addEventListener('DOMContentLoaded', function() {
-    // Force a layout recalculation to ensure responsive classes work correctly
-    window.dispatchEvent(new Event('resize'));
-  });
-</script>
+  );
+})()}

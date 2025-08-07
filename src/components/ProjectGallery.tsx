@@ -277,10 +277,10 @@ export default function ProjectGallery({
   const restoreAutoplayIfNeeded = useCallback((wasPlaying: boolean) => {
     if (wasPlaying) {
       setTimeout(() => {
-        startAutoplay();
+        resetAutoplayTimer(); // Reset the timer to give users a full interval
       }, 100);
     }
-  }, [startAutoplay]);
+  }, [resetAutoplayTimer]);
 
   // Helper function to clear focus from active element
   const clearFocus = useCallback(() => {

@@ -1,0 +1,307 @@
+---
+import { formatProjectDate, calculateDuration } from '../utils/dateUtils';
+
+interface CompetitionEntry {
+  name: string;
+  date: string;
+  placement: number | string;
+  record?: string;
+  url?: string;
+}
+
+interface MetricField {
+  label: string;
+  value: string | number;
+  unit?: string;
+  highlight?: boolean;
+  color?: 'success' | 'warning' | 'error' | 'info';
+}
+
+interface Metrics {
+  sectionTitle?: string;
+  customFields?: MetricField[];
+}
+
+interface CompetitionsOptions {
+  sectionTitle?: string;
+  maxDisplay?: number;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  startDate: string;
+  endDate?: string;
+  status: 'completed' | 'in-progress' | 'planned';
+  headerTitleSize?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
+  metrics?: Metrics;
+  competitions?: CompetitionEntry[];
+  competitionsOptions?: CompetitionsOptions;
+  tags?: string[];
+  githubUrl?: string;
+  liveUrl?: string;
+}
+
+const {
+  title,
+  description,
+  startDate,
+  endDate,
+  status,
+  headerTitleSize = '2xl',
+  metrics,
+  competitions = [],
+  competitionsOptions,
+  tags = [],
+  githubUrl,
+  liveUrl
+} = Astro.props;
+
+const titleSizeClass = 
+  headerTitleSize === 'sm' ? 'text-lg' :
+  headerTitleSize === 'md' ? 'text-xl' :
+  headerTitleSize === 'lg' ? 'text-2xl' :
+  headerTitleSize === 'xl' ? 'text-3xl' :
+  headerTitleSize === '2xl' ? 'text-4xl' :
+  headerTitleSize === '3xl' ? 'text-5xl' :
+  headerTitleSize === '4xl' ? 'text-6xl' :
+  'text-4xl';
+
+// Calculate competitions to show
+const maxDisplay = competitionsOptions?.maxDisplay ?? 3;
+const competitionsToShow = maxDisplay === 0 ? competitions : competitions?.slice(0, maxDisplay);
+const hasRecords = competitions.some(comp => comp.record);
+---
+
+<style>
+  /* Let the parent container handle layout - just reset margins */
+  .summary-content > :first-child {
+    margin-top: 0 !important;
+  }
+  
+  /* Ensure proper text color inheritance for DaisyUI themes */
+  .summary-content {
+    color: var(--fallback-bc, oklch(var(--bc)));
+  }
+</style>
+
+<div class="summary-content">
+<h1 class={`font-bold mb-4 text-base-content ${titleSizeClass}`}>
+  {title}
+</h1>
+<p class="text-lg text-base-content/70 mb-6">{description}</p>
+  
+  <!-- Project Timeline -->
+  <div class="mb-4">
+    <div class="text-sm text-base-content/60">
+      {status === 'completed' && endDate ? (
+        <div class="flex items-center gap-4">
+          <span class="badge badge-success">Completed</span>
+          <span>{formatProjectDate(startDate)} → {formatProjectDate(endDate)}</span>
+          <span class="font-medium">({calculateDuration(startDate, endDate)})</span>
+        </div>
+      ) : status === 'in-progress' ? (
+        <div class="flex items-center gap-4">
+          <span class="badge badge-warning">In Progress</span>
+          <span>Started {formatProjectDate(startDate)}</span>
+        </div>
+      ) : (
+        <div class="flex items-center gap-4">
+          <span class="badge badge-info">Planned</span>
+          <span>Planned for {formatProjectDate(startDate)}</span>
+        </div>
+      )}
+    </div>
+  </div>
+  
+  <!-- Project Metrics -->
+  {metrics?.customFields && metrics.customFields.length > 0 && (
+    <div class="mb-6">
+      <h3 class="text-sm font-semibold mb-2 text-base-content">
+        {metrics.sectionTitle || "Project Stats"}
+      </h3>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
+        {metrics.customFields.map((field, index) => (
+          <div class="stat-item text-left">
+            <div class="text-base-content/60">{field.label}:</div>
+            <div class={`font-medium text-base-content ${
+              field.highlight && field.color ? `text-${field.color}` : ''
+            }`}>
+              {field.value}{field.unit ? ` ${field.unit}` : ''}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+  
+  <!-- Competition History -->
+  {competitions && competitions.length > 0 && (
+    <div class="mb-6">
+      <div class="space-y-2">
+        {/* Mobile Layout */}
+        <div class="lg:hidden">
+          <div class="flex items-center justify-between text-xs pb-1 border-b border-base-content/70">
+            <span class="text-sm text-base-content/70">{competitionsOptions?.sectionTitle || "Competition History"}</span>
+            <div class="flex items-center gap-4 text-sm text-base-content/70">
+              {hasRecords && <span class="w-12 text-center">Record</span>}
+              <span class="w-16 text-center">Placement</span>
+            </div>
+          </div>
+          
+          {/* Mobile Entries */}
+          {competitionsToShow.map(comp => (
+            <div class="pt-1 pb-1 border-b border-base-content/25">
+              <div class="flex items-center justify-between">
+                <div class="flex flex-col flex-1 min-w-0">
+                  <div class="mb-0.5">
+                    {comp.url ? (
+                      <a 
+                        href={comp.url} 
+                        class="font-medium text-base-content hover:text-blue-400 transition-colors underline decoration-solid underline-offset-2 text-sm truncate"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`Read more about ${comp.name}`}
+                      >
+                        {comp.name}
+                      </a>
+                    ) : (
+                      <span class="font-medium text-sm truncate text-base-content">{comp.name}</span>
+                    )}
+                  </div>
+                  <div class="text-xs text-base-content/70">{comp.date}</div>
+                </div>
+                
+                <div class="flex items-center gap-4 flex-shrink-0 ml-3">
+                  {comp.record && (
+                    <div class="w-12 flex justify-center">
+                      <span class="badge badge-sm badge-outline min-w-12 text-center text-base-content">{comp.record}</span>
+                    </div>
+                  )}
+                  {!comp.record && hasRecords && (
+                    <span class="w-12"></span>
+                  )}
+                  <div class="w-16 flex justify-center">
+                    <span class={`badge badge-sm min-w-16 text-center ${
+                      typeof comp.placement === 'number' && comp.placement === 1 ? 'badge-warning' :
+                      typeof comp.placement === 'string' && (comp.placement.toLowerCase().includes('1st') || comp.placement.toLowerCase().includes('champion')) ? 'badge-warning' :
+                      typeof comp.placement === 'number' && comp.placement === 2 ? 'badge-silver' :
+                      typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('2nd') ? 'badge-silver' :
+                      typeof comp.placement === 'number' && comp.placement === 3 ? 'badge-accent' :
+                      typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('3rd') ? 'badge-accent' :
+                      'badge-info'
+                    }`}>
+                      {typeof comp.placement === 'number' ? 
+                        comp.placement === 1 ? '1st' :
+                        comp.placement === 2 ? '2nd' :
+                        comp.placement === 3 ? '3rd' :
+                        `${comp.placement}th` :
+                        comp.placement
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Layout */}
+        <div class="hidden lg:block">
+          <div class="flex items-center justify-between text-xs pb-1 border-b border-base-content/70">
+            <span class="text-sm text-base-content/70">{competitionsOptions?.sectionTitle || "Competition History"}</span>
+            <div class="flex items-center gap-6 text-sm text-base-content/70">
+              <span class="w-32 text-right">Date</span>
+              {hasRecords && <span class="w-12 text-center">Record</span>}
+              <span class="w-16 text-center">Placement</span>
+            </div>
+          </div>
+          
+          {/* Desktop Entries */}
+          {competitionsToShow.map(comp => (
+            <div class="flex items-center justify-between text-sm py-2 border-b border-base-content/25">
+              <div class="flex items-center gap-3">
+                {comp.url ? (
+                  <a 
+                    href={comp.url} 
+                    class="font-medium text-base-content hover:text-blue-400 transition-colors underline decoration-solid underline-offset-2"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Read more about ${comp.name}`}
+                  >
+                    {comp.name}
+                  </a>
+                ) : (
+                  <span class="font-medium text-base-content">{comp.name}</span>
+                )}
+              </div>
+              <div class="flex items-center gap-6">
+                <span class="w-32 text-right text-base-content">{comp.date}</span>
+                {comp.record && (
+                  <span class="badge badge-sm badge-outline w-12 text-center text-base-content">{comp.record}</span>
+                )}
+                {!comp.record && hasRecords && (
+                  <span class="w-12"></span>
+                )}
+                <span class={`badge badge-sm w-16 text-center ${
+                    typeof comp.placement === 'number' && comp.placement === 1 ? 'badge-warning' :
+                  typeof comp.placement === 'string' && (comp.placement.toLowerCase().includes('1st') || comp.placement.toLowerCase().includes('champion')) ? 'badge-warning' :
+                  typeof comp.placement === 'number' && comp.placement === 2 ? 'badge-silver' :
+                  typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('2nd') ? 'badge-silver' :
+                  typeof comp.placement === 'number' && comp.placement === 3 ? 'badge-accent' :
+                  typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('3rd') ? 'badge-accent' :
+                  'badge-info'
+                }`}>
+                  {typeof comp.placement === 'number' ? 
+                    comp.placement === 1 ? '1st' :
+                    comp.placement === 2 ? '2nd' :
+                    comp.placement === 3 ? '3rd' :
+                    `${comp.placement}th` :
+                    comp.placement
+                  }
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+  
+  <!-- Tags -->
+  {tags && tags.length > 0 && (
+    <div class="mb-6">
+      <h3 class="text-sm font-semibold mb-2 text-base-content">Tags</h3>
+      <div class="flex flex-wrap gap-2">
+        {tags.map(tag => (
+          <a href={`/tags/${tag}/`} class="badge badge-outline tag-hover-light-blue transition-colors text-base-content no-underline font-normal">
+            {tag}
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+  
+  <!-- Action Buttons -->
+  {(githubUrl || liveUrl) && (
+    <div class="mt-6 flex flex-wrap gap-3">
+      {githubUrl && (
+        <a href={githubUrl} class="btn btn-outline" target="_blank" rel="noopener noreferrer">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
+          </svg>
+          View on GitHub
+        </a>
+      )}
+      {liveUrl && (
+        <a href={liveUrl} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+          Live Demo
+        </a>
+      )}
+    </div>
+  )}
+
+</div> <!-- Close summary-content -->

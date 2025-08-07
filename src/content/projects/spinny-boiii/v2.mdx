@@ -52,8 +52,61 @@ competitions:
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
+import coverImage from './images/cover.jpg';
 
 Version 2 represented a major redesign incorporating all the lessons learned from the original prototype. The focus shifted from pure learning to competitive performance.
+
+<ModularSection 
+  columns={[
+    {
+      type: "summary",
+      width: 53,
+      summaryTitle: "Version 2.0 - The Competitive Iteration",
+      summaryDescription: "Major redesign focused on competitive performance with carbon fiber construction and improved weapon systems",
+      startDate: "2021-06",
+      endDate: "2023-05",
+      status: "completed",
+      headerTitleSize: "lg",
+      metrics: {
+        sectionTitle: "v2.0 Specifications",
+        customFields: [
+          { label: "Total Weight", value: "2.1 lbs" },
+          { label: "Frame Weight", value: "1.1 lbs" },
+          { label: "Weapon Spin-up", value: "3 seconds" },
+          { label: "Weapon Tip Speed", value: "220 mph", highlight: true, color: "error" }
+        ]
+      },
+      competitions: [
+        {
+          name: "RCL National Champtionship",
+          date: "May 3-4, 2025",
+          placement: 5,
+          record: "4-2",
+          url: "/posts/event-recap-rcl-nationals-2025/"
+        },
+        {
+          name: "EVAC Cactus Clash 2024",
+          date: "November 23, 2024",
+          placement: 1,
+          record: "5-0"
+        },
+        {
+          name: "ARC Roborumble 2024",
+          date: "June 15, 2024",
+          placement: 1,
+          record: "5-0"
+        }
+      ]
+    },
+    {
+      type: "image",
+      width: 47,
+      image: coverImage,
+      imageAlt: "Version 2.0 with carbon fiber frame and shock-mounted weapon system",
+      imageCaption: "Version 2.0 with carbon fiber frame and shock-mounted weapon system"
+    }
+  ]} 
+/>
 
 <ModularSection
     className="-mt-10"

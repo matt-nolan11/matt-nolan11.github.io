@@ -208,6 +208,35 @@
   clear: none;
 }
 
+/* Responsive Cover Layout */
+.responsive-cover-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .responsive-cover-layout {
+    flex-direction: row;
+    align-items: start;
+  }
+  
+  .responsive-cover-layout.lg\\:flex-row-reverse {
+    flex-direction: row-reverse;
+  }
+  
+  .cover-gallery-col {
+    width: var(--gallery-width, calc(60% - 0.8rem));
+    flex: none;
+  }
+  
+  .cover-info-col {
+    width: var(--info-width, calc(40% - 1.2rem));
+    flex: none;
+  }
+}
+
 .version-content-wrapper {
   overflow: hidden; /* Contains floating elements */
 }
@@ -399,12 +428,9 @@ model-viewer [slot="progress-bar"] {
 /* Fix caption overlay height consistency between main and version galleries */
 .cover-gallery-col .project-gallery div[class*="absolute"][class*="bottom-0"] {
   /* Force consistent padding and prevent height expansion */
-  padding: 1rem !important; /* p-4 equivalent */
+  padding: 0.5rem !important;
+  min-height: unset !important;
   height: auto !important;
-  min-height: auto !important;
-  max-height: none !important;
-  /* Ensure gradient background is consistent */
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%) !important;
 }
 
 .cover-gallery-col .project-gallery div[class*="absolute"][class*="bottom-0"] p {
@@ -415,3 +441,25 @@ model-viewer [slot="progress-bar"] {
   padding: 0 !important;
   color: white !important;
 }
+
+/* Article context for ModularSection to match project page styling */
+.article-context {
+  /* Apply the same font and text context as article */
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  text-rendering: inherit;
+}
+
+.article-context .font-medium {
+  font-weight: 500 !important;
+}
+
+.article-context .badge {
+  text-decoration: none !important;
+}
+
+/* Article container - respects page margins */
+article {
+  position: relative;
+}
+

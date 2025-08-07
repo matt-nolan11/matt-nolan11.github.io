@@ -166,7 +166,7 @@ function getVersionHeaderWidths(version: any) {
     description: project.data.description
   }}
 >
-  <article class="max-w-7xl mx-auto px-4 py-8">
+  <article class="max-w-7xl mx-auto px-4 py-4">
     <!-- Project Header -->
     <header class="mb-8">
       <div 
@@ -261,7 +261,7 @@ function getVersionHeaderWidths(version: any) {
                       <div class="text-base-content/60">{field.label}:</div>
                       <div class={`font-medium ${
                         field.highlight && field.color ? `text-${field.color}` : ''
-                      }`}>
+                      }`} style="border: 1px solid navy !important;">
                         {field.value}{field.unit ? ` ${field.unit}` : ''}
                       </div>
                     </div>

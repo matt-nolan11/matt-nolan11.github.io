@@ -23,10 +23,6 @@ import { defineCollection, z } from "astro:content";
  * - metrics, competitions: version-specific data
  * - If any header fields are present, shows full header layout
  * - If no header fields, shows compact legacy layout
- * 
- * Nested sections support:
- * - Sections can contain columns with content, galleries, images, or nested sections
- * - This enables complex multi-level layouts and nested content structures
  */
 
 export const collections = {
@@ -36,7 +32,7 @@ export const collections = {
       // Create typed column schema for posts
       const typedColumnSchema: z.ZodType<any> = z.lazy(() => 
         z.object({
-          type: z.enum(['content', 'gallery', 'image', 'model', 'sections']),
+          type: z.enum(['content', 'gallery', 'image', 'model', 'summary']),
           title: z.string().optional(),
           // For content columns
           content: z.string().optional(),
@@ -77,6 +73,37 @@ export const collections = {
             autoplayInterval: z.number().default(4000),
             showThumbnails: z.boolean().default(true),
           }).optional(),
+          // For summary columns (project info display)
+          summaryTitle: z.string().optional(),
+          summaryDescription: z.string().optional(),
+          startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
+          endDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
+          status: z.enum(["completed", "in-progress", "planned"]).optional(),
+          headerTitleSize: z.enum(['sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl']).optional(),
+          metrics: z.object({
+            sectionTitle: z.string().optional(),
+            customFields: z.array(z.object({
+              label: z.string(),
+              value: z.union([z.string(), z.number()]),
+              unit: z.string().optional(),
+              highlight: z.boolean().optional(),
+              color: z.enum(['success', 'warning', 'error', 'info']).optional(),
+            })).optional(),
+          }).optional(),
+          competitions: z.array(z.object({
+            name: z.string(),
+            date: z.string(),
+            placement: z.union([z.number(), z.string()]),
+            record: z.string().optional(),
+            url: z.string().optional(),
+          })).optional(),
+          competitionsOptions: z.object({
+            sectionTitle: z.string().optional(),
+            maxDisplay: z.number().optional(),
+          }).optional(),
+          tags: z.array(z.string()).optional(),
+          githubUrl: z.string().url().optional(),
+          liveUrl: z.string().url().optional(),
           // For nested sections
           sections: z.array(z.object({
             columns: z.array(typedColumnSchema).min(1).max(4),
@@ -98,10 +125,6 @@ export const collections = {
           alt: z.string().optional(), // Made optional - will fallback to caption if not provided
           caption: z.string().optional(),
         })).optional(),
-        // Nested modular sections for posts
-        sections: z.array(z.object({
-          columns: z.array(typedColumnSchema).min(1).max(4),
-        })).optional(),
       });
     },
   }),
@@ -111,7 +134,7 @@ export const collections = {
       // Create typed column schema for projects
       const typedColumnSchema: z.ZodType<any> = z.lazy(() => 
         z.object({
-          type: z.enum(['content', 'gallery', 'image', 'model', 'sections']),
+          type: z.enum(['content', 'gallery', 'image', 'model', 'summary']),
           title: z.string().optional(),
           // For content columns
           content: z.string().optional(),
@@ -152,6 +175,37 @@ export const collections = {
             autoplayInterval: z.number().default(4000),
             showThumbnails: z.boolean().default(true),
           }).optional(),
+          // For summary columns (project info display)
+          summaryTitle: z.string().optional(),
+          summaryDescription: z.string().optional(),
+          startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
+          endDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
+          status: z.enum(["completed", "in-progress", "planned"]).optional(),
+          headerTitleSize: z.enum(['sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl']).optional(),
+          metrics: z.object({
+            sectionTitle: z.string().optional(),
+            customFields: z.array(z.object({
+              label: z.string(),
+              value: z.union([z.string(), z.number()]),
+              unit: z.string().optional(),
+              highlight: z.boolean().optional(),
+              color: z.enum(['success', 'warning', 'error', 'info']).optional(),
+            })).optional(),
+          }).optional(),
+          competitions: z.array(z.object({
+            name: z.string(),
+            date: z.string(),
+            placement: z.union([z.number(), z.string()]),
+            record: z.string().optional(),
+            url: z.string().optional(),
+          })).optional(),
+          competitionsOptions: z.object({
+            sectionTitle: z.string().optional(),
+            maxDisplay: z.number().optional(),
+          }).optional(),
+          tags: z.array(z.string()).optional(),
+          githubUrl: z.string().url().optional(),
+          liveUrl: z.string().url().optional(),
           // For nested sections
           sections: z.array(z.object({
             columns: z.array(typedColumnSchema).min(1).max(4),

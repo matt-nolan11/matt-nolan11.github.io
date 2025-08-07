@@ -25,8 +25,38 @@ galleryOptions:
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
+import coverImage from './images/cover.jpg';
+import insidesImage from './images/insides.jpg';
 
 This was the very first version of spinny boiii, built as a proof of concept to learn the basics of combat robotics. The design was deliberately simple to focus on understanding the fundamentals.
+
+<ModularSection 
+  columns={[
+    {
+      type: "gallery",
+      width: 50,
+      gallery: [
+        { src: coverImage, caption: "V1.0 with basic aluminum frame and initial weapon configuration" },
+        { src: insidesImage, caption: "Simple electronics layout with basic motor controllers" }
+      ],
+      galleryOptions: {
+        autoplay: true,
+        autoplayInterval: 5000,
+        showThumbnails: true
+      }
+    },
+    {
+      type: "summary",
+      width: 50,
+      summaryTitle: "Version 1.0 - The Beginning",
+      summaryDescription: "My first serious attempt at building a competitive beetleweight combat robot",
+      startDate: "2020-02",
+      endDate: "2021-06",
+      status: "completed",
+      headerTitleSize: "lg",
+    }
+  ]} 
+/>
 
 <ModularSection columns={[
   {

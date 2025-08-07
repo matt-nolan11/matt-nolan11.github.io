@@ -59,9 +59,84 @@ galleryOptions:
 import ModularSection from '../../../components/ModularSection.astro';
 import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
 import spinnyBoiiiModel from './3Dmodels/spinny_boiii_v3.glb';
+import coverImage from './images/cover.jpg';
+import insidesImage from './images/insides.jpg';
+import vsZ3phyr1Image from './images/vsZ3phyr1.jpg';
+import damaged1Image from './images/damaged1.jpg';
+import vsActionSurgeImage from './images/vsActionSurge.jpg';
 
 
 spinny boiii is my first serious attempt at building a competitive beetleweight (3-pound) combat robot. The project combines mechanical engineering, electronics design, and manufacturing to create a robot capable of surviving and winning in combat robot competitions.
+
+<ModularSection 
+  columns={[
+  {
+    type: "gallery",
+    width: 55,
+    gallery: [
+      { src: coverImage, caption: "Latest iteration of spinny boiii, with a custom CNC-machined weapon and bulky TPU armor" },
+      { src: insidesImage, caption: "Internal electronics layout with motors, motor controllers, RC receiver, battery, and power distribution" },
+      { src: vsZ3phyr1Image, caption: "Winning the face-to-face engagement with a shower of sparks!" },
+      { src: damaged1Image, caption: "Took some heavy damage but still eeked out the win!" },
+      { src: vsActionSurgeImage, caption: "Powerful hit launches opponent Action Surge airborne at ARC Roborumble 2024" }
+    ],
+    galleryOptions: {
+      autoplay: true,
+      autoplayInterval: 6000,
+      showThumbnails: true
+    }
+  },
+  {
+    type: "summary",
+    width: 45,
+    summaryTitle: "spinny boiii - 3lb Combat Robot",
+    summaryDescription: "A competitive beetleweight combat robot with an egg-beater drum weapon and a powerful magnet-assisted drive system",
+    startDate: "2020-02",
+    status: "in-progress",
+    headerTitleSize: "2xl",
+    metrics: {
+      sectionTitle: "Quick Facts:",
+      customFields: [
+        { label: "Weapon Diameter", value: "2.87 in" },
+        { label: "Weapon Type", value: "Drum spinner" },
+        { label: "Iterations", value: 4 },
+        { label: "Podium Finishes", value: 3 }
+      ]
+    },
+    competitions: [
+      {
+        name: "RCL National Champtionship",
+        date: "May 3-4, 2025",
+        placement: 5,
+        record: "4-2",
+        url: "/posts/event-recap-rcl-nationals-2025/"
+      },
+      {
+        name: "EVAC Cactus Clash 2024",
+        date: "November 23, 2024",
+        placement: 1,
+        record: "5-0"
+      },
+      {
+        name: "ARC Roborumble 2024",
+        date: "June 15, 2024",
+        placement: 1,
+        record: "5-0"
+      },
+      {
+        name: "ARC Roborumble 2023",
+        date: "June 10, 2023",
+        placement: 2,
+        record: "5-2"
+      }
+    ],
+    competitionsOptions: {
+      sectionTitle: "Notable Tournaments",
+      maxDisplay: 0
+    },
+    tags: ["spinny boiii", "combat robotics", "cnc machining", "heat treating", "3d printing", "rc control systems"]
+  }
+]} />
 
 <ModularSection 
   columns={[

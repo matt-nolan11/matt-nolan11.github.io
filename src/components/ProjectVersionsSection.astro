@@ -238,6 +238,7 @@ const headingClass = getHeadingClass(titleDepth);
   
   .version-tabs .tab-content {
     display: none;
+    animation: fadeIn 0.6s ease-in-out;
   }
 
   /* Show content when corresponding radio is checked */
@@ -247,6 +248,16 @@ const headingClass = getHeadingClass(titleDepth);
   .version-tabs input[type="radio"]:nth-of-type(4):checked ~ .tab-contents .tab-content:nth-of-type(4),
   .version-tabs input[type="radio"]:nth-of-type(5):checked ~ .tab-contents .tab-content:nth-of-type(5) {
     display: block;
+  }
+
+  /* Fade in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   /* Enhanced active tab button styling using DaisyUI primary colors */
@@ -428,6 +439,7 @@ const headingClass = getHeadingClass(titleDepth);
   
   .version-tabs .tab-contents {
     margin-top: var(--content-spacing, 2rem);
+    position: relative;
   }
   
   /* Custom dimension overrides - these take precedence over size presets */

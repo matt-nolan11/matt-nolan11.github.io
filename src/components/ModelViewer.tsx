@@ -557,7 +557,12 @@ export default function ModelViewer({
   return (
     <div 
       className={`model-viewer-container ${className}`} 
-      style={{ width: '100%' }}
+      style={{ 
+        width: '100%',
+        minHeight: '400px',
+        position: 'relative',
+        zIndex: 15
+      }}
       role="img" 
       aria-label={alt}
     >
