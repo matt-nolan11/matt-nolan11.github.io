@@ -51,9 +51,22 @@ export function getFeaturedProjects(
   const unorderedFeatured = featured
     .filter(p => typeof p.data.featuredOrder !== 'number')
     .sort((a, b) => {
-      const aDate = a.data.endDate || a.data.startDate;
-      const bDate = b.data.endDate || b.data.startDate;
-      return getSortableDate(bDate).getTime() - getSortableDate(aDate).getTime();
+      // Prioritize ongoing projects (no end date) by most recent start date
+      // Then completed projects by most recent end date
+      const aHasEndDate = !!a.data.endDate;
+      const bHasEndDate = !!b.data.endDate;
+      
+      // If one has no end date and the other does, prioritize the ongoing one
+      if (!aHasEndDate && bHasEndDate) return -1;
+      if (aHasEndDate && !bHasEndDate) return 1;
+      
+      // If both are ongoing (no end date), sort by most recent start date
+      if (!aHasEndDate && !bHasEndDate) {
+        return getSortableDate(b.data.startDate).getTime() - getSortableDate(a.data.startDate).getTime();
+      }
+      
+      // If both have end dates, sort by most recent end date
+      return getSortableDate(b.data.endDate!).getTime() - getSortableDate(a.data.endDate!).getTime();
     });
 
   // Fill empty slots with unordered featured projects
@@ -68,9 +81,22 @@ export function getFeaturedProjects(
   const recentProjects = mainProjects
     .filter(p => !p.data.draft && p.data.featured !== true)
     .sort((a, b) => {
-      const aDate = a.data.endDate || a.data.startDate;
-      const bDate = b.data.endDate || b.data.startDate;
-      return getSortableDate(bDate).getTime() - getSortableDate(aDate).getTime();
+      // Prioritize ongoing projects (no end date) by most recent start date
+      // Then completed projects by most recent end date
+      const aHasEndDate = !!a.data.endDate;
+      const bHasEndDate = !!b.data.endDate;
+      
+      // If one has no end date and the other does, prioritize the ongoing one
+      if (!aHasEndDate && bHasEndDate) return -1;
+      if (aHasEndDate && !bHasEndDate) return 1;
+      
+      // If both are ongoing (no end date), sort by most recent start date
+      if (!aHasEndDate && !bHasEndDate) {
+        return getSortableDate(b.data.startDate).getTime() - getSortableDate(a.data.startDate).getTime();
+      }
+      
+      // If both have end dates, sort by most recent end date
+      return getSortableDate(b.data.endDate!).getTime() - getSortableDate(a.data.endDate!).getTime();
     });
 
   // Fill any remaining empty slots with recent non-featured projects

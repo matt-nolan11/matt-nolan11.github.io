@@ -24,13 +24,19 @@ const displayProjects = getFeaturedProjects(projects, 6);
 			  onclick={`window.location.href='/projects/${project.slug}/'`}
 			>
 			  <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
-				<Image 
-				  src={project.data.cover}
-				  alt={project.data.coverCaption || project.data.title}
-				  width={560}
-				  height={420}
-				  class="w-full h-full object-cover"
-				/>
+				{project.data.cover ? (
+				  <Image 
+					src={project.data.cover}
+					alt={project.data.coverCaption || project.data.title}
+					width={560}
+					height={420}
+					class="w-full h-full object-cover"
+				  />
+				) : (
+				  <div class="w-full h-full bg-base-200 flex items-center justify-center">
+					<span class="text-base-content/50 text-lg">No Image</span>
+				  </div>
+				)}
 				<div class="absolute top-2 right-2">
 				  <div class={`badge ${
 					project.data.status === 'completed' ? 'badge-success' : 

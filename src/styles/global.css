@@ -314,15 +314,15 @@
 
 /* Custom tag hover colors - using DaisyUI primary color */
 .tag-hover-light-blue:hover {
-  background-color: #1c4e7f !important; /* Correct primary blue color */
+  background-color: #1c4e7f !important; /* Dark mode primary blue */
   border-color: #1c4e7f !important;
   color: #ffffff !important; /* White text for contrast */
 }
 
-/* Override for light theme - use same primary color system */
+/* Override for light theme - use light mode primary color */
 [data-theme="corporate"] .tag-hover-light-blue:hover {
-  background-color: #1c4e7f !important; /* Correct primary blue color */
-  border-color: #1c4e7f !important;
+  background-color: #0082ce !important; /* Light mode primary blue */
+  border-color: #0082ce !important;
   color: #ffffff !important; /* White text for contrast */
 }
 

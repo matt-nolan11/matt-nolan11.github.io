@@ -4,12 +4,21 @@ slug: basics-of-tangent-drive
 description: Tangent drive is becoming more popular for small combat robot drivetrains, and it has some interesting properties.
 date: 2025-07-21
 cover: images/cover.jpg
-coverCaption: "Example tangent drive setup (Credit: <a href=\"https://repeat-robotics.com/buy/repeat-tangent-drive-motors/\" target=\"_blank\" rel=\"noopener noreferrer\">Repeat Robotics</a>)"
 tags: ["combat robotics", "tutorials", "mechanisms", "robot design"]
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
 import z3phyrImage from './images/z3phyr.jpg';
+import coverImage from './images/cover.jpg';
+
+<ModularSection columns={[
+  {
+    type: 'image',
+    image: coverImage,
+    imageAlt: 'Example tangent drive setup',
+    imageCaption: 'Example tangent drive setup (Credit: <a href="https://repeat-robotics.com/buy/repeat-tangent-drive-motors/" target="_blank" rel="noopener noreferrer">Repeat Robotics</a>)'
+  }
+]} />
 
 ## What is Tangent Drive?
 Most combat robot drivetrains get their power from a pair of gearmotors, one per side of the drive. These motors typically drive the wheels using belt+pullies, gears, or through a direct motor mount (as seen in my beetleweight [spinny boiii](/projects/spinny-boiii)). Tangent drive, on the other hand, is a less traditional strategy that uses the motor shaft (typically without a gearbox) to drive the edges of the wheels through rolling friction. This method is becoming more popular among builders because of its simplicity and relatively low cost.
