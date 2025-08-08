@@ -16,12 +16,10 @@ export function setupThemeController(): void {
 
   // Helper to apply a theme and keep all checkboxes in sync.
   const applyTheme = (theme: string): void => {
-    // Add a brief moment for smooth transitions
-    requestAnimationFrame(() => {
-      document.documentElement.setAttribute("data-theme", theme);
-      controllers.forEach(cb => {
-        cb.checked = cb.value === theme;
-      });
+    // Apply immediately (sync) so tests and UI see the change without delay
+    document.documentElement.setAttribute("data-theme", theme);
+    controllers.forEach(cb => {
+      cb.checked = cb.value === theme;
     });
   };
 

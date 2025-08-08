@@ -1,5 +1,6 @@
 ---
 title: "spinny boiii - 3lb Combat Robot"
+slug: "spinny-boiii"
 description: "A competitive beetleweight combat robot with an egg-beater drum weapon and a powerful magnet-assisted drive system"
 startDate: "2020-02"
 status: "in-progress"
@@ -9,7 +10,9 @@ cover: "./images/cover.jpg"
 
 import ModularSection from '../../../components/ModularSection.astro';
 import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
+
 import spinnyBoiiiModel from './3Dmodels/spinny_boiii_v3.glb';
+
 import coverImage from './images/cover.jpg';
 import insidesImage from './images/insides.jpg';
 import vsZ3phyr2Image from './images/vsZ3phyr2.jpg';
@@ -116,11 +119,37 @@ spinny boiii is my first serious attempt at building a competitive beetleweight 
       ar: true,
       exposure: 0.8,
       shadowIntensity: 0.5,
-      cameraOrbit: "45deg 75deg 0.5m",
-      mobileCameraOrbit: "45deg 75deg 0.52m",
+      cameraOrbit: "45deg 60deg 0.5m",
+      mobileCameraOrbit: "45deg 60deg 0.52m",
       aspectRatio: "1:1",
       mobileAspectRatio: "1:1"
     }
+  }
+]} />
+
+<ModularSection 
+  columns={[
+  {
+    type: "video",
+    width: 60,
+    videoId: "4wvZIymhk5o",
+    videoTitle: "Spinny Boiii vs Z3phyr — ARC Roborumble 2024",
+    videoAspect: "16:9",
+    videoStart: 0,
+    videoAutoplay: false,
+    videoMuted: false,
+    videoControls: true,
+    videoCaption: "Highlights from ARC Roborumble 2024. Slow-mo segments show how the drum transfers energy and how the magnets help with traction."
+  },
+  {
+    type: "content",
+    width: 40,
+    title: "Fight highlights",
+    content: `This clip shows one of the cleanest engagements against Z3phyr. Notice:
+
+- How the beater tip height lines up with their armor seam
+- The stability from the magnet-assisted drive during follow-through
+- Minimal gyro wobble after impact thanks to the current limits and drum inertia`
   }
 ]} />
 

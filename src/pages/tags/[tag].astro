@@ -26,7 +26,10 @@ export async function getStaticPaths() {
 const { tag, projects, posts, totalCount } = Astro.props;
 
 // Sort projects by date
-const sortedProjects = projects.sort((a, b) => {
+// Ensure we only sort main project files (index.mdx), though getContentByTag should already filter
+const sortedProjects = projects
+  .filter(p => p.id.split('/').pop()?.replace(/\.(mdx?|md)$/, '') === 'index')
+  .sort((a, b) => {
   // Prioritize ongoing projects (no end date) by most recent start date
   // Then completed projects by most recent end date
   const aHasEndDate = !!a.data.endDate;
@@ -38,11 +41,15 @@ const sortedProjects = projects.sort((a, b) => {
   
   // If both are ongoing (no end date), sort by most recent start date
   if (!aHasEndDate && !bHasEndDate) {
-    return getSortableDate(b.data.startDate).getTime() - getSortableDate(a.data.startDate).getTime();
+    const bStart = b.data.startDate ?? new Date(0);
+    const aStart = a.data.startDate ?? new Date(0);
+    return getSortableDate(bStart).getTime() - getSortableDate(aStart).getTime();
   }
   
   // If both have end dates, sort by most recent end date
-  return getSortableDate(b.data.endDate!).getTime() - getSortableDate(a.data.endDate!).getTime();
+  const bEnd = b.data.endDate ?? new Date(0);
+  const aEnd = a.data.endDate ?? new Date(0);
+  return getSortableDate(bEnd).getTime() - getSortableDate(aEnd).getTime();
 });
 
 // Sort posts by date
@@ -91,7 +98,7 @@ const sortedPosts = posts.sort((a, b) =>
                   {project.data.cover ? (
                     <Image 
                       src={project.data.cover}
-                      alt={project.data.coverCaption || project.data.title}
+                      alt={(project.data.coverCaption || project.data.title || project.slug.replace(/-/g, ' '))}
                       width={400}
                       height={300}
                       class="w-full h-full object-cover"
@@ -140,11 +147,11 @@ const sortedPosts = posts.sort((a, b) =>
                   <div class="card-actions justify-between items-center">
                     <div class="text-xs text-base-content/60">
                       {project.data.status === 'completed' && project.data.endDate ? (
-                        <div>Completed: {formatProjectDate(project.data.endDate)}</div>
+                        <div>Completed: {formatProjectDate(project.data.endDate ?? new Date())}</div>
                       ) : project.data.status === 'in-progress' ? (
-                        <div>Started: {formatProjectDate(project.data.startDate)}</div>
+                        <div>Started: {formatProjectDate(project.data.startDate ?? new Date())}</div>
                       ) : (
-                        <div>Planned: {formatProjectDate(project.data.startDate)}</div>
+                        <div>Planned: {formatProjectDate(project.data.startDate ?? new Date())}</div>
                       )}
                     </div>
                   </div>

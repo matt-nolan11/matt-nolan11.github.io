@@ -49,7 +49,7 @@ const relatedContent = await getRelatedContent(project.data.tags, project.slug, 
                   <figure class="aspect-[4/3] rounded-t-xl overflow-hidden">
                     <Image 
                       src={item.data.cover}
-                      alt={item.data.coverCaption || item.data.title}
+                      alt={item.data.coverCaption || item.data.title || item.slug.replace(/-/g, ' ')}
                       width={300}
                       height={200}
                       class="w-full h-full object-cover"

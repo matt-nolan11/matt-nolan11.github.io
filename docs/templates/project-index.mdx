@@ -1,0 +1,42 @@
+---
+# Main project (index.mdx) template
+# Place under: src/content/projects/<slug>/index.mdx
+# Required fields for main project
+# (Assets should be imported below and referenced here.)
+
+title: "My Project Title"
+description: "Short, <=160 chars"
+cover: {cover}
+startDate: "2025-06"
+status: "in-progress" # completed | in-progress | planned
+tags: ["tag-a", "tag-b"]
+---
+
+import ModularSection from '../../../components/ModularSection.astro'
+import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro'
+import cover from './images/cover.jpg'
+
+<ModularSection columns={[
+  {
+    type: 'gallery',
+    width: 60,
+    gallery: [
+      { src: cover, caption: 'Hero image' }
+    ],
+    galleryOptions: { autoplay: false, showThumbnails: true }
+  },
+  {
+    type: 'summary',
+    width: 40,
+    summaryTitle: 'Project Summary',
+    summaryDescription: 'What this is about',
+    startDate: '2025-06',
+    status: 'in-progress'
+  }
+]} />
+
+<ProjectVersionsSection />
+
+## Details
+
+Write details here in MDX.

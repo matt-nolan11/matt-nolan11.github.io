@@ -7,6 +7,7 @@ import { formatProjectDate } from '../utils/dateUtils';
 import { getFeaturedProjects } from '../utils/homepageUtils';
 
 const projects = await getCollection('projects');
+// getFeaturedProjects already filters to index.mdx, but keep inputs broad
 const displayProjects = getFeaturedProjects(projects, 6);
 ---
 
@@ -27,7 +28,7 @@ const displayProjects = getFeaturedProjects(projects, 6);
 				{project.data.cover ? (
 				  <Image 
 					src={project.data.cover}
-					alt={project.data.coverCaption || project.data.title}
+					alt={(project.data.coverCaption || project.data.title || project.slug.replace(/-/g, ' '))}
 					width={560}
 					height={420}
 					class="w-full h-full object-cover"
@@ -65,10 +66,10 @@ const displayProjects = getFeaturedProjects(projects, 6);
 				<div class="flex justify-between items-center">
 				  <span class="text-xs text-base-content/60">
 					  {project.data.status === 'completed' && project.data.endDate
-						  ? `Completed: ${formatProjectDate(project.data.endDate)}`
+						  ? `Completed: ${formatProjectDate(project.data.endDate ?? new Date())}`
 						  : project.data.status === 'in-progress'
-						  ? `Started: ${formatProjectDate(project.data.startDate)}`
-						  : `Planned: ${formatProjectDate(project.data.startDate)}`
+						  ? `Started: ${formatProjectDate(project.data.startDate ?? new Date())}`
+						  : `Planned: ${formatProjectDate(project.data.startDate ?? new Date())}`
 					  }
 				  </span>
 				</div>

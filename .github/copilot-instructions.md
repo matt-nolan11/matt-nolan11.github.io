@@ -1,155 +1,44 @@
-# Matt Nolan's Portfolio - Copilot Instructions
+# AI contributor guide for this repo
 
-Personal portfolio and blog built with Astro v5, focusing on robotics, engineering projects, and technical content.
+This is an Astro 5 site with Tailwind/DaisyUI and a few React islands. Content is file-based (Markdown/MDX) with strict schemas and co-located assets.
 
-## Architecture Overview
+## Big picture
+- Astro + Vite; React used sparingly for islands (`src/components/ModelViewer.tsx`, `ProjectGallery.tsx`).
+- Styling: Tailwind v4 + DaisyUI themes. Default dark theme `business`, light `corporate`.
+- Content: `src/content/config.ts` defines Zod schemas for `posts` and `projects` and enforces `image()` types.
+- Routing: file-based under `src/pages/**`; projects rendered by `src/pages/projects/[slug].astro`.
+- Versions: project folders can include `v1.mdx`, `v2.mdx`, etc. Only `index.mdx` is routable; versions are referenced in-page.
 
-**Tech Stack**: Astro v5, React 19, TypeScript, TailwindCSS v4, DaisyUI v5, Vitest v3
-**Content System**: Astro Content Collections with Zod schemas, supporting both `.md` and `.mdx` formats
-**Styling**: Dark-first design using DaisyUI "business" (dark) ↔ "corporate" (light) themes
-**Deployment**: GitHub Pages via automated workflow on main branch pushes
+## Key files and patterns
+- Schema: `src/content/config.ts` — read before changing frontmatter. In MDX, import assets (e.g., `import cover from './images/cover.jpg'`).
+- Projects route: `src/pages/projects/[slug].astro` renders the MDX `<Content />` of `index.mdx` and appends “Related Content” via `getRelatedContent` (`src/utils/tagUtils.ts`).
+- Modular content: `src/components/ModularSection.astro` accepts `columns` with types: `content | image | gallery | model | summary`. Layout is generic; two-column sections use unified width logic and class names. Image columns accept `src/alt/caption` or legacy `image/imageAlt/imageCaption`.
+- 3D/AR: `src/components/ModelViewer.tsx` wraps `@google/model-viewer` (responsive camera, AR). Hydrates early (`client:load`) and dynamically imports on mount. `.glb` allowed via `assetsInclude` in `astro.config.mjs`.
+- Theme: `src/scripts/themeController.ts` syncs `.theme-controller` checkboxes + `localStorage.theme` (tests: `__tests__/themeController.test.ts`).
+- Layout/SEO: `src/layouts/Layout.astro` sets theme early, uses `astro-seo`, embeds JSON-LD.
+ - Gallery styles: `src/components/ProjectGallery.tsx` keeps logic only; all CSS lives in `src/styles/global.css` under `.project-gallery`.
 
-## Content Collections & Schema
+## Conventions
+- Co-locate assets with content:
+  - Projects: `src/content/projects/<slug>/index.mdx` with `images/` and `3Dmodels/`.
+  - Posts: `src/content/posts/<slug>/index.mdx` similarly.
+- Import assets in MDX and reference variables to satisfy `image()` schema and enable optimization.
+- Only `index.mdx` becomes a route for projects; versions live alongside and are used by components.
+- Prefer `ModularSection` for complex layouts; examples in `docs/content-layout-system.md` and `docs/quick-reference.md`.
+- For authoring walkthroughs and examples, see `docs/authoring-guide.md`.
 
-**Two main collections** defined in `src/content/config.ts`:
-- `posts/` - Blog entries with date-based organization  
-- `projects/` - Engineering projects with versioning support
+## Dev/build/test
+- Dev: `npm run dev` (LAN via `--host`). For AR tests, run over HTTPS (Vite basic-ssl plugin is configured).
+- Build: `npm run build` → `dist/`; Preview: `npm run preview`.
+- Test: `npm test` (Vitest + jsdom). DOM tests use `@vitest-environment jsdom`.
+- CI: `.github/workflows/deploy.yml` builds with Node 22 and deploys to GitHub Pages.
+- Performance: Vite `chunkSizeWarningLimit` is raised in `astro.config.mjs` to account for `@google/model-viewer` bundle size.
 
-**Key schema features**:
-- Flexible column types: `content`, `gallery`, `image`, `model`, `sections` (nested)
-- Competition tracking with placement, records, and event links
-- Custom metrics with dynamic fields for technical specs
-- Version support for project evolution tracking
-- Gallery optimization with WebP conversion and responsive sizing
+## AR and assets
+- AR requires HTTPS + compatible device. For quick checks, serve `public/ar-test.html` over HTTPS.
+- Prefer `.glb` for models; compress images; keep assets near MDX for import-based optimization.
 
-## Modular Content System
-
-**Core component**: `ModularSection.astro` - renders flexible multi-column layouts
-
-**Two syntaxes supported**:
-```yaml
-# YAML frontmatter (traditional .md)
-sections:
-  - columns:
-    - type: "content"
-      content: "Markdown content..."
-    - type: "model" 
-      modelSrc: "./robot.glb"
-```
-
-```mdx
-<!-- MDX embedded components (preferred) -->
-<ModularSection columns={[
-  { type: "content", content: "**Rich** markdown..." },
-  { type: "model", modelSrc: robotModel, modelOptions: { autoRotate: true } }
-]} />
-```
-
-**Column width system**: Uses CSS Grid with percentage-based widths (sum to 100%)
-
-## Asset Management
-
-**Co-located organization**:
-```
-src/content/projects/project-name/
-├── index.mdx
-├── images/           # Astro-optimized images
-├── 3Dmodels/        # .glb files for ModelViewer
-└── cover.png        # Project card thumbnail
-```
-
-**Asset handling**:
-- Images: Automatic WebP optimization via Astro's `image()` schema
-- 3D Models: `.glb` format, imported as ES modules in MDX
-- Gallery images: Optimized at 800x600px, 80% quality
-
-## Component Architecture
-
-**Astro components** (`.astro`): Static content, layouts, theme system
-**React components** (`.tsx`): Interactive elements requiring state
-
-**Key components**:
-- `ModelViewer.tsx` - Google Model Viewer wrapper with camera controls, AR support
-- `ProjectGallery.tsx` - Touch-friendly carousel with thumbnails  
-- `TagList.tsx` - Unified tag filtering across posts/projects
-- `ThemeToggle.astro` - DaisyUI theme switching with persistence
-
-## Development Workflow
-
-**Essential commands**:
-```bash
-npm run dev          # Local dev server with --host flag
-npm run build        # Production build
-npm run test         # Vitest unit tests
-```
-
-**Key patterns**:
-- Always update `src/content/config.ts` schema before adding new frontmatter fields
-- Use `semantic_search` and `read_file` tools to understand existing patterns before changes
-- Test components in both dark/light themes using DaisyUI theme toggle
-- Validate changes with Astro's strict TypeScript checking
-
-## Content Creation Patterns
-
-**Project frontmatter essentials**:
-```yaml
-title: "Project Name"
-description: "SEO-optimized description (max 160 chars)"
-startDate: "2024-01"    # YYYY-MM format for month precision
-status: "completed"     # completed | in-progress | planned
-tags: ["tag1", "tag2"]  # Unified vocabulary across collections
-cover: "./images/cover.jpg"
-```
-
-**Competition tracking**:
-```yaml
-competitions:
-  - name: "Event Name"
-    date: "2024-01"
-    placement: 1
-    record: "5-0"
-    url: "/posts/event-recap/"  # Optional link to coverage
-```
-
-**3D model integration**:
-```mdx
-import robotModel from './3Dmodels/robot.glb';
-
-<ModularSection columns={[{
-  type: "model",
-  modelSrc: robotModel,
-  modelOptions: {
-    autoRotate: true,
-    cameraOrbit: "0deg 75deg 0.8m",
-    ar: true
-  }
-}]} />
-```
-
-## Testing & Quality
-
-**Testing framework**: Vitest v3 for React component testing
-**Type safety**: Strict TypeScript + Zod schema validation
-**Performance**: Astro's static generation + image optimization
-**SEO**: astro-seo integration with automatic meta generation
-
-**Testing focus areas**:
-- React component functionality (galleries, model viewer)
-- Responsive behavior across breakpoints  
-- Theme compatibility (business/corporate)
-- Content schema validation
-
-## Deployment & CI
-
-**Automated deployment**: GitHub Actions workflow triggers on main branch
-**Build process**: Node.js 22, npm ci, astro build
-**Asset handling**: Static files in `public/`, optimized assets in `dist/`
-**Branch strategy**: Direct commits to main trigger immediate deployment
-
-## Common Patterns
-
-**MDX imports**: Always import components at file top for custom layouts
-**Error handling**: Check for build errors after schema changes using get_errors tool
-**Content co-location**: Keep assets next to content files for maintainability
-**Responsive design**: Mobile-first with Tailwind breakpoints, test across devices
-**Theme consistency**: Ensure all new components work in both dark/light modes
+## Footguns
+- Don’t use raw string image paths where schema expects `image()`; import files.
+- Don’t try to route `v1.mdx`/`v2.mdx`; only `index.mdx` is included by `[slug].astro`.
+- Keep theme values aligned to `themeController.ts` (`business`/`corporate`) so toggles stay in sync.

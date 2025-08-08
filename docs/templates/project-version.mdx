@@ -1,0 +1,27 @@
+---
+# Version file (vX.mdx) template
+# Place under: src/content/projects/<slug>/v2.mdx (or v1.mdx, etc.)
+# Title is optional for version files.
+# Provide either `version` and/or `tabTitle` for the tab label.
+
+# title: "Optional version title"  # omit if you prefer to only show version label
+version: "v2"                      # used for sorting/tab fallback
+# tabTitle: "v2 (Prototype)"       # optional display label; falls back to version
+
+description: "Short version description"
+startDate: "2025-07"
+status: "in-progress"
+cover: {cover}
+---
+
+import ModularSection from '../../../components/ModularSection.astro'
+import cover from './images/cover.jpg'
+
+<ModularSection columns={[
+  { type: 'summary', width: 50, summaryTitle: 'What changed in v2', summaryDescription: 'Highlights', startDate: '2025-07', status: 'in-progress' },
+  { type: 'image', width: 50, src: cover, alt: 'v2 image', caption: 'v2 improvements' }
+]} />
+
+## Notes
+
+Add version-specific notes here.

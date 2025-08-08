@@ -1,5 +1,6 @@
 ---
 import { getProjectVersions, hasMultipleVersions } from '../utils/versionUtils';
+import { getSortableDate } from '../utils/dateUtils';
 
 interface Props {
   projectSlug?: string;
@@ -51,8 +52,6 @@ if (!projectSlug) {
 
 // Get versions and check if multiple exist
 let versions: Array<{
-  version: string;
-  title: string;
   tabTitle: string;
   data: any;
   Content: any;
@@ -62,17 +61,44 @@ try {
     const projectVersions = await getProjectVersions(projectSlug);
     // Create array with version content rendered
     versions = await Promise.all(
-      projectVersions.map(async (version) => {
-        const { Content } = await version.content.render();
+      projectVersions.map(async (v) => {
+        const { Content } = await v.content.render();
+        const fm = v.content.data;
         return {
-          version: version.content.data.version || version.version,
-          title: version.content.data.title,
-          tabTitle: version.content.data.tabTitle || version.content.data.version || version.version,
-          data: version.content.data, // Include the frontmatter data
+          tabTitle: fm.tabTitle ?? 'Version',
+          data: fm,
           Content
         };
       })
     );
+
+    // Sort by semantic version in tabTitle (desc) when available; otherwise by most recent date; then stable index
+    versions = versions
+      .map((v, idx) => ({
+        ...v,
+        __i: idx,
+        __d: (v.data && (v.data.endDate || v.data.startDate)) || null,
+        __ver: parseVersionFromTitle(v.tabTitle)
+      }))
+      .sort((a, b) => {
+        const av = a.__ver;
+        const bv = b.__ver;
+        if (av && bv) {
+          const cmp = compareSemverDesc(av, bv);
+          if (cmp !== 0) return cmp;
+        } else if (av && !bv) {
+          return -1; // items with versions come first
+        } else if (!av && bv) {
+          return 1;
+        }
+        if (a.__d && b.__d) {
+          return getSortableDate(b.__d as any).getTime() - getSortableDate(a.__d as any).getTime();
+        }
+        if (a.__d && !b.__d) return -1;
+        if (!a.__d && b.__d) return 1;
+        return a.__i - b.__i;
+      })
+      .map(({ __i, __d, __ver, ...rest }) => rest);
   }
 } catch (error) {
   console.error('ProjectVersionsSection: Error:', error);
@@ -98,6 +124,35 @@ const getHeadingClass = (depth: number) => {
 
 const headingLevel = getHeadingLevel(titleDepth);
 const headingClass = getHeadingClass(titleDepth);
+
+// Version parsing helpers for semver-like titles (v1, v2.1, v1.3.1, Version 2.0, 2.0.1)
+function parseVersionFromTitle(title: string): number[] | null {
+  if (!title) return null;
+  const t = String(title).trim();
+  // Prefer a leading v/Version prefix; otherwise first numeric dot sequence
+  let m = t.match(/^(?:v|version)\s*([0-9]+(?:\.[0-9]+)*)\b/i) || t.match(/([0-9]+(?:\.[0-9]+)*)/);
+  if (!m) return null;
+  const parts = m[1].split('.').map((n) => {
+    const num = parseInt(n, 10);
+    return Number.isFinite(num) ? num : 0;
+  });
+  // Trim trailing zeros for stable comparisons
+  for (let i = parts.length - 1; i > 0; i--) {
+    if (parts[i] === 0) parts.pop();
+    else break;
+  }
+  return parts.length ? parts : [0];
+}
+
+function compareSemverDesc(a: number[], b: number[]): number {
+  const len = Math.max(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    const ai = a[i] ?? 0;
+    const bi = b[i] ?? 0;
+    if (ai !== bi) return bi - ai; // descending
+  }
+  return 0;
+}
 ---
 
 <style>

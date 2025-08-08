@@ -24,11 +24,15 @@ const publishedProjects = projects
     
     // If both are ongoing (no end date), sort by most recent start date
     if (!aHasEndDate && !bHasEndDate) {
-      return getSortableDate(b.data.startDate).getTime() - getSortableDate(a.data.startDate).getTime();
+      const bStart = b.data.startDate ?? new Date(0);
+      const aStart = a.data.startDate ?? new Date(0);
+      return getSortableDate(bStart).getTime() - getSortableDate(aStart).getTime();
     }
     
     // If both have end dates, sort by most recent end date
-    return getSortableDate(b.data.endDate!).getTime() - getSortableDate(a.data.endDate!).getTime();
+  const bEnd = b.data.endDate ?? new Date(0);
+  const aEnd = a.data.endDate ?? new Date(0);
+  return getSortableDate(bEnd).getTime() - getSortableDate(aEnd).getTime();
   });
 ---
 
@@ -56,7 +60,7 @@ const publishedProjects = projects
             {project.data.cover ? (
               <Image 
                 src={project.data.cover}
-                alt={project.data.coverCaption || project.data.title}
+                alt={(project.data.coverCaption || project.data.title || project.slug.replace(/-/g, ' '))}
                 width={560}
                 height={420}
                 class="w-full h-full object-cover"
@@ -106,15 +110,15 @@ const publishedProjects = projects
               <div class="text-sm text-base-content/70">
                 {project.data.status === 'completed' && project.data.endDate ? (
                   <time>
-                    {formatProjectDate(project.data.endDate)}
+                    {formatProjectDate(project.data.endDate ?? new Date())}
                   </time>
                 ) : project.data.status === 'in-progress' ? (
                   <time>
-                    Started {formatProjectDate(project.data.startDate)}
+                    Started {formatProjectDate(project.data.startDate ?? new Date())}
                   </time>
                 ) : (
                   <time>
-                    Planned {formatProjectDate(project.data.startDate)}
+                    Planned {formatProjectDate(project.data.startDate ?? new Date())}
                   </time>
                 )}
               </div>

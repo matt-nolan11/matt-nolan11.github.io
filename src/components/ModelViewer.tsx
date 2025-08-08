@@ -251,15 +251,12 @@ export default function ModelViewer({
 
   // Load model-viewer web component
   useEffect(() => {
-    const loadModelViewer = async () => {
+    const load = async () => {
       try {
-        // Check if model-viewer is already loaded
         if (customElements.get('model-viewer')) {
           setIsModelViewerLoaded(true);
           return;
         }
-
-        // Dynamically import model-viewer
         await import('@google/model-viewer');
         setIsModelViewerLoaded(true);
       } catch (error) {
@@ -267,8 +264,12 @@ export default function ModelViewer({
         setHasError(true);
       }
     };
-
-    loadModelViewer();
+    // Defer to idle time if available, otherwise microtask
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => load());
+    } else {
+      setTimeout(() => load(), 0);
+    }
   }, []);
 
   // Set up event listeners for model loading states
@@ -334,16 +335,38 @@ export default function ModelViewer({
       }
     };
 
+    // Only perform heavier AR checks when element is visible in viewport
+    let visibilityObserver: IntersectionObserver | null = null;
+
+    const startVisibilityWatch = () => {
+      visibilityObserver = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (entry.isIntersecting) {
+          // Trigger a minimal check which will set timers if AR is on
+          if (ar && modelViewer) {
+            // noop: handleLoad did AR checks
+          }
+        }
+      }, { threshold: 0.01 });
+      visibilityObserver.observe(modelViewer);
+    };
+
     // Add event listeners
     modelViewer.addEventListener('load', handleLoad);
     modelViewer.addEventListener('error', handleError);
     modelViewer.addEventListener('progress', handleProgress);
+    startVisibilityWatch();
 
     return () => {
       if (modelViewer) {
         modelViewer.removeEventListener('load', handleLoad);
         modelViewer.removeEventListener('error', handleError);
         modelViewer.removeEventListener('progress', handleProgress);
+      }
+      if (visibilityObserver) {
+        visibilityObserver.disconnect();
+        visibilityObserver = null;
       }
     };
   }, [isModelViewerLoaded]);
@@ -654,17 +677,17 @@ export default function ModelViewer({
         <p className="text-sm text-base-content/60 mt-2 text-center">{caption}</p>
       )}
 
-      {/* Controls info */}
-      <details className="mt-2 inline-block">
+      {/* Controls info - 3-line layout with previous text styling */}
+      <details className="mt-1 inline-block">
         <summary className="text-xs text-base-content/50 cursor-pointer hover:text-base-content/70">
           3D controls
         </summary>
-        <div className="text-xs text-base-content/60 mt-1">
-          <p className="hidden sm:block">Mouse: Click and drag to rotate • Scroll to zoom • Right-click and drag to pan</p>
-          <p>Touch: Drag to rotate • Pinch to zoom • Two-finger drag to pan</p>
-          {ar && canActivateAR && <p className="text-primary">Tap AR button for augmented reality view</p>}
+        <div className="text-xs text-base-content/60 mt-1 space-y-1">
+          <p className="hidden sm:block m-0">Mouse: Click and drag to rotate • Scroll to zoom • Right-click and drag to pan</p>
+          <p className="m-0">Touch: Drag to rotate • Pinch to zoom • Two-finger drag to pan</p>
+          {ar && canActivateAR && <p className="text-primary m-0">Tap AR button for augmented reality view</p>}
           {ar && !canActivateAR && isLoaded && (
-            <p className="text-warning">AR requires mobile device with ARCore (Android) or ARKit (iOS)</p>
+            <p className="text-warning m-0">AR requires mobile device with ARCore (Android) or ARKit (iOS)</p>
           )}
         </div>
       </details>

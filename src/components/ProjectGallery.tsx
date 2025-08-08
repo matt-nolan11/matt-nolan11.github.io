@@ -13,58 +13,6 @@ import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 
-// CSS for proper gallery behavior
-const galleryStyles = `
-  .project-gallery .keen-slider {
-    display: flex;
-    overflow: hidden;
-  }
-  .project-gallery .keen-slider__slide {
-    min-width: 100%;
-    max-width: 100%;
-    width: 100%;
-    flex-shrink: 0;
-    position: relative;
-    display: flex;
-  }
-  .project-gallery .keen-slider__slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .project-gallery {
-    overflow: hidden;
-  }
-  .project-gallery button {
-    outline: none !important;
-  }
-  .project-gallery button:focus {
-    outline: none !important;
-  }
-  .project-gallery button:focus:not(:focus-visible) {
-    box-shadow: none !important;
-  }
-  .project-gallery img {
-    outline: none !important;
-  }
-  .project-gallery img:focus {
-    outline: none !important;
-  }
-  .project-gallery *:focus:not(:focus-visible) {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-`;
-
-// Inject styles once
-if (typeof document !== 'undefined' && !document.getElementById('project-gallery-styles')) {
-  const style = document.createElement('style');
-  style.id = 'project-gallery-styles';
-  style.textContent = galleryStyles;
-  document.head.appendChild(style);
-}
-
 interface GalleryImage {
   src: string | { src: string; width?: number; height?: number; format?: string };
   alt?: string; // Made optional - will fallback to caption if not provided
@@ -250,13 +198,14 @@ export default function ProjectGallery({
       intervalRef.current = null;
     }
     if (autoplay && isPlaying) {
+      const intervalMs = autoplayIntervalRef.current;
       intervalRef.current = setInterval(() => {
         if (instanceRef.current?.track?.details) {
           instanceRef.current.next();
         }
-      }, autoplayInterval);
+      }, intervalMs);
     }
-  }, [autoplay, isPlaying, autoplayInterval]);
+  }, [autoplay, isPlaying]);
 
   // Helper function to reset autoplay timer
   const resetAutoplayTimer = useCallback(() => {
@@ -312,15 +261,7 @@ export default function ProjectGallery({
       // If this was a user interaction (touch swipe), reset autoplay timer
       if (userInteractionRef.current && autoplay && isPlayingRef.current) {
         userInteractionRef.current = false; // Reset the flag
-        // Reset autoplay timer inline to avoid dependency issues
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-        intervalRef.current = setInterval(() => {
-          if (instanceRef.current && instanceRef.current.track?.details) {
-            instanceRef.current.next();
-          }
-        }, autoplayIntervalRef.current);
+        resetAutoplayTimer();
       }
     },
     dragStarted() {
@@ -348,7 +289,7 @@ export default function ProjectGallery({
     };
   }, [isPlaying, autoplayInterval, loaded, autoplay, setAutoplayInterval]);
 
-  // Visibility observer to reinitialize slider when tab becomes visible
+  // Visibility observer to pause/resume when scrolled out of view
   useEffect(() => {
     if (!containerRef.current || !instanceRef.current) return;
 
@@ -360,18 +301,12 @@ export default function ProjectGallery({
             setTimeout(() => {
               if (instanceRef.current && instanceRef.current.track?.details) {
                 instanceRef.current.update();
-                // Don't reset slide position here - let the tab change handler do that
-                // Resume autoplay if it was enabled
-                if (autoplay) {
-                  startAutoplay();
-                }
+                if (autoplay) startAutoplay();
               }
             }, 100);
-          } else {
+          } else if (autoplay) {
             // Component is not visible, pause autoplay
-            if (autoplay) {
-              setIsPlaying(false);
-            }
+            setIsPlaying(false);
           }
         });
       },
@@ -380,51 +315,24 @@ export default function ProjectGallery({
 
     observer.observe(containerRef.current);
 
-    const mutationObserver = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          const target = mutation.target as HTMLElement;
-          const isVisible = !target.classList.contains('hidden') && 
-                           getComputedStyle(target).display !== 'none';
-          const wasHidden = (mutation.oldValue || '').includes('hidden');
-          
-          // Only reset if transitioning from hidden to visible (tab switch)
-          if (isVisible && wasHidden && instanceRef.current && instanceRef.current.track?.details) {
-            // Give the DOM time to update after class changes
-            setTimeout(() => {
-              if (instanceRef.current && instanceRef.current.track?.details) {
-                instanceRef.current.update();
-                // Reset to first slide when switching from hidden to visible
-                instanceRef.current.moveToIdx(0, true);
-                setCurrentSlide(0);
-                // Resume autoplay if it was enabled
-                if (autoplay) {
-                  startAutoplay();
-                }
-              }
-            }, 50);
-          } else if (!isVisible && autoplay) {
-            // Tab content is hidden, pause autoplay
-            setIsPlaying(false);
-          }
-        }
-      });
-    });
-
-    // Watch for class changes on the container and its parent
-    const watchElement = containerRef.current.closest('.version-content') || containerRef.current;
-    mutationObserver.observe(watchElement, { 
-      attributes: true, 
-      attributeFilter: ['class'],
-      subtree: true,
-      attributeOldValue: true
-    });
-
     return () => {
       observer.disconnect();
-      mutationObserver.disconnect();
     };
   }, [loaded, autoplay, startAutoplay]);
+
+  // Pause autoplay when document/tab is hidden; resume when visible
+  useEffect(() => {
+    if (!autoplay) return;
+    const onVisibility = () => {
+      if (document.hidden) {
+        setIsPlaying(false);
+      } else {
+        startAutoplay();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, [autoplay, startAutoplay]);
 
   // Listen for tab changes to reinitialize the slider
   useEffect(() => {
@@ -600,7 +508,7 @@ export default function ProjectGallery({
                 loading={idx === 0 ? "eager" : "lazy"}
               />
               {image.caption && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-0">
                   <p className="text-white text-sm">{image.caption}</p>
                 </div>
               )}
@@ -642,8 +550,8 @@ export default function ProjectGallery({
 
       {/* Thumbnails */}
       {showThumbnails && images.length > 1 && loaded && instanceRef.current && (
-        <div className="mt-4 overflow-x-auto">
-          <div className="flex gap-4 min-w-max p-1">
+  <div className="mt-4 overflow-x-auto thumbnails-row">
+          <div className="flex gap-3 sm:gap-4 min-w-max thumbnails-row">
             {images.map((image, idx) => (
               <div
                 key={idx}
@@ -669,9 +577,9 @@ export default function ProjectGallery({
                     <img
                       src={optimizedThumbnail.src}
                       alt={`Thumbnail: ${image.alt || image.caption || `Image ${idx + 1}`}`}
-                      className={`w-full h-12 sm:h-14 md:h-16 object-cover rounded-lg transition-all duration-300 ${
+            className={`w-full h-12 sm:h-14 md:h-16 object-cover rounded-lg transition-all duration-300 ${
                         idx === currentSlide
-                          ? 'ring-2 ring-primary ring-offset-2 ring-offset-base-100'
+              ? 'ring-2 ring-primary'
                           : 'opacity-70 hover:opacity-100'
                       }`}
                       loading="lazy"
@@ -685,15 +593,11 @@ export default function ProjectGallery({
       )}
 
       {/* Gallery info with controls */}
-      <div className="flex justify-between items-center mt-2 text-sm text-base-content/60">
+  <div className="flex justify-between items-center mt-2 text-sm text-base-content/60">
         <div className="flex items-center gap-5">
           <span>{currentSlide + 1} of {images.length}</span>
           {autoplay && (
             <>
-              <span className="flex items-center gap-1">
-                <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-green-500' : 'bg-red-500'}`} />
-                {isPlaying ? 'Playing' : 'Paused'}
-              </span>
               <button
                 onMouseDown={(e) => {
                   e.preventDefault();
@@ -714,6 +618,10 @@ export default function ProjectGallery({
                   </svg>
                 )}
               </button>
+              <span className="flex items-center gap-1">
+                <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-green-500' : 'bg-red-500'}`} />
+                {isPlaying ? 'Playing' : 'Paused'}
+              </span>
             </>
           )}
         </div>
@@ -722,7 +630,7 @@ export default function ProjectGallery({
 
       {/* Keyboard shortcuts info */}
       {!isMobile && (
-        <details className="mt-2 inline-block">
+        <details className="mt-1 inline-block">
           <summary className="text-xs text-base-content/50 cursor-pointer hover:text-base-content/70">
             Keyboard shortcuts
           </summary>

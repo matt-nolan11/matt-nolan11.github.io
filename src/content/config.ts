@@ -32,7 +32,7 @@ export const collections = {
       // Create typed column schema for posts
       const typedColumnSchema: z.ZodType<any> = z.lazy(() => 
         z.object({
-          type: z.enum(['content', 'gallery', 'image', 'model', 'summary']),
+          type: z.enum(['content', 'gallery', 'image', 'model', 'summary', 'video']),
           title: z.string().optional(),
           // For content columns
           content: z.string().optional(),
@@ -75,6 +75,15 @@ export const collections = {
           }).optional(),
           // For summary columns (project info display)
           summaryTitle: z.string().optional(),
+          // For video columns (YouTube embed)
+          videoId: z.string().optional(),
+          videoTitle: z.string().optional(),
+          videoAspect: z.string().optional(),
+          videoStart: z.number().optional(),
+          videoAutoplay: z.boolean().optional(),
+          videoMuted: z.boolean().optional(),
+          videoControls: z.boolean().optional(),
+          videoCaption: z.string().optional(),
           summaryDescription: z.string().optional(),
           startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
           endDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
@@ -132,12 +141,14 @@ export const collections = {
     type: "content",
     schema: ({ image }) => {
       return z.object({
-        // Essential fields for project cards and site navigation
-        title: z.string(),
-        description: z.string().max(160),
+  // Essential fields for project cards and site navigation
+  // For version files (v1.mdx, v2.mdx, ...), the only guaranteed field is tabTitle.
+  // Main project index.mdx should provide full metadata.
+        title: z.string().optional(),
+  description: z.string().max(160).optional(),
         cover: image().optional(), // Optional for version files
         coverCaption: z.string().optional(),
-        startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]), // Accepts YYYY-MM-DD or YYYY-MM
+  startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(), // Accepts YYYY-MM-DD or YYYY-MM
         endDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(), // Accepts YYYY-MM-DD or YYYY-MM
         tags: z.array(z.string()).default([]),
         draft: z.boolean().optional(),
@@ -152,9 +163,9 @@ export const collections = {
         tabTitle: z.string().optional(), // Separate title for tab buttons
         headerDescription: z.string().optional(), // Override description for headers
         
-        // Simplified version support - only essential fields for tab functionality
-        versionsTitle: z.string().optional(), // Optional: Custom title for versions section (empty string = no header)
-        version: z.string().optional(), // For version files: "v1", "v2", etc.
+  // Simplified version support
+  versionsTitle: z.string().optional(), // Optional: Custom title for versions section (empty string = no header)
+  // For version files: only tabTitle is used for UI labels
       });
     },
   }),

@@ -4,6 +4,7 @@ import { marked } from 'marked';
 import ProjectGallery from './ProjectGallery';
 import ModelViewer from './ModelViewer';
 import Summary from './Summary.astro';
+import YouTube from './YouTube.astro';
 
 const { columns } = Astro.props;
 
@@ -11,140 +12,95 @@ if (!columns || columns.length === 0) {
   throw new Error('ModularSection requires a columns prop with at least one column');
 }
 
-// Check if this is a responsive cover layout (gallery + summary in 2-column)
-function isResponsiveCoverLayout(): boolean {
-  return columns.length === 2 && 
-         columns.some((col: any) => col.type === 'gallery') &&
-         columns.some((col: any) => col.type === 'summary');
-}
+// Note: No special-case cover handling. All layouts use the same responsive system.
 
 /**
- * Calculate responsive width percentages for cover gallery layout
- * Returns CSS calc() values that account for gap spacing
- * EXACT COPY from frontmatter version
+ * Calculate responsive width percentages for two-column layouts (generic).
+ * Returns numeric percentages [left, right] that the common flex calc will use.
  */
-function getCoverGalleryWidths(options: any) {
-  const gap = '2rem'; // This should match the gap-8 class (2rem = 32px)
-  
+function getResponsiveTwoColPercents(options: any): { left: number; right: number } {
   if (!options?.layout) {
-    return { gallery: `calc(50% - ${gap} / 2)`, info: `calc(50% - ${gap} / 2)` }; // Default 50:50
+    return { left: 50, right: 50 }; // Default 50:50
   }
-  
+
   const layout = options.layout;
-  
+
   // Percentage format: "60%"
   if (typeof layout === 'string' && layout.endsWith('%')) {
     const percentage = parseFloat(layout);
     if (!isNaN(percentage) && percentage > 0 && percentage < 100) {
-      const galleryPercent = percentage;
-      const infoPercent = 100 - percentage;
-      return {
-        gallery: `calc(${galleryPercent}% - ${gap} * ${infoPercent / 100})`,
-        info: `calc(${infoPercent}% - ${gap} * ${galleryPercent / 100})`
-      };
+      return { left: percentage, right: 100 - percentage };
     }
   }
-  
+
   // Ratio format: "55:45", "3:2", etc.
   if (typeof layout === 'string' && layout.includes(':')) {
     const [left, right] = layout.split(':').map(Number);
     if (!isNaN(left) && !isNaN(right) && left > 0 && right > 0) {
       const total = left + right;
-      const galleryPercent = (left / total) * 100;
-      const infoPercent = (right / total) * 100;
-      
-      return {
-        gallery: `calc(${galleryPercent}% - ${gap} * ${infoPercent / 100})`,
-        info: `calc(${infoPercent}% - ${gap} * ${galleryPercent / 100})`
-      };
+      return { left: (left / total) * 100, right: (right / total) * 100 };
     }
   }
-  
+
   // Named layouts
-  const namedLayouts: { [key: string]: { gallery: string, info: string } } = {
-    'narrow-wide': { 
-      gallery: `calc(33.333% - ${gap} * 0.66667)`, 
-      info: `calc(66.667% - ${gap} * 0.33333)` 
-    },
-    'wide-narrow': { 
-      gallery: `calc(66.667% - ${gap} * 0.33333)`, 
-      info: `calc(33.333% - ${gap} * 0.66667)` 
-    },
-    'equal': { 
-      gallery: `calc(50% - ${gap} / 2)`, 
-      info: `calc(50% - ${gap} / 2)` 
-    },
-    'golden': { 
-      gallery: `calc(61.804% - ${gap} * 0.38196)`, 
-      info: `calc(38.196% - ${gap} * 0.61804)` 
-    },
-    'sidebar': { 
-      gallery: `calc(25% - ${gap} * 0.75)`, 
-      info: `calc(75% - ${gap} * 0.25)` 
-    },
-    'reverse-sidebar': { 
-      gallery: `calc(75% - ${gap} * 0.25)`, 
-      info: `calc(25% - ${gap} * 0.75)` 
-    }
+  const namedLayouts: { [key: string]: { left: number; right: number } } = {
+    'narrow-wide': { left: 33.333, right: 66.667 },
+    'wide-narrow': { left: 66.667, right: 33.333 },
+    'equal': { left: 50, right: 50 },
+    'golden': { left: 61.804, right: 38.196 },
+    'sidebar': { left: 25, right: 75 },
+    'reverse-sidebar': { left: 75, right: 25 },
   };
-  
+
   if (namedLayouts[layout]) {
     return namedLayouts[layout];
   }
-  
+
   // Fallback to 50:50
-  return { gallery: `calc(50% - ${gap} / 2)`, info: `calc(50% - ${gap} / 2)` };
+  return { left: 50, right: 50 };
 }
 ---
 
 <style>
-  .responsive-cover-layout {
-    --gallery-width: calc(50% - 1rem);
-    --info-width: calc(50% - 1rem);
-  }
-  
-  .cover-gallery-col {
+  /* Generic wrappers for column types */
+  .gallery-col {
     width: 100%;
-    /* Remove any default padding/margin that might cause extra space */
     padding: 0;
     margin: 0;
-    /* Force positioning to eliminate any inherited spacing */
     display: block;
-    line-height: 0;
-    font-size: 0;
     position: relative;
   }
 
-  /* Specifically target ProjectGallery within cover layout */
-  .cover-gallery-col .project-gallery {
+  /* Tidy ProjectGallery spacing within a gallery column */
+  .gallery-col .project-gallery {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    /* Reset font properties that were zeroed out on the container */
     font-size: initial !important;
     line-height: initial !important;
   }
-  
-  .cover-gallery-col > :first-child {
+
+  .gallery-col > :first-child {
     margin-top: 0 !important;
   }
-  
-  .cover-info-col {
+  .gallery-col {
+    line-height: 0;
+    font-size: 0;
+  }
+
+  .info-col {
     width: 100%;
-    /* Remove any default padding/margin */
     padding: 0;
     margin: 0;
-    /* Ensure the container fits its content exactly */
     display: flex;
     flex-direction: column;
   }
 
-  /* Specifically target Summary within cover layout */
-  .cover-info-col .summary-content {
+  .info-col .summary-content {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
   }
-  
-  .cover-info-col > :first-child {
+
+  .info-col > :first-child {
     margin-top: 0 !important;
   }
   
@@ -155,7 +111,7 @@ function getCoverGalleryWidths(options: any) {
     font-size: initial;
   }
   
-  /* Specifically reset for ModelViewer components */
+  /* Ensure ModelViewer components render cleanly within columns */
   .column model-viewer {
     line-height: initial !important;
     font-size: initial !important;
@@ -172,7 +128,7 @@ function getCoverGalleryWidths(options: any) {
     min-height: 300px !important;
   }
   
-  /* Ensure figure elements have clean spacing */
+  /* Ensure figure/image spacing is predictable */
   .column figure {
     margin: 0;
     padding: 0;
@@ -181,107 +137,11 @@ function getCoverGalleryWidths(options: any) {
   .column img {
     display: block;
   }
-  
-  @media (min-width: 1024px) {
-    .cover-gallery-col {
-      width: var(--gallery-width);
-    }
-    
-    .cover-info-col {
-      width: var(--info-width);
-    }
-  }
+
 </style>
 
 {(() => {
-  // Check if this is a responsive cover layout (gallery + summary in 2-column)
-  if (isResponsiveCoverLayout()) {
-    const galleryCol = columns.find((col: any) => col.type === 'gallery');
-    const summaryCol = columns.find((col: any) => col.type === 'summary');
-    
-    // Map ModularSection column structure to frontmatter structure
-    const galleryOptions = {
-      layout: galleryCol?.width ? `${galleryCol.width}%` : galleryCol?.galleryOptions?.layout,
-      placement: galleryCol?.placement || galleryCol?.galleryOptions?.placement,
-      autoplay: galleryCol?.galleryOptions?.autoplay,
-      autoplayInterval: galleryCol?.galleryOptions?.autoplayInterval,
-      showThumbnails: galleryCol?.galleryOptions?.showThumbnails,
-      loop: galleryCol?.galleryOptions?.loop
-    };
-    
-    // Calculate gallery/info column widths using EXACT frontmatter logic
-    const coverWidths = getCoverGalleryWidths(galleryOptions);
-    
-    return (
-      <header class="mb-8">
-        <div 
-          class={`flex flex-col gap-8 responsive-cover-layout items-start ${
-            galleryOptions.placement === 'right' 
-              ? 'lg:flex-row-reverse' 
-              : 'lg:flex-row'
-          }`}
-          style={`--gallery-width: ${coverWidths.gallery}; --info-width: ${coverWidths.info};`}
-        >
-          <!-- Gallery Column - EXACT frontmatter structure -->
-          <div class="cover-gallery-col lg:flex-none">
-            {galleryCol.gallery && galleryCol.gallery.length > 0 ? (
-              <ProjectGallery 
-                images={galleryCol.gallery}
-                autoplay={galleryOptions.autoplay ?? true}
-                autoplayInterval={galleryOptions.autoplayInterval ?? 4000}
-                showThumbnails={galleryOptions.showThumbnails ?? true}
-                loop={galleryOptions.loop ?? true}
-                client:load
-              />
-            ) : galleryCol.src ? (
-              <figure>
-                <Image 
-                  src={galleryCol.src}
-                  alt={galleryCol.alt || 'Gallery image'}
-                  width={600}
-                  height={400}
-                  class={`h-auto rounded-lg shadow-lg ${
-                    galleryCol.coverOptions?.width === 'small' ? 'w-1/2' :
-                    galleryCol.coverOptions?.width === 'medium' ? 'w-3/4' :
-                    galleryCol.coverOptions?.width === 'large' ? 'w-full' :
-                    galleryCol.coverOptions?.width === 'full' ? 'w-full' :
-                    galleryCol.coverOptions?.width && !['small', 'medium', 'large', 'full'].includes(galleryCol.coverOptions.width) ? 'max-w-full' :
-                    'w-full'
-                  }`}
-                  style={galleryCol.coverOptions?.width && 
-                         !['small', 'medium', 'large', 'full'].includes(galleryCol.coverOptions.width) 
-                         ? `width: ${galleryCol.coverOptions.width}; max-width: 100%;` : undefined}
-                />
-                {galleryCol.caption && (
-                  <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={galleryCol.caption}></figcaption>
-                )}
-              </figure>
-            ) : null}
-          </div>
-          
-          <!-- Summary Column - EXACT frontmatter structure -->
-          <div class="cover-info-col lg:flex-none">
-            <Summary 
-              title={summaryCol.summaryTitle || summaryCol.title}
-              description={summaryCol.summaryDescription || summaryCol.description}
-              startDate={summaryCol.startDate}
-              endDate={summaryCol.endDate}
-              status={summaryCol.status}
-              headerTitleSize={summaryCol.headerTitleSize}
-              metrics={summaryCol.metrics}
-              competitions={summaryCol.competitions}
-              competitionsOptions={summaryCol.competitionsOptions}
-              tags={summaryCol.tags || []}
-              githubUrl={summaryCol.githubUrl}
-              liveUrl={summaryCol.liveUrl}
-            />
-          </div>
-        </div>
-      </header>
-    );
-  }
-  
-  // For all other content combinations, use the working responsive flex layout
+  // Common responsive layout for all combinations
   const columnCount = columns.length;
   const gap = '2rem'; // Match gap-8 (32px)
   
@@ -291,6 +151,16 @@ function getCoverGalleryWidths(options: any) {
     const customWidthColumns = columns.filter((col: any) => col.width !== undefined);
     
     if (customWidthColumns.length === 0) {
+      // If no explicit widths but two columns with a layout string, use the generic two-col parser
+      if (columnCount === 2) {
+        // Try to discover a layout string from any column's known options
+        const layoutSource = (columns[0] && (columns[0].galleryOptions?.layout || columns[0].layout))
+          || (columns[1] && (columns[1].galleryOptions?.layout || columns[1].layout));
+        if (layoutSource) {
+          const { left, right } = getResponsiveTwoColPercents({ layout: layoutSource });
+          return [left, right];
+        }
+      }
       // No custom widths, distribute equally
       return columns.map(() => 100 / columnCount);
     }
@@ -325,7 +195,16 @@ function getCoverGalleryWidths(options: any) {
   return (
     <div class="flex flex-col md:flex-row gap-8 mb-8 items-start">
       {columns.map((column: any, columnIndex: number) => {
-        const width = columnWidths[columnIndex];
+  const width = columnWidths[columnIndex];
+  // Image props: prefer new schema (src/alt/caption), fallback to legacy (image/imageAlt/imageCaption)
+  const imgSrc = column?.src || column?.image;
+  const imgAlt = column?.alt || column?.imageAlt || `Image ${columnIndex + 1}`;
+  const imgCaption = column?.caption || column?.imageCaption;
+  // Gallery options: prefer nested galleryOptions, fallback to legacy top-level keys
+  const gOpts = column?.galleryOptions || {};
+  const galleryAutoplay = (gOpts.autoplay ?? column?.autoplay ?? (column?.gallery?.length > 1));
+  const galleryInterval = (gOpts.autoplayInterval ?? column?.autoplayInterval ?? 5000);
+  const galleryThumbs = (gOpts.showThumbnails ?? column?.showThumbnails ?? (column?.gallery?.length > 2));
         return (
           <div 
             class="column" 
@@ -340,35 +219,35 @@ function getCoverGalleryWidths(options: any) {
               </div>
             )}
             
-            {column.type === 'image' && column.image && (
+            {column.type === 'image' && imgSrc && (
               <figure>
                 <Image 
-                  src={column.image}
-                  alt={column.imageAlt || `Image ${columnIndex + 1}`}
+                  src={imgSrc}
+                  alt={imgAlt}
                   width={600}
                   height={400}
                   class="w-full h-auto object-cover rounded-lg shadow"
                 />
-                {column.imageCaption && (
-                  <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={column.imageCaption}></figcaption>
+                {imgCaption && (
+                  <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={imgCaption}></figcaption>
                 )}
               </figure>
             )}
             
-            {column.type === 'gallery' && column.gallery && (
-              <div class="cover-gallery-col">
+    {column.type === 'gallery' && column.gallery && (
+              <div class="gallery-col">
                 <ProjectGallery 
                   images={column.gallery}
-                  autoplay={column.autoplay !== undefined ? column.autoplay : column.gallery.length > 1}
-                  autoplayInterval={column.autoplayInterval || 5000}
-                  showThumbnails={column.showThumbnails !== undefined ? column.showThumbnails : column.gallery.length > 2}
+      autoplay={galleryAutoplay}
+      autoplayInterval={galleryInterval}
+      showThumbnails={galleryThumbs}
                   client:load
                 />
               </div>
             )}
             
             {column.type === 'summary' && (
-              <div class="cover-info-col">
+              <div class="info-col">
                 <Summary 
                   title={column.summaryTitle || column.title}
                   description={column.summaryDescription || column.description}
@@ -392,6 +271,19 @@ function getCoverGalleryWidths(options: any) {
                 alt={column.modelAlt || 'Interactive 3D model'}
                 {...(column.modelOptions || {})}
                 client:load
+              />
+            )}
+
+            {column.type === 'video' && column.videoId && (
+              <YouTube 
+                id={column.videoId}
+                title={column.videoTitle || column.title || 'Video'}
+                aspect={column.videoAspect || '16:9'}
+                start={column.videoStart}
+                autoplay={column.videoAutoplay}
+                muted={column.videoMuted}
+                controls={column.videoControls}
+                caption={column.videoCaption}
               />
             )}
           </div>
