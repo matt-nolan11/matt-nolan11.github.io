@@ -145,7 +145,7 @@ const hasRecords = competitions.some(comp => comp.record);
             <span class="text-sm text-base-content/70">{competitionsOptions?.sectionTitle || "Competition History"}</span>
             <div class="flex items-center gap-4 text-sm text-base-content/70">
               {hasRecords && <span class="w-12 text-center">Record</span>}
-              <span class="w-16 text-center">Placement</span>
+              <span class="w-16.5 text-center">Placement</span>
             </div>
           </div>
           
@@ -181,7 +181,7 @@ const hasRecords = competitions.some(comp => comp.record);
                   {!comp.record && hasRecords && (
                     <span class="w-12"></span>
                   )}
-                  <div class="w-16 flex justify-center">
+                  <div class="w-16.5 flex justify-center">
                     <span class={`badge badge-sm min-w-16 text-center ${
                       typeof comp.placement === 'number' && comp.placement === 1 ? 'badge-warning' :
                       typeof comp.placement === 'string' && (comp.placement.toLowerCase().includes('1st') || comp.placement.toLowerCase().includes('champion')) ? 'badge-warning' :
@@ -213,7 +213,7 @@ const hasRecords = competitions.some(comp => comp.record);
             <div class="flex items-center gap-6 text-sm text-base-content/70">
               <span class="w-32 text-right">Date</span>
               {hasRecords && <span class="w-12 text-center">Record</span>}
-              <span class="w-16 text-center">Placement</span>
+              <span class="w-16.5 text-center">Placement</span>
             </div>
           </div>
           
@@ -243,7 +243,7 @@ const hasRecords = competitions.some(comp => comp.record);
                 {!comp.record && hasRecords && (
                   <span class="w-12"></span>
                 )}
-                <span class={`badge badge-sm w-16 text-center ${
+                <span class={`badge badge-sm w-16.5 text-center ${
                     typeof comp.placement === 'number' && comp.placement === 1 ? 'badge-warning' :
                   typeof comp.placement === 'string' && (comp.placement.toLowerCase().includes('1st') || comp.placement.toLowerCase().includes('champion')) ? 'badge-warning' :
                   typeof comp.placement === 'number' && comp.placement === 2 ? 'badge-silver' :

@@ -15,10 +15,14 @@ export interface Props {
   /** Standard front‑matter fields coming from Markdown/MDX pages */
   title?: string;
   description?: string;
+  /** Page type for width control - determines which CSS variables to use */
+  pageType?: 'landing' | 'project' | 'post' | 'projects-index' | 'posts-index' | 'about' | 'default';
+  /** Optional custom max-width override (CSS value like "80rem", "1200px", "calc(100vw - 10rem)") */
+  customMaxWidth?: string;
 }
 
 // Destructure front‑matter fields as well as the existing `seo` object
-const { seo = {}, title, description } = Astro.props;
+const { seo = {}, title, description, pageType = 'default', customMaxWidth } = Astro.props;
 
 /** Merge explicit `seo` overrides with any front‑matter fields.
  *  Values defined in `seo` win over front‑matter, preserving backward compatibility.
@@ -27,6 +31,49 @@ const seoConfig = {
   ...seo,
   title: seo.title ?? title,
   description: seo.description ?? description,
+};
+
+// Get CSS variables based on page type
+const getPageStyles = (type: string) => {
+  const baseVars: Record<string, Record<string, string>> = {
+    'default': {
+      '--page-max-width': 'var(--content-max-width)',
+      '--page-px': 'var(--content-px)',
+      '--page-py': 'var(--content-py)'
+    },
+    'landing': {
+      '--page-max-width': 'var(--landing-max-width)',
+      '--page-px': 'var(--landing-px)',
+      '--page-py': 'var(--landing-py)'
+    },
+    'project': {
+      '--page-max-width': 'var(--project-max-width)',
+      '--page-px': 'var(--project-px)',
+      '--page-py': 'var(--project-py)'
+    },
+    'post': {
+      '--page-max-width': 'var(--post-max-width)',
+      '--page-px': 'var(--post-px)',
+      '--page-py': 'var(--post-py)'
+    },
+    'projects-index': {
+      '--page-max-width': 'var(--projects-index-max-width)',
+      '--page-px': 'var(--projects-index-px)',
+      '--page-py': 'var(--projects-index-py)'
+    },
+    'posts-index': {
+      '--page-max-width': 'var(--posts-index-max-width)',
+      '--page-px': 'var(--posts-index-px)',
+      '--page-py': 'var(--posts-index-py)'
+    },
+    'about': {
+      '--page-max-width': 'var(--about-max-width)',
+      '--page-px': 'var(--about-px)',
+      '--page-py': 'var(--about-py)'
+    }
+  };
+  
+  return baseVars[type] || baseVars['default'];
 };
 ---
 
@@ -79,6 +126,8 @@ const seoConfig = {
 
   <body
     class="bg-base-100 text-base-content min-h-screen overflow-x-hidden"
+    style={`${Object.entries(getPageStyles(pageType)).map(([key, value]) => `${key}: ${value}`).join('; ')}`}
+    data-pagetype={pageType}
   >
   <div class="drawer">
     <input id="nav-drawer" type="checkbox" class="drawer-toggle" />
@@ -86,7 +135,10 @@ const seoConfig = {
       <Navbar />
 
       <!-- Main page content -->
-      <main class="flex-1 max-w-8xl mx-auto px-4 py-8">
+      <main 
+        class="flex-1 mx-auto"
+        style={`max-width: ${customMaxWidth || 'var(--page-max-width)'}; padding-left: var(--page-px); padding-right: var(--page-px); padding-top: var(--page-py); padding-bottom: var(--page-py);`}
+      >
         <slot />
       </main>
 

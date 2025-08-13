@@ -8,7 +8,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
 
 <header class="sticky top-0 z-50 bg-base-100 navbar-header" id="main-header">
   <!-- Mobile Navigation -->
-  <nav class="navbar lg:hidden bg-base-100 w-full px-2">
+  <nav class="navbar lg:hidden bg-base-100 w-full" style="padding-left: var(--navbar-px); padding-right: var(--navbar-px); padding-top: var(--navbar-py); padding-bottom: var(--navbar-py);">
     <div class="flex-none">
       <label for="nav-drawer" aria-label="Open sidebar" class="btn btn-ghost btn-square drawer-button">
         <Bars3Icon className="h-5 w-5" />
@@ -29,7 +29,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
 
   <!-- Desktop Navigation -->
   <nav class="navbar hidden lg:flex w-full bg-base-100">
-    <div class="max-w-7xl mx-auto px-4 w-full flex items-center">
+    <div class="mx-auto w-full flex items-center" style="max-width: var(--navbar-max-width, 80rem); padding-left: var(--navbar-px); padding-right: var(--navbar-px); padding-top: var(--navbar-py); padding-bottom: var(--navbar-py);">
       <!-- Logo Section -->
       <div class="flex-shrink-0 mr-6">
         <a href="/" class="flex items-center gap-2">

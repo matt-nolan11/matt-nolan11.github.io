@@ -11,54 +11,6 @@ const { columns } = Astro.props;
 if (!columns || columns.length === 0) {
   throw new Error('ModularSection requires a columns prop with at least one column');
 }
-
-// Note: No special-case cover handling. All layouts use the same responsive system.
-
-/**
- * Calculate responsive width percentages for two-column layouts (generic).
- * Returns numeric percentages [left, right] that the common flex calc will use.
- */
-function getResponsiveTwoColPercents(options: any): { left: number; right: number } {
-  if (!options?.layout) {
-    return { left: 50, right: 50 }; // Default 50:50
-  }
-
-  const layout = options.layout;
-
-  // Percentage format: "60%"
-  if (typeof layout === 'string' && layout.endsWith('%')) {
-    const percentage = parseFloat(layout);
-    if (!isNaN(percentage) && percentage > 0 && percentage < 100) {
-      return { left: percentage, right: 100 - percentage };
-    }
-  }
-
-  // Ratio format: "55:45", "3:2", etc.
-  if (typeof layout === 'string' && layout.includes(':')) {
-    const [left, right] = layout.split(':').map(Number);
-    if (!isNaN(left) && !isNaN(right) && left > 0 && right > 0) {
-      const total = left + right;
-      return { left: (left / total) * 100, right: (right / total) * 100 };
-    }
-  }
-
-  // Named layouts
-  const namedLayouts: { [key: string]: { left: number; right: number } } = {
-    'narrow-wide': { left: 33.333, right: 66.667 },
-    'wide-narrow': { left: 66.667, right: 33.333 },
-    'equal': { left: 50, right: 50 },
-    'golden': { left: 61.804, right: 38.196 },
-    'sidebar': { left: 25, right: 75 },
-    'reverse-sidebar': { left: 75, right: 25 },
-  };
-
-  if (namedLayouts[layout]) {
-    return namedLayouts[layout];
-  }
-
-  // Fallback to 50:50
-  return { left: 50, right: 50 };
-}
 ---
 
 <style>
@@ -109,6 +61,59 @@ function getResponsiveTwoColPercents(options: any): { left: number; right: numbe
     display: block;
     line-height: initial;
     font-size: initial;
+    min-width: 0; /* Prevent overflow */
+  }
+
+  /* Responsive columns using CSS Grid with dynamic custom properties */
+  .responsive-columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    .responsive-columns {
+      grid-template-columns: var(--col1-width, 1fr) var(--col2-width, 1fr);
+    }
+  }
+  
+  .responsive-columns .column {
+    min-width: 0; /* Important for grid items to allow shrinking */
+  }
+
+  /* Model viewer specific constraints */
+  .responsive-columns .column .model-viewer-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    display: block !important;
+  }
+  
+  /* Ensure the actual model-viewer element respects constraints */
+  .responsive-columns .column model-viewer {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    height: auto !important;
+  }
+  
+  /* Ensure other components also respect constraints */
+  .responsive-columns .column .project-gallery,
+  .responsive-columns .column figure,
+  .responsive-columns .column img {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Additional constraint for direct model-viewer elements */
+  .responsive-columns .column > model-viewer {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
   }
   
   /* Ensure ModelViewer components render cleanly within columns */
@@ -140,76 +145,132 @@ function getResponsiveTwoColPercents(options: any): { left: number; right: numbe
 
 </style>
 
-{(() => {
-  // Common responsive layout for all combinations
-  const columnCount = columns.length;
-  const gap = '2rem'; // Match gap-8 (32px)
+<!-- Additional CSS to ensure content stays within bounds (from working version) -->
+<style>
+  /* Basic layout for sections */
+  .section.lg\\:flex-row {
+    align-items: flex-start;
+  }
   
-  // Calculate column widths based on custom widths or equal distribution
-  const columnWidths = (() => {
-    // Check if any columns have custom widths
-    const customWidthColumns = columns.filter((col: any) => col.width !== undefined);
+  /* Ensure all columns stay within bounds without clipping */
+  .column {
+    min-width: 0; /* Prevent overflow */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Ensure galleries and models respect their column width */
+  .column .project-gallery,
+  .column .model-viewer-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Support for arbitrary width values */
+  .column[class*="lg:w-["] {
+    flex-shrink: 0;
+  }
+</style>
+
+{(() => {
+  // Calculate CSS custom properties for responsive CSS Grid
+  const getGridStyles = (columns: any[]) => {
+    if (columns.length !== 2) return {};
     
-    if (customWidthColumns.length === 0) {
-      // If no explicit widths but two columns with a layout string, use the generic two-col parser
-      if (columnCount === 2) {
-        // Try to discover a layout string from any column's known options
-        const layoutSource = (columns[0] && (columns[0].galleryOptions?.layout || columns[0].layout))
-          || (columns[1] && (columns[1].galleryOptions?.layout || columns[1].layout));
-        if (layoutSource) {
-          const { left, right } = getResponsiveTwoColPercents({ layout: layoutSource });
-          return [left, right];
+    const col1 = columns[0];
+    const col2 = columns[1];
+    
+    let col1Width = 50; // Default
+    
+    // Check for explicit width on either column
+    if (col1.width !== undefined) {
+      col1Width = col1.width;
+    } else if (col2.width !== undefined) {
+      col1Width = 100 - col2.width;
+    } else {
+      // Check for layout options in gallery or other settings
+      const layoutSource = (col1 && (col1.galleryOptions?.layout || col1.layout))
+        || (col2 && (col2.galleryOptions?.layout || col2.layout));
+      
+      if (layoutSource) {
+        // Handle ratio format: "55:45", "3:2", etc.
+        if (typeof layoutSource === 'string' && layoutSource.includes(':')) {
+          const [left, right] = layoutSource.split(':').map(Number);
+          if (!isNaN(left) && !isNaN(right) && left > 0 && right > 0) {
+            const total = left + right;
+            col1Width = (left / total) * 100;
+          }
+        }
+        
+        // Handle percentage format: "60%"
+        else if (typeof layoutSource === 'string' && layoutSource.endsWith('%')) {
+          const percentage = parseFloat(layoutSource);
+          if (!isNaN(percentage) && percentage > 0 && percentage < 100) {
+            col1Width = percentage;
+          }
+        }
+        
+        // Handle named layouts
+        else {
+          const namedLayouts: { [key: string]: number } = {
+            'narrow-wide': 33,
+            'wide-narrow': 67,
+            'equal': 50,
+            'golden': 62, // Approximately golden ratio
+            'sidebar': 75,
+            'reverse-sidebar': 25,
+          };
+          
+          if (namedLayouts[layoutSource]) {
+            col1Width = namedLayouts[layoutSource];
+          }
         }
       }
-      // No custom widths, distribute equally
-      return columns.map(() => 100 / columnCount);
     }
     
-    if (customWidthColumns.length === columns.length) {
-      // All columns have custom widths - calculate proportionally
-      const widthValues = columns.map((col: any) => col.width);
-      const totalWidth = widthValues.reduce((sum: number, width: number) => sum + width, 0);
-      
-      // Convert to percentages based on proportional relationship
-      return widthValues.map((width: number) => (width / totalWidth) * 100);
-    }
+    const col2Width = 100 - col1Width;
     
-    // Mixed case: some have custom widths, some don't
-    // This is more complex - for now, treat unspecified as equal distribution of remaining space
-    const specifiedWidths = customWidthColumns.map((col: any) => col.width);
-    const totalSpecified = specifiedWidths.reduce((sum: number, width: number) => sum + width, 0);
-    const unspecifiedCount = columns.length - customWidthColumns.length;
-    
-    // Assume specified widths are proportional parts, calculate what percentage they represent
-    const totalProportionalUnits = totalSpecified + unspecifiedCount; // Assume unspecified columns get 1 unit each
-    
-    return columns.map((col: any) => {
-      if (col.width !== undefined) {
-        return (col.width / totalProportionalUnits) * 100;
-      } else {
-        return (1 / totalProportionalUnits) * 100; // 1 unit for unspecified columns
-      }
-    });
-  })();
+    return {
+      '--col1-width': `${col1Width}fr`,
+      '--col2-width': `${col2Width}fr`
+    };
+  };
+  
+  const gridStyles = getGridStyles(columns);
   
   return (
-    <div class="flex flex-col md:flex-row gap-8 mb-8 items-start">
+    <div class={`${
+      columns.length <= 2 ? (columns.length === 2 ? 'responsive-columns' : 'flex flex-col lg:flex-row lg:items-start') :
+      columns.length === 3 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
+      columns.length === 4 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4' :
+      'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' // Fallback for 5+ columns
+    } gap-6 mb-8`}
+         style={gridStyles}>
       {columns.map((column: any, columnIndex: number) => {
-  const width = columnWidths[columnIndex];
-  // Image props: prefer new schema (src/alt/caption), fallback to legacy (image/imageAlt/imageCaption)
-  const imgSrc = column?.src || column?.image;
-  const imgAlt = column?.alt || column?.imageAlt || `Image ${columnIndex + 1}`;
-  const imgCaption = column?.caption || column?.imageCaption;
-  // Gallery options: prefer nested galleryOptions, fallback to legacy top-level keys
-  const gOpts = column?.galleryOptions || {};
-  const galleryAutoplay = (gOpts.autoplay ?? column?.autoplay ?? (column?.gallery?.length > 1));
-  const galleryInterval = (gOpts.autoplayInterval ?? column?.autoplayInterval ?? 5000);
-  const galleryThumbs = (gOpts.showThumbnails ?? column?.showThumbnails ?? (column?.gallery?.length > 2));
+        // Determine column class based on layout type
+        let columnClass;
+        if (columns.length === 1) {
+          columnClass = 'w-full';
+        } else if (columns.length === 2) {
+          // Grid column - let CSS Grid handle sizing
+          columnClass = 'column';
+        } else {
+          columnClass = 'min-w-0'; // Grid handles sizing for 3+ columns
+        }
+        
+        // Image props: prefer new schema (src/alt/caption), fallback to legacy (image/imageAlt/imageCaption)
+        const imgSrc = column?.src || column?.image;
+        const imgAlt = column?.alt || column?.imageAlt || `Image ${columnIndex + 1}`;
+        const imgCaption = column?.caption || column?.imageCaption;
+        // Gallery options: prefer nested galleryOptions, fallback to legacy top-level keys
+        const gOpts = column?.galleryOptions || {};
+        const galleryAutoplay = (gOpts.autoplay ?? column?.autoplay ?? (column?.gallery?.length > 1));
+        const galleryInterval = (gOpts.autoplayInterval ?? column?.autoplayInterval ?? 5000);
+        const galleryThumbs = (gOpts.showThumbnails ?? column?.showThumbnails ?? (column?.gallery?.length > 2));
+        
         return (
-          <div 
-            class="column" 
-            style={`flex: 0 0 calc(${width}% - ${gap} * ${(100 - width) / 100}); max-width: calc(${width}% - ${gap} * ${(100 - width) / 100});`}
-          >
+          <div class={columnClass}>
             {column.type === 'content' && (
               <div class="prose prose-lg max-w-none">
                 {column.title && (

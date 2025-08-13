@@ -3,10 +3,102 @@
 .prose img {
   border-radius: 0.5rem;
 }
+
 @import "tailwindcss";
 @plugin '@tailwindcss/typography';
 @plugin "daisyui" {
   themes: corporate --default, business --prefersdark;
+}
+
+/* Page Width Control System 
+ * 
+ * This system allows centralized control of maximum widths across different page types.
+ * Padding/margins are handled by responsive breakpoints below.
+ * 
+ * How to use:
+ * 1. Adjust the CSS variables below to control max-width for different page types
+ * 2. Set pageType prop in Layout component: <Layout pageType="project">
+ * 3. Variables automatically apply to navbar and main content areas
+ * 
+ * Available pageTypes:
+ * - 'landing': Home page 
+ * - 'project': Individual project pages
+ * - 'post': Individual blog post pages  
+ * - 'projects-index': Projects listing page
+ * - 'posts-index': Posts listing page
+ * - 'about': About page
+ * - 'default': Fallback for any other pages
+ */
+:root {
+  /* Global width variables - now responsive to viewport width with maintained margins
+   * Format: min(max-width, calc(100vw - margin))
+   * This ensures content never gets too wide AND maintains side margins
+   */
+  
+  /* Consistent max-width for all components on mobile */
+  --navbar-max-width: 100%;
+  --landing-max-width: 100%;
+  --content-max-width: 100%;
+  --project-max-width: 100%;
+  --post-max-width: 100%;
+  --projects-index-max-width: 100%;
+  --posts-index-max-width: 100%;
+  --about-max-width: 100%;
+  
+  /* Base padding values for mobile (< 768px) */
+  --navbar-px: 1rem;
+  --navbar-py: 0.5rem;
+  --landing-px: 1rem;
+  --content-px: 1rem;
+  --project-px: 1rem;
+  --post-px: 1rem;
+  --projects-index-px: 1rem;
+  --posts-index-px: 1rem;
+  --about-px: 1rem;
+  --footer-px: 1rem;
+  --footer-py: 1.5rem;
+}
+
+/* Responsive padding/margin adjustments */
+@media (min-width: 768px) {
+  :root {
+    --navbar-px: 1.5rem;
+    --navbar-py: 0.5rem;
+    --landing-px: 1.5rem;
+    --content-px: 1.5rem;
+    --project-px: 1.5rem;
+    --post-px: 1.5rem;
+    --projects-index-px: 1.5rem;
+    --posts-index-px: 1.5rem;
+    --about-px: 1.5rem;
+    --footer-px: 1.5rem;
+    --footer-py: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --navbar-px: 2rem;
+    --navbar-py: 0.5rem;
+    --landing-px: 2rem;
+    --content-px: 2rem;
+    --project-px: 2rem;
+    --post-px: 2rem;
+    --projects-index-px: 2rem;
+    --posts-index-px: 2rem;
+    --about-px: 2rem;
+    --footer-px: 2rem;
+    --footer-py: 1.5rem;
+    /* Desktop max-widths */
+    --navbar-max-width: calc(100vw - 6rem);
+    --landing-max-width: calc(100vw - 6rem);
+    --content-max-width: calc(100vw - 6rem);
+    --project-max-width: calc(100vw - 6rem);
+    --post-max-width: 50rem;
+    --projects-index-max-width: calc(100vw - 6rem);
+    --posts-index-max-width: calc(100vw - 6rem);
+    --about-max-width: calc(100vw - 6rem);
+  }
 }
 
 /* Ensure width classes are available for cover gallery */

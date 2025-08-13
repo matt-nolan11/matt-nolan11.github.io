@@ -128,6 +128,8 @@ export const collections = {
         date: z.date(),
         tags: z.array(z.string()).default([]),
         draft: z.boolean().optional(),
+        // Optional custom max-width override (CSS value like "80rem", "1200px", "calc(100vw - 10rem)")
+        maxWidth: z.string().optional(),
         // Gallery support (for header)
         gallery: z.array(z.object({
           src: image(),

@@ -544,7 +544,7 @@ export default function ModelViewer({
 
   if (hasError) {
     return (
-      <div className={`model-viewer-container ${className}`} style={{ width: '100%' }}>
+      <div className={`model-viewer-container ${className}`}>
         <div className="flex items-center justify-center h-64 bg-base-200 rounded-xl border-2 border-dashed border-base-300">
           <div className="text-center">
             <svg className="w-12 h-12 mx-auto text-base-content/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -563,7 +563,7 @@ export default function ModelViewer({
 
   if (!isModelViewerLoaded) {
     return (
-      <div className={`model-viewer-container ${className}`} style={{ width: '100%' }}>
+      <div className={`model-viewer-container ${className}`}>
         <div className="flex items-center justify-center h-64 bg-base-200 rounded-xl">
           <div className="text-center">
             <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
@@ -581,7 +581,6 @@ export default function ModelViewer({
     <div 
       className={`model-viewer-container ${className}`} 
       style={{ 
-        width: '100%',
         minHeight: '400px',
         position: 'relative',
         zIndex: 15
@@ -610,7 +609,7 @@ export default function ModelViewer({
             '--progress-bar-height': '0px', // Remove progress bar height
             '--progress-mask-base': 'transparent', // Hide progress mask
           },
-          className: "w-full rounded-xl bg-base-100", // Theme background class
+          className: "rounded-xl bg-base-100", // Remove w-full to respect parent container constraints
           // Explicitly set AR attributes
           ...(ar ? { 'ar': '', 'ar-modes': arModes, 'ar-scale': arScale, 'ar-placement': arPlacement } : {}),
           ...attributes
