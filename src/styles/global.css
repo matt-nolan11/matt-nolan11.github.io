@@ -35,7 +35,26 @@
    * This ensures content never gets too wide AND maintains side margins
    */
   
-  /* Consistent max-width for all components on mobile */
+  /* Base padding/margin values for mobile (< 768px) */
+  --navbar-px: 1rem;
+  --navbar-py: 0.5rem;
+  --landing-px: 1rem;
+  --landing-py: 1rem;
+  --content-px: 1rem;
+  --content-py: 1rem;
+  --project-px: 1rem;
+  --project-py: 1rem;
+  --post-px: 1rem;
+  --post-py: 1rem;
+  --projects-index-px: 1rem;
+  --projects-index-py: 1rem;
+  --posts-index-px: 1rem;
+  --posts-index-py: 1rem;
+  --about-px: 1rem;
+  --about-py: 1rem;
+  --footer-px: 1rem;
+  --footer-py: 1rem;
+
   --navbar-max-width: 100%;
   --landing-max-width: 100%;
   --content-max-width: 100%;
@@ -44,52 +63,54 @@
   --projects-index-max-width: 100%;
   --posts-index-max-width: 100%;
   --about-max-width: 100%;
-  
-  /* Base padding values for mobile (< 768px) */
-  --navbar-px: 1rem;
-  --navbar-py: 0.5rem;
-  --landing-px: 1rem;
-  --content-px: 1rem;
-  --project-px: 1rem;
-  --post-px: 1rem;
-  --projects-index-px: 1rem;
-  --posts-index-px: 1rem;
-  --about-px: 1rem;
-  --footer-px: 1rem;
-  --footer-py: 1.5rem;
 }
 
-/* Responsive padding/margin adjustments */
+/* Medium screen padding/margin adjustments */
 @media (min-width: 768px) {
   :root {
     --navbar-px: 1.5rem;
     --navbar-py: 0.5rem;
     --landing-px: 1.5rem;
+    --landing-py: 1rem;
     --content-px: 1.5rem;
+    --content-py: 1rem;
     --project-px: 1.5rem;
+    --project-py: 1rem;
     --post-px: 1.5rem;
+    --post-py: 1rem;
     --projects-index-px: 1.5rem;
+    --projects-index-py: 1rem;
     --posts-index-px: 1.5rem;
+    --posts-index-py: 1rem;
     --about-px: 1.5rem;
+    --about-py: 1rem;
     --footer-px: 1.5rem;
-    --footer-py: 1.5rem;
+    --footer-py: 1rem;
   }
 }
 
+/* Large screen padding/margin adjustments */
 @media (min-width: 1024px) {
   :root {
     --navbar-px: 2rem;
     --navbar-py: 0.5rem;
     --landing-px: 2rem;
+    --landing-py: 1rem;
     --content-px: 2rem;
+    --content-py: 1rem;
     --project-px: 2rem;
+    --project-py: 1rem;
     --post-px: 2rem;
+    --post-py: 1rem;
     --projects-index-px: 2rem;
+    --projects-index-py: 1rem;
     --posts-index-px: 2rem;
+    --posts-index-py: 1rem;
     --about-px: 2rem;
+    --about-py: 1rem;
     --footer-px: 2rem;
-    --footer-py: 1.5rem;
-    /* Desktop max-widths */
+    --footer-py: 1rem;
+ 
     --navbar-max-width: calc(100vw - 6rem);
     --landing-max-width: calc(100vw - 6rem);
     --content-max-width: calc(100vw - 6rem);
