@@ -92,9 +92,13 @@ const sortedPosts = posts.sort((a, b) =>
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {sortedProjects.map(project => (
               <article 
-                class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full cursor-pointer"
-                onclick={`window.location.href='/projects/${project.slug}/'`}
+                class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full relative"
               >
+                <a 
+                  href={`/projects/${project.slug}/`}
+                  class="absolute inset-0 z-10"
+                  aria-label={project.data.title}
+                ></a>
                 <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
                   {project.data.cover ? (
                     <Image 
@@ -135,10 +139,9 @@ const sortedPosts = posts.sort((a, b) =>
                     {project.data.tags.map(projectTag => (
                       <a 
                         href={`/tags/${projectTag}/`} 
-                        class={`badge badge-sm tag-hover-light-blue transition-colors ${
+                        class={`badge badge-sm tag-hover-light-blue transition-colors relative z-20 ${
                           projectTag === tag ? 'badge-primary' : 'badge-outline'
                         }`}
-                        onclick="event.stopPropagation()"
                       >
                         {projectTag}
                       </a>
@@ -173,9 +176,13 @@ const sortedPosts = posts.sort((a, b) =>
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {sortedPosts.map(post => (
               <article 
-                class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full cursor-pointer"
-                onclick={`window.location.href='/posts/${post.slug}/'`}
+                class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full relative"
               >
+                <a 
+                  href={`/posts/${post.slug}/`}
+                  class="absolute inset-0 z-10"
+                  aria-label={post.data.title}
+                ></a>
                 <figure class="aspect-[4/3] rounded-t-xl overflow-hidden">
                   <Image 
                     src={post.data.cover}
@@ -199,10 +206,9 @@ const sortedPosts = posts.sort((a, b) =>
                     {post.data.tags.map(postTag => (
                       <a 
                         href={`/tags/${postTag}/`} 
-                        class={`badge badge-sm tag-hover-light-blue transition-colors ${
+                        class={`badge badge-sm tag-hover-light-blue transition-colors relative z-20 ${
                           postTag === tag ? 'badge-primary' : 'badge-outline'
                         }`}
-                        onclick="event.stopPropagation()"
                       >
                         {postTag}
                       </a>

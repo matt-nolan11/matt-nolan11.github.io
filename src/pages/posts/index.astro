@@ -27,9 +27,13 @@ const publishedPosts = posts
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {publishedPosts.map(post => (
         <article 
-          class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full rounded-xl overflow-hidden border border-base-300 cursor-pointer"
-          onclick={`window.location.href='/posts/${post.slug}/'`}
+          class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full rounded-xl overflow-hidden border border-base-300 relative"
         >
+          <a 
+            href={`/posts/${post.slug}/`}
+            class="absolute inset-0 z-10"
+            aria-label={post.data.title}
+          ></a>
           <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
             <Image 
               src={post.data.cover}
@@ -53,7 +57,7 @@ const publishedPosts = posts
             {post.data.tags && post.data.tags.length > 0 && (
               <div class="flex flex-wrap gap-2 mb-4">
                 {post.data.tags.slice(0, 4).map(tag => (
-                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors" onclick="event.stopPropagation()">
+                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors relative z-20">
                     {tag}
                   </a>
                 ))}

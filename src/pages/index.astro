@@ -21,9 +21,13 @@ const displayProjects = getFeaturedProjects(projects, 6);
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 		  {displayProjects.map(project => (
 			<div 
-			  class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full cursor-pointer"
-			  onclick={`window.location.href='/projects/${project.slug}/'`}
+			  class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
 			>
+			  <a 
+				href={`/projects/${project.slug}/`}
+				class="absolute inset-0 z-10"
+				aria-label={project.data.title}
+			  ></a>
 			  <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
 				{project.data.cover ? (
 				  <Image 
@@ -55,7 +59,7 @@ const displayProjects = getFeaturedProjects(projects, 6);
 				<p class="text-sm text-base-content/70 mb-2">{project.data.description}</p>
 				<div class="flex flex-wrap gap-2 mb-4">
 				  {project.data.tags.slice(0, 3).map(tag => (
-					<a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors" onclick="event.stopPropagation()">
+					<a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors relative z-20">
 					  {tag}
 					</a>
 				  ))}

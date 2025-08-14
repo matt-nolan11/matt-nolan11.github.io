@@ -54,9 +54,13 @@ const publishedProjects = projects
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {publishedProjects.map(project => (
         <article 
-          class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full rounded-xl overflow-hidden border border-base-300 cursor-pointer"
-          onclick={`window.location.href='/projects/${project.slug}/'`}
+          class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full rounded-xl overflow-hidden border border-base-300 relative"
         >
+          <a 
+            href={`/projects/${project.slug}/`}
+            class="absolute inset-0 z-10"
+            aria-label={project.data.title}
+          ></a>
           <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
             {project.data.cover ? (
               <Image 
@@ -97,7 +101,7 @@ const publishedProjects = projects
             {project.data.tags && project.data.tags.length > 0 && (
               <div class="flex flex-wrap gap-2 mb-4">
                 {project.data.tags.slice(0, 4).map(tag => (
-                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors" onclick="event.stopPropagation()">
+                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors relative z-20">
                     {tag}
                   </a>
                 ))}
@@ -128,10 +132,9 @@ const publishedProjects = projects
                 {project.data.githubUrl && (
                   <a 
                     href={project.data.githubUrl} 
-                    class="btn btn-sm btn-outline"
+                    class="btn btn-sm btn-outline relative z-20"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onclick="event.stopPropagation()"
                   >
                     GitHub
                   </a>
@@ -139,10 +142,9 @@ const publishedProjects = projects
                 {project.data.liveUrl && (
                   <a 
                     href={project.data.liveUrl} 
-                    class="btn btn-sm btn-outline"
+                    class="btn btn-sm btn-outline relative z-20"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onclick="event.stopPropagation()"
                   >
                     Live Demo
                   </a>
