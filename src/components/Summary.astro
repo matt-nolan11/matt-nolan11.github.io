@@ -7,6 +7,7 @@ interface CompetitionEntry {
   placement: number | string;
   record?: string;
   url?: string;
+  hoverText?: string;
 }
 
 interface MetricField {
@@ -159,9 +160,7 @@ const hasRecords = competitions.some(comp => comp.record);
                       <a 
                         href={comp.url} 
                         class="font-medium text-base-content hover:text-blue-400 transition-colors underline decoration-solid underline-offset-2 text-sm truncate"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={`Read more about ${comp.name}`}
+                        title={comp.hoverText || `Read more about ${comp.name}`}
                       >
                         {comp.name}
                       </a>
@@ -225,9 +224,7 @@ const hasRecords = competitions.some(comp => comp.record);
                   <a 
                     href={comp.url} 
                     class="font-medium text-base-content hover:text-blue-400 transition-colors underline decoration-solid underline-offset-2"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={`Read more about ${comp.name}`}
+                    title={comp.hoverText || `Read more about ${comp.name}`}
                   >
                     {comp.name}
                   </a>

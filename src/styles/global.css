@@ -93,7 +93,7 @@
 @media (min-width: 1024px) {
   :root {
     --navbar-px: 2rem;
-    --navbar-py: 0.5rem;
+    --navbar-py: 0rem;
     --landing-px: 2rem;
     --landing-py: 1rem;
     --content-px: 2rem;
@@ -254,7 +254,7 @@
 }
 
 .card:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: scale(1.01);
 }
 
 /* Restore smooth border color transition for navbar */

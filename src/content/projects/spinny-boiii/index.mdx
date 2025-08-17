@@ -4,20 +4,20 @@ slug: "spinny-boiii"
 description: "A competitive beetleweight combat robot with an egg-beater drum weapon and a powerful magnet-assisted drive system"
 startDate: "2020-02"
 status: "in-progress"
-tags: ["spinny boiii", "combat robotics", "cnc machining", "heat treating", "3d printing", "rc control systems"]
-cover: "./images/cover.jpg"
+tags: ["spinny boiii", "combat robotics", "cnc machining", "heat treating", "3d printing", "rc electronics"]
+cover: "./images/v4/v4IsoView.jpg"
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
 import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
 
-import spinnyBoiiiModel from './3Dmodels/spinny_boiii_v3.glb';
+import v4Model from './3Dmodels/spinny_boiii_v4.glb';
 
-import coverImage from './images/cover.jpg';
-import insidesImage from './images/insides.jpg';
-import vsZ3phyr2Image from './images/vsZ3phyr2.jpg';
-import damaged1Image from './images/damaged1.jpg';
-import vsActionSurgeImage from './images/vsActionSurge.jpg';
+import v4IsoView from './images/v4/v4IsoView.jpg';
+import insidesImage from './images/v4/insides.jpg';
+import vsZ3phyr2Image from './images/v4/vsZ3phyr2.jpg';
+import damaged1Image from './images/v4/damaged1.jpg';
+import vsActionSurgeImage from './images/v4/vsActionSurge.jpg';
 
 <ModularSection 
   columns={[
@@ -25,7 +25,7 @@ import vsActionSurgeImage from './images/vsActionSurge.jpg';
     type: "gallery",
     width: 55,
     gallery: [
-      { src: coverImage, caption: "Latest iteration of spinny boiii, with a custom CNC-machined weapon and bulky TPU armor" },
+      { src: v4IsoView, caption: "Latest iteration of spinny boiii, with a custom CNC-machined weapon and bulky TPU armor" },
       { src: insidesImage, caption: "Internal electronics layout with motors, motor controllers, RC receiver, battery, and power distribution" },
       { src: vsZ3phyr2Image, caption: "Winning the face-to-face engagement with a shower of sparks!" },
       { src: damaged1Image, caption: "Took some heavy damage but still eeked out the win" },
@@ -60,7 +60,8 @@ import vsActionSurgeImage from './images/vsActionSurge.jpg';
         date: "May 3-4, 2025",
         placement: 5,
         record: "4-2",
-        url: "/posts/event-recap-rcl-nationals-2025/"
+        url: "/posts/event-recap-rcl-nationals-2025/",
+        hoverText: "Read more about the 2025 RCL National Championship"
       },
       {
         name: "EVAC Cactus Clash 2024",
@@ -90,68 +91,6 @@ import vsActionSurgeImage from './images/vsActionSurge.jpg';
 ]} />
 
 spinny boiii is my first serious attempt at building a competitive beetleweight (3-pound) combat robot. The project combines mechanical engineering, electronics design, and manufacturing to create a robot capable of surviving and winning in combat robot competitions.
-
-<ModularSection 
-  columns={[
-  {
-    type: "content",
-    title: "Project Overview",
-    width: 65,
-    content: `spinny boiii is a 3-pound beetleweight combat robot designed for vertical spinning disk combat.
-    Built with CNC-machined aluminum frame and 3D-printed components, it features a powerful
-    brushless motor driving a hardened steel spinning disk at high RPM.
-
-    **Key Features:**
-    - Vertical spinning disk weapon system
-    - CNC-machined aluminum chassis 
-    - Brushless motor drive system
-    - Integrated electronics and safety systems`
-  },
-  {
-    type: "model",
-    title: "3D Model",
-    width: 35,
-    modelSrc: spinnyBoiiiModel,
-    alt: "Interactive 3D model of spinny boiii combat robot",
-    modelOptions: {
-      autoRotate: true,
-      cameraControls: true,
-      ar: true,
-      exposure: 0.8,
-      shadowIntensity: 0.5,
-      cameraOrbit: "45deg 60deg 0.5m",
-      mobileCameraOrbit: "45deg 60deg 0.52m",
-      aspectRatio: "1:1",
-      mobileAspectRatio: "1:1"
-    }
-  }
-]} />
-
-<ModularSection 
-  columns={[
-  {
-    type: "video",
-    width: 60,
-    videoId: "4wvZIymhk5o",
-    videoTitle: "Spinny Boiii vs Z3phyr — ARC Roborumble 2024",
-    videoAspect: "16:9",
-    videoStart: 0,
-    videoAutoplay: false,
-    videoMuted: false,
-    videoControls: true,
-    videoCaption: "Highlights from ARC Roborumble 2024. Slow-mo segments show how the drum transfers energy and how the magnets help with traction."
-  },
-  {
-    type: "content",
-    width: 40,
-    title: "Fight highlights",
-    content: `This clip shows one of the cleanest engagements against Z3phyr. Notice:
-
-- How the beater tip height lines up with their armor seam
-- The stability from the magnet-assisted drive during follow-through
-- Minimal gyro wobble after impact thanks to the current limits and drum inertia`
-  }
-]} />
 
 <ProjectVersionsSection 
   sectionTitle="Design Iterations"

@@ -254,7 +254,13 @@ function compareSemverDesc(a: number[], b: number[]): number {
     .version-tabs .tab-buttons {
       gap: 0.25rem;
       padding: 0.375rem;
-      flex-wrap: wrap;
+      display: flex; /* Keep horizontal layout */
+    }
+    
+    .version-tabs .tab-buttons .tab-button {
+      flex: 1; /* Equal width buttons that fill available space */
+      min-width: 0; /* Allow buttons to shrink below content width */
+      justify-content: center;
     }
     
     /* Smaller default sizes on mobile */
@@ -275,13 +281,13 @@ function compareSemverDesc(a: number[], b: number[]): number {
       padding: 1rem 1.5rem; 
     }
 
-    /* Mobile custom dimensions - scale down if too large */
+    /* Mobile custom dimensions - flexible width with controlled height */
     .version-tabs.custom-dimensions .tab-buttons .tab-button {
       font-size: min(var(--tab-font-size, 1rem), 1rem);
-      width: var(--tab-width, auto);
+      flex: 1; /* Use flex instead of fixed width */
       height: var(--tab-height, auto);
-      max-width: calc(50vw - 1rem); /* Prevent tabs from being too wide on mobile */
       padding: var(--tab-padding, 0.75rem 1rem);
+      min-width: 0; /* Allow shrinking */
     }
   }
 
@@ -290,12 +296,19 @@ function compareSemverDesc(a: number[], b: number[]): number {
     .version-tabs .tab-buttons {
       gap: 0.125rem;
       padding: 0.25rem;
+      display: flex; /* Keep horizontal layout for very small screens too */
+    }
+    
+    .version-tabs .tab-buttons .tab-button {
+      flex: 1; /* Equal width distribution */
+      min-width: 0; /* Allow buttons to shrink */
     }
     
     .version-tabs.custom-dimensions .tab-buttons .tab-button {
       font-size: min(var(--tab-font-size, 0.875rem), 0.875rem);
-      max-width: calc(45vw - 0.5rem);
+      flex: 1; /* Use flex instead of fixed width */
       padding: var(--tab-padding, 0.5rem 0.75rem);
+      min-width: 0; /* Allow shrinking below content */
     }
   }
 

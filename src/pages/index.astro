@@ -17,7 +17,7 @@ const displayProjects = getFeaturedProjects(projects, 6);
     <!-- Featured Projects Section -->
     <section>
 		<h2 class="text-2xl font-semibold mb-6">Featured Projects</h2>
-		<p class="mb-4 text-base-content/70">Explore a selection of my robotics and engineering projects.</p>
+		<p class="mb-4 text-base-content/70">Explore a selection of my robotics and engineering projects. View the full list on the Projects page.</p>
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 		  {displayProjects.map(project => (
 			<div 
@@ -68,7 +68,7 @@ const displayProjects = getFeaturedProjects(projects, 6);
 				  )}
 				</div>
 				<div class="flex justify-between items-center">
-				  <span class="text-xs text-base-content/60">
+				  <span class="text-sm text-base-content/60">
 					  {project.data.status === 'completed' && project.data.endDate
 						  ? `Completed: ${formatProjectDate(project.data.endDate ?? new Date())}`
 						  : project.data.status === 'in-progress'

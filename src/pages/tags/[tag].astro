@@ -89,10 +89,10 @@ const sortedPosts = posts.sort((a, b) =>
             Projects
             <div class="badge badge-secondary">{projects.length}</div>
           </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedProjects.map(project => (
               <article 
-                class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full relative"
+                class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
               >
                 <a 
                   href={`/projects/${project.slug}/`}
@@ -104,8 +104,8 @@ const sortedPosts = posts.sort((a, b) =>
                     <Image 
                       src={project.data.cover}
                       alt={(project.data.coverCaption || project.data.title || project.slug.replace(/-/g, ' '))}
-                      width={400}
-                      height={300}
+                      width={560}
+                      height={420}
                       class="w-full h-full object-cover"
                     />
                   ) : (
@@ -131,11 +131,11 @@ const sortedPosts = posts.sort((a, b) =>
                     {project.data.title}
                   </h3>
                   
-                  <p class="text-sm text-base-content/70 mb-3">
+                  <p class="text-sm text-base-content/70 mb-2">
                     {project.data.description}
                   </p>
                   
-                  <div class="flex flex-wrap gap-1 mb-3">
+                  <div class="flex flex-wrap gap-2 mb-4">
                     {project.data.tags.map(projectTag => (
                       <a 
                         href={`/tags/${projectTag}/`} 
@@ -148,16 +148,16 @@ const sortedPosts = posts.sort((a, b) =>
                     ))}
                   </div>
                   
-                  <div class="card-actions justify-between items-center">
-                    <div class="text-xs text-base-content/60">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-base-content/60">
                       {project.data.status === 'completed' && project.data.endDate ? (
-                        <div>Completed: {formatProjectDate(project.data.endDate ?? new Date())}</div>
+                        `Completed: ${formatProjectDate(project.data.endDate ?? new Date())}`
                       ) : project.data.status === 'in-progress' ? (
-                        <div>Started: {formatProjectDate(project.data.startDate ?? new Date())}</div>
+                        `Started: ${formatProjectDate(project.data.startDate ?? new Date())}`
                       ) : (
-                        <div>Planned: {formatProjectDate(project.data.startDate ?? new Date())}</div>
+                        `Planned: ${formatProjectDate(project.data.startDate ?? new Date())}`
                       )}
-                    </div>
+                    </span>
                   </div>
                 </div>
               </article>
@@ -173,22 +173,22 @@ const sortedPosts = posts.sort((a, b) =>
             Blog Posts
             <div class="badge badge-secondary">{posts.length}</div>
           </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedPosts.map(post => (
               <article 
-                class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-xl overflow-hidden border border-base-300 h-full relative"
+                class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
               >
                 <a 
                   href={`/posts/${post.slug}/`}
                   class="absolute inset-0 z-10"
                   aria-label={post.data.title}
                 ></a>
-                <figure class="aspect-[4/3] rounded-t-xl overflow-hidden">
+                <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
                   <Image 
                     src={post.data.cover}
                     alt={post.data.coverCaption || post.data.title}
-                    width={400}
-                    height={300}
+                    width={560}
+                    height={420}
                     class="w-full h-full object-cover"
                   />
                 </figure>
@@ -198,11 +198,11 @@ const sortedPosts = posts.sort((a, b) =>
                     {post.data.title}
                   </h3>
                   
-                  <p class="text-sm text-base-content/70 mb-3">
+                  <p class="text-sm text-base-content/70 mb-2">
                     {post.data.description}
                   </p>
                   
-                  <div class="flex flex-wrap gap-1 mb-3">
+                  <div class="flex flex-wrap gap-2 mb-4">
                     {post.data.tags.map(postTag => (
                       <a 
                         href={`/tags/${postTag}/`} 
@@ -215,10 +215,10 @@ const sortedPosts = posts.sort((a, b) =>
                     ))}
                   </div>
                   
-                  <div class="card-actions justify-between items-center">
-                    <div class="text-xs text-base-content/60">
-                      {new Date(post.data.date).toLocaleDateString()}
-                    </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-base-content/60">
+                      {new Date(post.data.date).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })}
+                    </span>
                   </div>
                 </div>
               </article>

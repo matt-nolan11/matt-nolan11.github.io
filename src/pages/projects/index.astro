@@ -44,17 +44,17 @@ const publishedProjects = projects
   }}
 >
   <div>
-    <div class="prose prose-lg max-w-none mb-8">
-      <h1 class="text-4xl font-bold mb-4">Projects</h1>
+    <div class="prose prose-lg max-w-none mb-4">
+      <h1 class="text-4xl font-bold mb-2">Projects</h1>
       <p class="text-lg text-base-content/70">
-        A collection of my robotics, engineering, and maker projects. Each project showcases multiple aspects of design, development, and problem-solving.
+        A collection of my robotics, engineering, and maker projects. Each project showcases various aspects of design, problem-solving, and manufacturing.
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {publishedProjects.map(project => (
         <article 
-          class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full rounded-xl overflow-hidden border border-base-300 relative"
+          class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
         >
           <a 
             href={`/projects/${project.slug}/`}
@@ -88,45 +88,39 @@ const publishedProjects = projects
             </div>
           </figure>
           
-          <div class="card-body p-6">
-            <h2 class="card-title text-xl mb-2">
+          <div class="card-body">
+            <h2 class="card-title">
               {project.data.title}
             </h2>
             
-            <p class="text-sm text-base-content/70 mb-4">
+            <p class="text-sm text-base-content/70 mb-2">
               {project.data.description}
             </p>
             
             <!-- Tags -->
             {project.data.tags && project.data.tags.length > 0 && (
               <div class="flex flex-wrap gap-2 mb-4">
-                {project.data.tags.slice(0, 4).map(tag => (
+                {project.data.tags.slice(0, 3).map(tag => (
                   <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors relative z-20">
                     {tag}
                   </a>
                 ))}
-                {project.data.tags.length > 4 && (
-                  <span class="badge badge-ghost badge-sm">+{project.data.tags.length - 4} more</span>
+                {project.data.tags.length > 3 && (
+                  <span class="badge badge-ghost badge-sm">+{project.data.tags.length - 3} more</span>
                 )}
               </div>
             )}
             
-            <div class="card-actions justify-between items-center">
-              <div class="text-sm text-base-content/70">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-base-content/60">
                 {project.data.status === 'completed' && project.data.endDate ? (
-                  <time>
-                    {formatProjectDate(project.data.endDate ?? new Date())}
-                  </time>
+                  `Completed: ${formatProjectDate(project.data.endDate ?? new Date())}`
                 ) : project.data.status === 'in-progress' ? (
-                  <time>
-                    Started {formatProjectDate(project.data.startDate ?? new Date())}
-                  </time>
+                  `Started: ${formatProjectDate(project.data.startDate ?? new Date())}`
                 ) : (
-                  <time>
-                    Planned {formatProjectDate(project.data.startDate ?? new Date())}
-                  </time>
+                  `Planned: ${formatProjectDate(project.data.startDate ?? new Date())}`
                 )}
-              </div>
+              </span>
               
               <div class="flex gap-2">
                 {project.data.githubUrl && (
