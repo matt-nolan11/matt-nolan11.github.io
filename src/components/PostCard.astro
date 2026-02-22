@@ -1,0 +1,81 @@
+---
+/**
+ * PostCard – Reusable blog-post card used on the posts index and tag pages.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+  activeTag?: string;
+  maxTags?: number;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const {
+  post,
+  activeTag,
+  maxTags = 3,
+  headingLevel = 'h2',
+} = Astro.props;
+
+const { data, slug } = post;
+const visibleTags = maxTags === Infinity ? data.tags : data.tags.slice(0, maxTags);
+const extraCount = data.tags.length - visibleTags.length;
+const formattedDate = new Date(data.date).toLocaleDateString('en-US', {
+  timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric',
+});
+
+const Heading = headingLevel;
+---
+
+<article
+  class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
+>
+  <a
+    href={`/posts/${slug}/`}
+    class="absolute inset-0 z-10"
+    aria-label={data.title}
+  ></a>
+
+  {data.cover && (
+    <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
+      <Image
+        src={data.cover}
+        alt={data.coverCaption || data.title}
+        width={560}
+        height={420}
+        class="w-full h-full object-cover"
+      />
+    </figure>
+  )}
+
+  <div class="card-body">
+    <Heading class="card-title">{data.title}</Heading>
+
+    <p class="text-sm text-base-content/70 mb-2">{data.description}</p>
+
+    {data.tags && data.tags.length > 0 && (
+      <div class="flex flex-wrap gap-2 mb-4">
+        {visibleTags.map(tag => (
+          <a
+            href={`/tags/${tag}/`}
+            class:list={[
+              'badge badge-sm tag-hover-light-blue transition-colors relative z-20',
+              activeTag && tag === activeTag ? 'badge-primary' : 'badge-outline',
+            ]}
+          >
+            {tag}
+          </a>
+        ))}
+        {extraCount > 0 && (
+          <span class="badge badge-ghost badge-sm">+{extraCount} more</span>
+        )}
+      </div>
+    )}
+
+    <div class="flex justify-between items-center">
+      <span class="text-sm text-base-content/60">{formattedDate}</span>
+    </div>
+  </div>
+</article>

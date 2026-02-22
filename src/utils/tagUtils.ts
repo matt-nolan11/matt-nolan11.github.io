@@ -4,6 +4,7 @@
 
 import { getCollection } from 'astro:content';
 import { getSortableDate } from './dateUtils';
+import { isMainEntry } from './contentUtils';
 
 /**
  * Gets all unique tags from both projects and posts with their counts
@@ -15,12 +16,8 @@ export async function getAllTags() {
     getCollection('posts')
   ]);
 
-  // Filter to only include main project files (index.mdx), not version files (v1.mdx, v2.mdx, etc.)
-  const mainProjects = projects.filter(project => {
-    const fileName = project.id.split('/').pop();
-    const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
-    return baseName === 'index';
-  });
+  // Filter to only include main project files (index.mdx), not version files
+  const mainProjects = projects.filter(isMainEntry);
 
   const tagCounts = new Map<string, number>();
 
@@ -62,12 +59,8 @@ export async function getContentByTag(tag: string) {
     getCollection('posts')
   ]);
 
-  // Filter to only include main project files (index.mdx), not version files (v1.mdx, v2.mdx, etc.)
-  const mainProjects = projects.filter(project => {
-    const fileName = project.id.split('/').pop();
-    const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
-    return baseName === 'index';
-  });
+  // Filter to only include main project files (index.mdx), not version files
+  const mainProjects = projects.filter(isMainEntry);
 
   const filteredProjects = mainProjects.filter(project => 
     !project.data.draft && project.data.tags.includes(tag)
@@ -101,12 +94,8 @@ export async function getRelatedContent(
     getCollection('posts')
   ]);
 
-  // Filter to only include main project files (index.mdx), not version files (v1.mdx, v2.mdx, etc.)
-  const mainProjects = projects.filter(project => {
-    const fileName = project.id.split('/').pop();
-    const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
-    return baseName === 'index';
-  });
+  // Filter to only include main project files (index.mdx), not version files
+  const mainProjects = projects.filter(isMainEntry);
 
   const allContent = [
     ...mainProjects.map(p => ({ ...p, type: 'project' as const })),

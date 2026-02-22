@@ -33,7 +33,7 @@ interface Props {
   description?: string;
   startDate: string;
   endDate?: string;
-  status: 'completed' | 'in-progress' | 'planned';
+  status: 'completed' | 'in-progress' | 'active' | 'planned';
   headerTitleSize?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
   metrics?: Metrics;
   competitions?: CompetitionEntry[];
@@ -72,6 +72,24 @@ const titleSizeClass =
 const maxDisplay = competitionsOptions?.maxDisplay ?? 3;
 const competitionsToShow = maxDisplay === 0 ? competitions : competitions?.slice(0, maxDisplay);
 const hasRecords = competitions.some(comp => comp.record);
+
+/** Returns the DaisyUI badge class for a placement value */
+function placementBadgeClass(placement: number | string): string {
+  const p = typeof placement === 'number' ? placement : placement.toLowerCase();
+  if (p === 1 || (typeof p === 'string' && (p.includes('1st') || p.includes('champion')))) return 'badge-warning';
+  if (p === 2 || (typeof p === 'string' && p.includes('2nd'))) return 'badge-silver';
+  if (p === 3 || (typeof p === 'string' && p.includes('3rd'))) return 'badge-accent';
+  return 'badge-info';
+}
+
+/** Formats a numeric placement into ordinal text */
+function formatPlacement(placement: number | string): string {
+  if (typeof placement === 'string') return placement;
+  if (placement === 1) return '1st';
+  if (placement === 2) return '2nd';
+  if (placement === 3) return '3rd';
+  return `${placement}th`;
+}
 ---
 
 <style>
@@ -104,6 +122,11 @@ const hasRecords = competitions.some(comp => comp.record);
       ) : status === 'in-progress' ? (
         <div class="flex items-center gap-4">
           <span class="badge status-badge badge-warning">In Progress</span>
+          <span>Started {formatProjectDate(startDate)}</span>
+        </div>
+      ) : status === 'active' ? (
+        <div class="flex items-center gap-4">
+          <span class="badge status-badge badge-accent">Active</span>
           <span>Started {formatProjectDate(startDate)}</span>
         </div>
       ) : (
@@ -146,7 +169,7 @@ const hasRecords = competitions.some(comp => comp.record);
             <span class="text-sm text-base-content/70">{competitionsOptions?.sectionTitle || "Competition History"}</span>
             <div class="flex items-center gap-4 text-sm text-base-content/70">
               {hasRecords && <span class="w-12 text-center">Record</span>}
-              <span class="w-16.5 text-center">Placement</span>
+              <span class="w-16.5 text-center whitespace-nowrap">Placement</span>
             </div>
           </div>
           
@@ -181,22 +204,8 @@ const hasRecords = competitions.some(comp => comp.record);
                     <span class="w-12"></span>
                   )}
                   <div class="w-16.5 flex justify-center">
-                    <span class={`badge badge-sm min-w-16 text-center ${
-                      typeof comp.placement === 'number' && comp.placement === 1 ? 'badge-warning' :
-                      typeof comp.placement === 'string' && (comp.placement.toLowerCase().includes('1st') || comp.placement.toLowerCase().includes('champion')) ? 'badge-warning' :
-                      typeof comp.placement === 'number' && comp.placement === 2 ? 'badge-silver' :
-                      typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('2nd') ? 'badge-silver' :
-                      typeof comp.placement === 'number' && comp.placement === 3 ? 'badge-accent' :
-                      typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('3rd') ? 'badge-accent' :
-                      'badge-info'
-                    }`}>
-                      {typeof comp.placement === 'number' ? 
-                        comp.placement === 1 ? '1st' :
-                        comp.placement === 2 ? '2nd' :
-                        comp.placement === 3 ? '3rd' :
-                        `${comp.placement}th` :
-                        comp.placement
-                      }
+                    <span class={`badge badge-sm min-w-16 text-center ${placementBadgeClass(comp.placement)}`}>
+                      {formatPlacement(comp.placement)}
                     </span>
                   </div>
                 </div>
@@ -240,22 +249,8 @@ const hasRecords = competitions.some(comp => comp.record);
                 {!comp.record && hasRecords && (
                   <span class="w-12"></span>
                 )}
-                <span class={`badge badge-sm w-16.5 text-center ${
-                    typeof comp.placement === 'number' && comp.placement === 1 ? 'badge-warning' :
-                  typeof comp.placement === 'string' && (comp.placement.toLowerCase().includes('1st') || comp.placement.toLowerCase().includes('champion')) ? 'badge-warning' :
-                  typeof comp.placement === 'number' && comp.placement === 2 ? 'badge-silver' :
-                  typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('2nd') ? 'badge-silver' :
-                  typeof comp.placement === 'number' && comp.placement === 3 ? 'badge-accent' :
-                  typeof comp.placement === 'string' && comp.placement.toLowerCase().includes('3rd') ? 'badge-accent' :
-                  'badge-info'
-                }`}>
-                  {typeof comp.placement === 'number' ? 
-                    comp.placement === 1 ? '1st' :
-                    comp.placement === 2 ? '2nd' :
-                    comp.placement === 3 ? '3rd' :
-                    `${comp.placement}th` :
-                    comp.placement
-                  }
+                <span class={`badge badge-sm w-16.5 text-center ${placementBadgeClass(comp.placement)}`}>
+                  {formatPlacement(comp.placement)}
                 </span>
               </div>
             </div>

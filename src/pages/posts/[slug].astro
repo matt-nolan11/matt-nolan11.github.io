@@ -1,9 +1,8 @@
 ---
 import { getCollection, getEntry } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
-import { Image } from "astro:assets";
+import RelatedContent from '../../components/RelatedContent.astro';
 import { getRelatedContent } from "../../utils/tagUtils.ts";
-import TagList from '../../components/TagList.tsx';
 
 export const prerender = true;
 
@@ -45,52 +44,7 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
     <Content />
   </article>
 
-  <!-- Related Content -->
-  {relatedContent.length > 0 && (
-  <section class="mt-12 pt-8 border-t border-base-300">
-      <h2 class="text-2xl font-bold mb-6">Related Content</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {relatedContent.map(item => (
-          <article class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-200 rounded-xl overflow-hidden">
-            <a 
-              href={`/${item.type === 'project' ? 'projects' : 'posts'}/${item.slug}/`}
-              class="block"
-            >
-              {item.data.cover && (
-                <figure class="aspect-[4/3] rounded-t-xl overflow-hidden">
-                  <Image 
-                    src={item.data.cover}
-                    alt={item.data.coverCaption || item.data.title || item.slug.replace(/-/g, ' ')}
-                    width={300}
-                    height={200}
-                    class="w-full h-full object-cover"
-                  />
-                </figure>
-              )}
-              <div class="card-body p-4">
-                <div class="flex items-center gap-2 mb-2">
-                  <div class={`badge badge-sm ${
-                    item.type === 'project' ? 'badge-primary' : 'badge-secondary'
-                  }`}>
-                    {item.type}
-                  </div>
-                  <div class="text-xs text-base-content/60">
-                    {item.sharedTags.length} shared tag{item.sharedTags.length !== 1 ? 's' : ''}
-                  </div>
-                </div>
-                <h3 class="card-title text-base">
-                  {item.data.title}
-                </h3>
-              </div>
-            </a>
-            <div class="px-4 pb-4">
-              <TagList tags={item.sharedTags} client:load />
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  )}
+  <RelatedContent items={relatedContent} />
 
   <!-- Navigation -->
   <div class="mt-12 pt-8 border-t border-base-300">

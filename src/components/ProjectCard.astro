@@ -1,0 +1,139 @@
+---
+/**
+ * ProjectCard – Reusable project card used on the homepage, projects index, and tag pages.
+ *
+ * Props:
+ *   project      – A projects collection entry
+ *   activeTag    – If set, this tag gets `badge-primary` styling (used on tag pages)
+ *   maxTags      – Max tags to show before "+N more" (default: 3, use Infinity to show all)
+ *   showActions  – Show GitHub / Live Demo buttons (default: false)
+ *   headingLevel – 'h2' | 'h3' for the title element (default: 'h2')
+ */
+import { Image } from 'astro:assets';
+import { formatProjectDate } from '../utils/dateUtils';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  activeTag?: string;
+  maxTags?: number;
+  showActions?: boolean;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const {
+  project,
+  activeTag,
+  maxTags = 3,
+  showActions = false,
+  headingLevel = 'h2',
+} = Astro.props;
+
+const { data, slug } = project;
+const visibleTags = maxTags === Infinity ? data.tags : data.tags.slice(0, maxTags);
+const extraCount = data.tags.length - visibleTags.length;
+
+const dateLabel =
+  data.status === 'completed' && data.endDate
+    ? `Completed: ${formatProjectDate(data.endDate ?? new Date())}`
+    : data.status === 'in-progress' || data.status === 'active'
+      ? `Started: ${formatProjectDate(data.startDate ?? new Date())}`
+      : `Planned: ${formatProjectDate(data.startDate ?? new Date())}`;
+
+const statusClass =
+  data.status === 'completed' ? 'badge-success'
+  : data.status === 'in-progress' ? 'badge-warning'
+  : data.status === 'active' ? 'badge-accent'
+  : 'badge-info';
+
+const statusLabel =
+  data.status === 'completed' ? 'Completed'
+  : data.status === 'in-progress' ? 'In Progress'
+  : data.status === 'active' ? 'Active'
+  : 'Planned';
+
+const Heading = headingLevel;
+---
+
+<article
+  class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
+>
+  <a
+    href={`/projects/${slug}/`}
+    class="absolute inset-0 z-10"
+    aria-label={data.title}
+  ></a>
+
+  <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
+    {data.cover ? (
+      <Image
+        src={data.cover}
+        alt={data.coverCaption || data.title || slug.replace(/-/g, ' ')}
+        width={560}
+        height={420}
+        class="w-full h-full object-cover"
+      />
+    ) : (
+      <div class="w-full h-full bg-base-200 flex items-center justify-center">
+        <span class="text-base-content/50 text-lg">No Image</span>
+      </div>
+    )}
+    <div class="absolute top-2 right-2">
+      <div class={`badge status-badge ${statusClass}`}>{statusLabel}</div>
+    </div>
+  </figure>
+
+  <div class="card-body">
+    <Heading class="card-title">{data.title}</Heading>
+
+    <p class="text-sm text-base-content/70 mb-2">{data.description}</p>
+
+    {data.tags && data.tags.length > 0 && (
+      <div class="flex flex-wrap gap-2 mb-4">
+        {visibleTags.map(tag => (
+          <a
+            href={`/tags/${tag}/`}
+            class:list={[
+              'badge badge-sm tag-hover-light-blue transition-colors relative z-20',
+              activeTag && tag === activeTag ? 'badge-primary' : 'badge-outline',
+            ]}
+          >
+            {tag}
+          </a>
+        ))}
+        {extraCount > 0 && (
+          <span class="badge badge-ghost badge-sm">+{extraCount} more</span>
+        )}
+      </div>
+    )}
+
+    <div class="flex justify-between items-center">
+      <span class="text-sm text-base-content/60">{dateLabel}</span>
+
+      {showActions && (
+        <div class="flex gap-2">
+          {data.githubUrl && (
+            <a
+              href={data.githubUrl}
+              class="btn btn-sm btn-outline relative z-20"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          )}
+          {data.liveUrl && (
+            <a
+              href={data.liveUrl}
+              class="btn btn-sm btn-outline relative z-20"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Live Demo
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</article>

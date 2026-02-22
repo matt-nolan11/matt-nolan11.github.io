@@ -143,34 +143,12 @@ if (!columns || columns.length === 0) {
     display: block;
   }
 
-</style>
-
-<!-- Additional CSS to ensure content stays within bounds (from working version) -->
-<style>
-  /* Basic layout for sections */
-  .section.lg\\:flex-row {
-    align-items: flex-start;
-  }
-  
   /* Ensure all columns stay within bounds without clipping */
   .column {
-    min-width: 0; /* Prevent overflow */
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
-  
-  /* Ensure galleries and models respect their column width */
-  .column .project-gallery,
-  .column .model-viewer-container {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  
-  /* Support for arbitrary width values */
-  .column[class*="lg:w-["] {
-    flex-shrink: 0;
-  }
+
 </style>
 
 {(() => {

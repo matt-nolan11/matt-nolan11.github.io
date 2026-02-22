@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { Image } from "astro:assets";
+import PostCard from '../../components/PostCard.astro';
 import { getCollection } from 'astro:content';
 
 const posts = await getCollection('posts');
@@ -13,7 +13,7 @@ const publishedPosts = posts
   pageType="posts-index"
   seo={{
     title: "Posts",
-    description: "A collection of blog posts about stars and astronomy."
+    description: "Insights and tutorials in robotics and engineering, plus combat robotics event recaps."
   }}
 >
   <div>
@@ -26,54 +26,7 @@ const publishedPosts = posts
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {publishedPosts.map(post => (
-        <article 
-          class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
-        >
-          <a 
-            href={`/posts/${post.slug}/`}
-            class="absolute inset-0 z-10"
-            aria-label={post.data.title}
-          ></a>
-          <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
-            <Image 
-              src={post.data.cover}
-              alt={post.data.coverCaption || post.data.title}
-              width={560}
-              height={420}
-              class="w-full h-full object-cover"
-            />
-          </figure>
-          
-          <div class="card-body">
-            <h2 class="card-title">
-              {post.data.title}
-            </h2>
-            
-            <p class="text-sm text-base-content/70 mb-2">
-              {post.data.description}
-            </p>
-            
-            <!-- Tags -->
-            {post.data.tags && post.data.tags.length > 0 && (
-              <div class="flex flex-wrap gap-2 mb-4">
-                {post.data.tags.slice(0, 3).map(tag => (
-                  <a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors relative z-20">
-                    {tag}
-                  </a>
-                ))}
-                {post.data.tags.length > 3 && (
-                  <span class="badge badge-ghost badge-sm">+{post.data.tags.length - 3} more</span>
-                )}
-              </div>
-            )}
-            
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-base-content/60">
-                {new Date(post.data.date).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })}
-              </span>
-            </div>
-          </div>
-        </article>
+        <PostCard post={post} />
       ))}
     </div>
 

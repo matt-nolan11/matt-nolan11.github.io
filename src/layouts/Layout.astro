@@ -3,6 +3,7 @@ import "../styles/global.css";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import logo from "../assets/logo.svg";
+import { navLinks } from '../config/navLinks';
 
 import { SEO } from "astro-seo";
 
@@ -147,10 +148,9 @@ const getPageStyles = (type: string) => {
     <div class="drawer-side lg:hidden">
       <label for="nav-drawer" class="drawer-overlay"></label>
       <ul class="menu p-4 w-80 bg-base-100 min-h-full">
-        <li><a href="/about" class="normal-case font-bold text-xl">About</a></li>
-        <li><a href="/projects" class="normal-case font-bold text-xl">Projects</a></li>
-        <li><a href="/posts" class="normal-case font-bold text-xl">Posts</a></li>
-        <li><a href="/tags" class="normal-case font-bold text-xl">Tags</a></li>
+        {navLinks.map(link => (
+          <li><a href={link.href} class="normal-case font-bold text-xl">{link.label}</a></li>
+        ))}
       </ul>
     </div>
   </div>

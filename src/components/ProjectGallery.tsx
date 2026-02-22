@@ -9,7 +9,7 @@
  * - Mobile-responsive design with optimized performance
  */
 
-import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 
@@ -43,32 +43,26 @@ export default function ProjectGallery({
   className = '',
 }: ProjectGalleryProps) {
   /**
-   * Calculate optimal gallery height based on the shortest image in the collection
-   * @param images - Array of gallery images with potential width/height metadata
-   * @param galleryWidth - Target width of the gallery (actual display width)
-   * @returns Calculated height in pixels
+   * Calculate the gallery aspect ratio based on the widest (landscape) image.
+   * Uses the widest aspect ratio so no image is excessively cropped.
+   * Returns the ratio as width / height (e.g. 1.333 for 4:3).
    */
-  const calculateOptimalHeight = (images: GalleryImage[], galleryWidth: number): number => {
-    const scaledHeights: number[] = [];
+  const calculateGalleryAspectRatio = (images: GalleryImage[]): number => {
+    const ratios: number[] = [];
     
-    // Scale all images to fit the gallery width and find the shortest
     for (const image of images) {
-      // Check if we have Astro image metadata with dimensions
       if (typeof image.src === 'object' && image.src.width && image.src.height) {
-        // Scale this image to fit the gallery width and calculate its height
-        const aspectRatio = image.src.width / image.src.height;
-        const scaledHeight = galleryWidth / aspectRatio;
-        scaledHeights.push(scaledHeight);
+        ratios.push(image.src.width / image.src.height);
       }
     }
     
-    // Use the shortest scaled image height (if we have any)
-    if (scaledHeights.length > 0) {
-      return Math.round(Math.min(...scaledHeights));
+    // Use the widest (largest) aspect ratio so landscape images fit well
+    if (ratios.length > 0) {
+      return Math.max(...ratios);
     }
     
-    // Fallback: use standard aspect ratio
-    return Math.round(galleryWidth * 0.6); // 3:5 aspect ratio fallback
+    // Fallback: 5:3 landscape ratio
+    return 5 / 3;
   };
 
   /**
@@ -77,110 +71,31 @@ export default function ProjectGallery({
    * @returns Object with className and style properties
    */
 
+  // Compute aspect ratio once from image metadata (stable across renders)
+  const galleryAspectRatio = calculateGalleryAspectRatio(images);
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(autoplay);
   const [isMobile, setIsMobile] = useState(false);
-  const [calculatedHeight, setCalculatedHeight] = useState<number | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const userInteractionRef = useRef(false);
   const isPlayingRef = useRef(isPlaying);
   const autoplayIntervalRef = useRef(autoplayInterval);
 
-  // Function to calculate height based on actual container width
-  const updateCalculatedHeight = useCallback(() => {
-    if (containerRef.current) {
-      const actualWidth = containerRef.current.offsetWidth;
-      if (actualWidth > 0) {
-        const height = calculateOptimalHeight(images, actualWidth);
-        setCalculatedHeight(height);
-        if (!isInitialized) {
-          setIsInitialized(true);
-        }
-      }
-    }
-  }, [images, isInitialized]);
-
-  // Update height when container changes
+  // Detect mobile screens
   useEffect(() => {
-    updateCalculatedHeight();
-  }, [updateCalculatedHeight]);
-
-  // Calculate height immediately on mount to prevent layout shift
-  useLayoutEffect(() => {
-    if (containerRef.current) {
-      updateCalculatedHeight();
-      
-      // Also try again after a small delay to catch any CSS layout settling
-      const timeoutId = setTimeout(() => {
-        updateCalculatedHeight();
-      }, 100);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [updateCalculatedHeight]);
-
-  // Function to get initial height estimation
-  const getInitialHeight = useCallback(() => {
-    if (calculatedHeight) return calculatedHeight;
-    
-    // Fallback calculation for initial render - use a reasonable default
-    let estimatedWidth = 700;
-    
-    // On mobile, use screen width minus padding
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      estimatedWidth = Math.min(estimatedWidth, window.innerWidth - 32);
-    }
-    
-    return calculateOptimalHeight(images, estimatedWidth);
-  }, [calculatedHeight, images]);
-
-  // Detect mobile screens and update layout on resize
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    
     const updateLayout = () => {
       setIsMobile(window.innerWidth < 640);
-      
-      // Debounce height calculation during resize
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        updateCalculatedHeight();
-      }, 150);
     };
 
-    // Check on mount
     if (typeof window !== 'undefined') {
       updateLayout();
       window.addEventListener('resize', updateLayout);
-      return () => {
-        window.removeEventListener('resize', updateLayout);
-        clearTimeout(timeoutId);
-      };
+      return () => window.removeEventListener('resize', updateLayout);
     }
-  }, [updateCalculatedHeight]); // Re-run when update function changes
-
-  // ResizeObserver to track container size changes
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === containerRef.current) {
-          // Container size changed, update height calculation
-          updateCalculatedHeight();
-        }
-      }
-    });
-
-    resizeObserver.observe(containerRef.current);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [updateCalculatedHeight]);
+  }, []);
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -390,8 +305,11 @@ export default function ProjectGallery({
     restoreAutoplayIfNeeded(wasAutoplayActive);
   }, [loaded, isPlaying, autoplay, clearFocus, restoreAutoplayIfNeeded]);
 
-  // Keyboard navigation
+  // Keyboard navigation (scoped to gallery container)
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!instanceRef.current || !loaded || !instanceRef.current.track?.details) return;
       
@@ -419,8 +337,8 @@ export default function ProjectGallery({
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    container.addEventListener('keydown', handleKeyDown);
+    return () => container.removeEventListener('keydown', handleKeyDown);
   }, [loaded, isPlaying, images.length, handlePrev, handleNext, goToSlide]);
 
   // Enhanced image optimization with realistic fallback support
@@ -478,16 +396,16 @@ export default function ProjectGallery({
       style={{ width: '100%' }} // Always use full width of column
       role="region" 
       aria-label="Project image gallery"
+      tabIndex={0}
     >
       {/* Main carousel */}
       <div className="relative group">
         <div 
           ref={sliderRef} 
-          className={`keen-slider main-carousel rounded-xl overflow-hidden shadow-lg ${
-            isInitialized ? 'transition-[height] duration-200 ease-out' : ''
-          }`}
+          className="keen-slider main-carousel rounded-xl overflow-hidden shadow-lg"
           style={{ 
-            height: `${calculatedHeight || getInitialHeight()}px`,
+            aspectRatio: `${galleryAspectRatio}`,
+            width: '100%',
             opacity: loaded ? 1 : 0,
             transition: loaded ? 'opacity 0.3s ease-in-out' : 'none'
           }}

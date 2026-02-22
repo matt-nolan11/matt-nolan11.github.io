@@ -1,9 +1,8 @@
 ---
 import Landing from '../components/Landing.astro';
 import Layout from '../layouts/Layout.astro';
-import { Image } from "astro:assets";
+import ProjectCard from '../components/ProjectCard.astro';
 import { getCollection } from 'astro:content';
-import { formatProjectDate } from '../utils/dateUtils';
 import { getFeaturedProjects } from '../utils/homepageUtils';
 
 const projects = await getCollection('projects');
@@ -15,70 +14,12 @@ const displayProjects = getFeaturedProjects(projects, 6);
 	<Landing />
 
     <!-- Featured Projects Section -->
-    <section>
+    <section class="mt-12">
 		<h2 class="text-2xl font-semibold mb-6">Featured Projects</h2>
 		<p class="mb-4 text-base-content/70">Explore a selection of my robotics and engineering projects. View the full list on the Projects page.</p>
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 		  {displayProjects.map(project => (
-			<div 
-			  class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
-			>
-			  <a 
-				href={`/projects/${project.slug}/`}
-				class="absolute inset-0 z-10"
-				aria-label={project.data.title}
-			  ></a>
-			  <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
-				{project.data.cover ? (
-				  <Image 
-					src={project.data.cover}
-					alt={(project.data.coverCaption || project.data.title || project.slug.replace(/-/g, ' '))}
-					width={560}
-					height={420}
-					class="w-full h-full object-cover"
-				  />
-				) : (
-				  <div class="w-full h-full bg-base-200 flex items-center justify-center">
-					<span class="text-base-content/50 text-lg">No Image</span>
-				  </div>
-				)}
-				<div class="absolute top-2 right-2">
-				  <div class={`badge status-badge ${
-					project.data.status === 'completed' ? 'badge-success' : 
-					project.data.status === 'in-progress' ? 'badge-warning' : 
-					'badge-info'
-				  }`}>
-					{project.data.status === 'completed' ? 'Completed' : 
-					 project.data.status === 'in-progress' ? 'In Progress' : 
-					 'Planned'}
-				  </div>
-				</div>
-			  </figure>
-			  <div class="card-body">
-				<h2 class="card-title">{project.data.title}</h2>
-				<p class="text-sm text-base-content/70 mb-2">{project.data.description}</p>
-				<div class="flex flex-wrap gap-2 mb-4">
-				  {project.data.tags.slice(0, 3).map(tag => (
-					<a href={`/tags/${tag}/`} class="badge badge-outline badge-sm tag-hover-light-blue transition-colors relative z-20">
-					  {tag}
-					</a>
-				  ))}
-				  {project.data.tags.length > 3 && (
-					<span class="badge badge-ghost badge-sm">+{project.data.tags.length - 3} more</span>
-				  )}
-				</div>
-				<div class="flex justify-between items-center">
-				  <span class="text-sm text-base-content/60">
-					  {project.data.status === 'completed' && project.data.endDate
-						  ? `Completed: ${formatProjectDate(project.data.endDate ?? new Date())}`
-						  : project.data.status === 'in-progress'
-						  ? `Started: ${formatProjectDate(project.data.startDate ?? new Date())}`
-						  : `Planned: ${formatProjectDate(project.data.startDate ?? new Date())}`
-					  }
-				  </span>
-				</div>
-			  </div>
-			</div>
+			<ProjectCard project={project} />
 		  ))}
 		</div>
 		<div class="flex justify-center mt-8">

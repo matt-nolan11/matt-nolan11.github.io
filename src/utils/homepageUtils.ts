@@ -1,5 +1,5 @@
 import type { CollectionEntry } from 'astro:content';
-import { getSortableDate } from './dateUtils';
+import { isMainEntry, sortProjectsOngoingFirst } from './contentUtils';
 
 /**
  * Gets featured projects for the homepage display
@@ -14,12 +14,7 @@ export function getFeaturedProjects(
   projects: CollectionEntry<'projects'>[],
   maxCount: number = 6
 ): CollectionEntry<'projects'>[] {
-  // Filter to only include main project files (index.mdx), not version files (v1.mdx, v2.mdx, etc.)
-  const mainProjects = projects.filter(project => {
-    const fileName = project.id.split('/').pop();
-    const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
-    return baseName === 'index';
-  });
+  const mainProjects = projects.filter(isMainEntry);
 
   // Collect all featured projects with their order
   const featured = mainProjects.filter(p => !p.data.draft && p.data.featured === true);
@@ -48,26 +43,9 @@ export function getFeaturedProjects(
   }
 
   // Get remaining featured projects (without featuredOrder), sorted by most recent date
-  const unorderedFeatured = featured
-    .filter(p => typeof p.data.featuredOrder !== 'number')
-    .sort((a, b) => {
-      // Prioritize ongoing projects (no end date) by most recent start date
-      // Then completed projects by most recent end date
-      const aHasEndDate = !!a.data.endDate;
-      const bHasEndDate = !!b.data.endDate;
-      
-      // If one has no end date and the other does, prioritize the ongoing one
-      if (!aHasEndDate && bHasEndDate) return -1;
-      if (aHasEndDate && !bHasEndDate) return 1;
-      
-      // If both are ongoing (no end date), sort by most recent start date
-      if (!aHasEndDate && !bHasEndDate) {
-        return getSortableDate(b.data.startDate).getTime() - getSortableDate(a.data.startDate).getTime();
-      }
-      
-      // If both have end dates, sort by most recent end date
-      return getSortableDate(b.data.endDate!).getTime() - getSortableDate(a.data.endDate!).getTime();
-    });
+  const unorderedFeatured = sortProjectsOngoingFirst(
+    featured.filter(p => typeof p.data.featuredOrder !== 'number')
+  );
 
   // Fill empty slots with unordered featured projects
   let unorderedIdx = 0;
@@ -78,26 +56,9 @@ export function getFeaturedProjects(
   }
 
   // Get recent non-featured projects
-  const recentProjects = mainProjects
-    .filter(p => !p.data.draft && p.data.featured !== true)
-    .sort((a, b) => {
-      // Prioritize ongoing projects (no end date) by most recent start date
-      // Then completed projects by most recent end date
-      const aHasEndDate = !!a.data.endDate;
-      const bHasEndDate = !!b.data.endDate;
-      
-      // If one has no end date and the other does, prioritize the ongoing one
-      if (!aHasEndDate && bHasEndDate) return -1;
-      if (aHasEndDate && !bHasEndDate) return 1;
-      
-      // If both are ongoing (no end date), sort by most recent start date
-      if (!aHasEndDate && !bHasEndDate) {
-        return getSortableDate(b.data.startDate).getTime() - getSortableDate(a.data.startDate).getTime();
-      }
-      
-      // If both have end dates, sort by most recent end date
-      return getSortableDate(b.data.endDate!).getTime() - getSortableDate(a.data.endDate!).getTime();
-    });
+  const recentProjects = sortProjectsOngoingFirst(
+    mainProjects.filter(p => !p.data.draft && p.data.featured !== true)
+  );
 
   // Fill any remaining empty slots with recent non-featured projects
   let recentIdx = 0;

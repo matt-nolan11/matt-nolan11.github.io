@@ -122,26 +122,13 @@
   }
 }
 
-/* Ensure width classes are available for cover gallery */
+/* Ensure grid column classes are available for ModularSection (dynamic class strings) */
 @media (min-width: 1024px) {
-  .lg\:w-3\/5 { width: 60% !important; }
-  .lg\:w-2\/5 { width: 40% !important; }
-  .lg\:w-\[55\%\] { width: 55% !important; }
-  .lg\:w-\[45\%\] { width: 45% !important; }
-  .lg\:w-\[60\%\] { width: 60% !important; }
-  .lg\:w-\[40\%\] { width: 40% !important; }
-  .lg\:w-\[65\%\] { width: 65% !important; }
-  .lg\:w-\[35\%\] { width: 35% !important; }
-  .lg\:w-\[70\%\] { width: 70% !important; }
-  .lg\:w-\[30\%\] { width: 30% !important; }
-  .lg\:w-\[75\%\] { width: 75% !important; }
-  .lg\:w-\[25\%\] { width: 25% !important; }
-  
-  /* Ensure grid column classes are available for ModularSection */
   .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) {
   .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .xl\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* Pagefind UI Overrides */
@@ -166,11 +153,6 @@
 
   .pagefind-ui.yellow {
     --pagefind-ui-background: var(--color-warning);
-  }
-
-  .pagefind-ui.red {
-    --pagefind-ui-background: var(--color-error);
-    width: 100%;
   }
 
   .pagefind-ui .pagefind-ui__drawer:not(.pagefind-ui__hidden) {
@@ -243,14 +225,12 @@
 .grid {
   transition: grid-template-columns 0.8s cubic-bezier(0.23, 1, 0.32, 1),
               gap 0.8s cubic-bezier(0.23, 1, 0.32, 1) !important;
-  will-change: grid-template-columns, gap;
 }
 
 /* Card hover effects */
 .card {
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
               box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-  will-change: transform, box-shadow;
 }
 
 .card:hover {
@@ -273,7 +253,6 @@
                 transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 flex-basis 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 grid-template-columns 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-    will-change: transform, width, height, padding, margin, flex !important;
   }
   
   /* Extra smooth transitions for main content areas and navbar - also with delay */
@@ -298,7 +277,6 @@
                 transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 flex-basis 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 grid-template-columns 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-    will-change: transform, width, height, padding, margin, flex !important;
   }
   
   /* Absolutely ensure drawer elements are never affected */
@@ -312,7 +290,6 @@
   body.window-resizing.transitions-enabled .drawer-toggle,
   body.window-resizing.transitions-enabled #nav-drawer {
     transition: none !important;
-    will-change: auto !important;
   }
 }
 
@@ -329,79 +306,11 @@
   }
 }
 
-.version-content-wrapper {
-  overflow: hidden; /* Contains floating elements */
-}
-
-.clear-both {
-  clear: both;
-}
-
 /* Ensure proper spacing for wrapped content */
-.gallery-wrapped + .prose {
-  margin-top: 0;
-}
-
 .prose::after {
   content: "";
   display: table;
   clear: both;
-}
-
-/* Project Versions Alignment Fixes */
-.version-content {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-.version-card {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  /* Remove any background or border that might be causing visual misalignment */
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* Ensure version content aligns with tabs container */
-.version-content .version-card {
-  /* Reset any inherited padding/margin from parent containers */
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Ensure content inside version cards has proper spacing */
-.version-content .version-card > div {
-  margin: 0;
-  padding: 0;
-}
-
-/* Restore internal spacing for content elements */
-.version-content .version-card h3,
-.version-content .version-card h4,
-.version-content .version-card h5,
-.version-content .version-card p,
-.version-content .version-card ul,
-.version-content .version-card div {
-  margin-left: 0;
-  margin-right: 0;
-}
-
-/* Ensure proper spacing between version content sections */
-.version-content .version-card .mb-4 {
-  margin-bottom: 1rem;
-}
-
-.version-content .version-card .mb-6 {
-  margin-bottom: 1.5rem;
-}
-
-.version-content .version-card .mb-8 {
-  margin-bottom: 2rem;
 }
 
 /* Custom tag hover colors - using DaisyUI primary color */
@@ -543,22 +452,6 @@ model-viewer [slot="progress-bar"] {
   margin: 0 !important;
   padding: 0 !important;
   color: white !important;
-}
-
-/* Article context for ModularSection to match project page styling */
-.article-context {
-  /* Apply the same font and text context as article */
-  font-feature-settings: inherit;
-  font-variation-settings: inherit;
-  text-rendering: inherit;
-}
-
-.article-context .font-medium {
-  font-weight: 500 !important;
-}
-
-.article-context .badge {
-  text-decoration: none !important;
 }
 
 /* Article container - respects page margins */

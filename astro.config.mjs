@@ -28,17 +28,11 @@ const expressiveCode = astroExpressiveCode({
 // https://astro.build/config
 export default defineConfig({
   site: 'https://matt-nolan11.github.io',
-  server: {
-    host: true
-  },
   vite: {
     plugins: [
       tailwindcss(),
       basicSsl(),
     ],
-    server: {
-      host: true,
-    },
     build: {
       chunkSizeWarningLimit: 1500,
     },
@@ -48,8 +42,5 @@ export default defineConfig({
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],
   },
-  integrations: [sitemap(), react(), pagefind(), expressiveCode, mdx({
-    remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeKatex],
-  })]
+  integrations: [sitemap(), react(), pagefind(), expressiveCode, mdx()]
 });

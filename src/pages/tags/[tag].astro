@@ -1,8 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { Image } from 'astro:assets';
+import ProjectCard from '../../components/ProjectCard.astro';
+import PostCard from '../../components/PostCard.astro';
 import { getAllTags, getContentByTag } from '../../utils/tagUtils';
-import { formatProjectDate, getSortableDate } from '../../utils/dateUtils';
+import { sortProjectsOngoingFirst } from '../../utils/contentUtils';
 
 export async function getStaticPaths() {
   const tags = await getAllTags();
@@ -25,32 +26,7 @@ export async function getStaticPaths() {
 
 const { tag, projects, posts, totalCount } = Astro.props;
 
-// Sort projects by date
-// Ensure we only sort main project files (index.mdx), though getContentByTag should already filter
-const sortedProjects = projects
-  .filter(p => p.id.split('/').pop()?.replace(/\.(mdx?|md)$/, '') === 'index')
-  .sort((a, b) => {
-  // Prioritize ongoing projects (no end date) by most recent start date
-  // Then completed projects by most recent end date
-  const aHasEndDate = !!a.data.endDate;
-  const bHasEndDate = !!b.data.endDate;
-  
-  // If one has no end date and the other does, prioritize the ongoing one
-  if (!aHasEndDate && bHasEndDate) return -1;
-  if (aHasEndDate && !bHasEndDate) return 1;
-  
-  // If both are ongoing (no end date), sort by most recent start date
-  if (!aHasEndDate && !bHasEndDate) {
-    const bStart = b.data.startDate ?? new Date(0);
-    const aStart = a.data.startDate ?? new Date(0);
-    return getSortableDate(bStart).getTime() - getSortableDate(aStart).getTime();
-  }
-  
-  // If both have end dates, sort by most recent end date
-  const bEnd = b.data.endDate ?? new Date(0);
-  const aEnd = a.data.endDate ?? new Date(0);
-  return getSortableDate(bEnd).getTime() - getSortableDate(aEnd).getTime();
-});
+const sortedProjects = sortProjectsOngoingFirst(projects);
 
 // Sort posts by date
 const sortedPosts = posts.sort((a, b) => 
@@ -91,76 +67,7 @@ const sortedPosts = posts.sort((a, b) =>
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedProjects.map(project => (
-              <article 
-                class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
-              >
-                <a 
-                  href={`/projects/${project.slug}/`}
-                  class="absolute inset-0 z-10"
-                  aria-label={project.data.title}
-                ></a>
-                <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
-                  {project.data.cover ? (
-                    <Image 
-                      src={project.data.cover}
-                      alt={(project.data.coverCaption || project.data.title || project.slug.replace(/-/g, ' '))}
-                      width={560}
-                      height={420}
-                      class="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div class="w-full h-full bg-base-200 flex items-center justify-center">
-                      <span class="text-base-content/50 text-lg">No Image</span>
-                    </div>
-                  )}
-                  <div class="absolute top-2 right-2">
-                    <div class={`badge status-badge ${
-                      project.data.status === 'completed' ? 'badge-success' : 
-                      project.data.status === 'in-progress' ? 'badge-warning' : 
-                      'badge-info'
-                    }`}>
-                      {project.data.status === 'completed' ? 'Completed' : 
-                       project.data.status === 'in-progress' ? 'In Progress' : 
-                       'Planned'}
-                    </div>
-                  </div>
-                </figure>
-                
-                <div class="card-body">
-                  <h3 class="card-title">
-                    {project.data.title}
-                  </h3>
-                  
-                  <p class="text-sm text-base-content/70 mb-2">
-                    {project.data.description}
-                  </p>
-                  
-                  <div class="flex flex-wrap gap-2 mb-4">
-                    {project.data.tags.map(projectTag => (
-                      <a 
-                        href={`/tags/${projectTag}/`} 
-                        class={`badge badge-sm tag-hover-light-blue transition-colors relative z-20 ${
-                          projectTag === tag ? 'badge-primary' : 'badge-outline'
-                        }`}
-                      >
-                        {projectTag}
-                      </a>
-                    ))}
-                  </div>
-                  
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-base-content/60">
-                      {project.data.status === 'completed' && project.data.endDate ? (
-                        `Completed: ${formatProjectDate(project.data.endDate ?? new Date())}`
-                      ) : project.data.status === 'in-progress' ? (
-                        `Started: ${formatProjectDate(project.data.startDate ?? new Date())}`
-                      ) : (
-                        `Planned: ${formatProjectDate(project.data.startDate ?? new Date())}`
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </article>
+              <ProjectCard project={project} activeTag={tag} maxTags={Infinity} headingLevel="h3" />
             ))}
           </div>
         </section>
@@ -175,53 +82,7 @@ const sortedPosts = posts.sort((a, b) =>
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedPosts.map(post => (
-              <article 
-                class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
-              >
-                <a 
-                  href={`/posts/${post.slug}/`}
-                  class="absolute inset-0 z-10"
-                  aria-label={post.data.title}
-                ></a>
-                <figure class="relative aspect-[4/3] rounded-t-xl overflow-hidden">
-                  <Image 
-                    src={post.data.cover}
-                    alt={post.data.coverCaption || post.data.title}
-                    width={560}
-                    height={420}
-                    class="w-full h-full object-cover"
-                  />
-                </figure>
-                
-                <div class="card-body">
-                  <h3 class="card-title">
-                    {post.data.title}
-                  </h3>
-                  
-                  <p class="text-sm text-base-content/70 mb-2">
-                    {post.data.description}
-                  </p>
-                  
-                  <div class="flex flex-wrap gap-2 mb-4">
-                    {post.data.tags.map(postTag => (
-                      <a 
-                        href={`/tags/${postTag}/`} 
-                        class={`badge badge-sm tag-hover-light-blue transition-colors relative z-20 ${
-                          postTag === tag ? 'badge-primary' : 'badge-outline'
-                        }`}
-                      >
-                        {postTag}
-                      </a>
-                    ))}
-                  </div>
-                  
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-base-content/60">
-                      {new Date(post.data.date).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </span>
-                  </div>
-                </div>
-              </article>
+              <PostCard post={post} activeTag={tag} maxTags={Infinity} headingLevel="h3" />
             ))}
           </div>
         </section>

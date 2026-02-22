@@ -4,6 +4,7 @@ import logo from "../assets/logo.svg";
 import Search from "astro-pagefind/components/Search";
 import { MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from '../components/ThemeToggle.astro';
+import { navLinks } from '../config/navLinks';
 ---
 
 <header class="sticky top-0 z-50 bg-base-100 navbar-header" id="main-header">
@@ -43,10 +44,9 @@ import ThemeToggle from '../components/ThemeToggle.astro';
       
       <!-- Navigation Menu -->
       <ul class="menu menu-horizontal flex-shrink-0 mr-4">
-        <li><a href="/about" class="normal-case font-bold text-lg px-3">About</a></li>
-        <li><a href="/projects" class="normal-case font-bold text-lg px-3">Projects</a></li>
-        <li><a href="/posts" class="normal-case font-bold text-lg px-3">Posts</a></li>
-        <li><a href="/tags" class="normal-case font-bold text-lg px-3">Tags</a></li>
+        {navLinks.map(link => (
+          <li><a href={link.href} class="normal-case font-bold text-lg px-3">{link.label}</a></li>
+        ))}
       </ul>
       
       <!-- Search and Theme Section -->
@@ -137,32 +137,6 @@ import ThemeToggle from '../components/ThemeToggle.astro';
       attributes: true, 
       attributeFilter: ['data-theme'] 
     });
-
-    // Enhanced window resize handling with smooth content transitions
-    let resizeTimeout: number;
-    let isResizing = false;
-    
-    function handleResizeStart() {
-      // Only apply transitions if they're enabled (after 5s page load delay)
-      const transitionsEnabled = document.body.classList.contains('transitions-enabled');
-      if (!transitionsEnabled) return;
-      
-      if (!isResizing) {
-        isResizing = true;
-        document.body.classList.add('window-resizing');
-      }
-      
-      clearTimeout(resizeTimeout);
-      resizeTimeout = window.setTimeout(() => {
-        isResizing = false;
-        document.body.classList.remove('window-resizing');
-      }, 800);
-    }
-    
-    window.addEventListener('resize', handleResizeStart);
-    
-    // Also add orientationchange for mobile devices
-    window.addEventListener('orientationchange', handleResizeStart);
 
     // Handle mobile drawer to prevent navbar jumping
     const drawerToggle = document.getElementById('nav-drawer') as HTMLInputElement;
