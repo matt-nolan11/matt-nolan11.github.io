@@ -1,7 +1,26 @@
 @import 'katex/dist/katex.min.css';
-/* Make all Markdown images rounded */
-.prose img {
+/* Make all Markdown images rounded, except gallery images */
+.prose img:not(.project-gallery img) {
   border-radius: 0.5rem;
+}
+.prose .project-gallery img {
+  border-radius: 0;
+}
+
+/* ModularSection spacing — override prose auto-margins */
+.prose .modular-section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Suppress prose's paragraph/heading margin-top on elements that follow a
+   ModularSection. Without this, margin collapsing makes the gap below a
+   ModularSection equal to max(section.margin-bottom, next-el.margin-top),
+   so setting margin-bottom: 0 has no effect when prose-lg paragraph
+   margin-top (~1.33em) is the larger value. With this rule the gap is fully
+   controlled by the ModularSection's margin-bottom (or style prop). */
+.prose .modular-section + :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote) {
+  margin-top: 0 !important;
 }
 
 @import "tailwindcss";
@@ -137,7 +156,7 @@
     --pagefind-ui-background: var(--color-base-100);
     --pagefind-ui-primary: var(--color-primary);
     --pagefind-ui-text: var(--color-base-content);
-    --pagefind-ui-border: var(--color-primary-content);
+    --pagefind-ui-border: var(--color-base-content);
     --pagefind-ui-border-width: var(--border);
     --pagefind-ui-border-radius: var(--radius-box);
     --pagefind-ui-font: inherit;
@@ -184,7 +203,7 @@
     width: 100%;
     padding: 0.75rem 1rem;
     border-radius: var(--rounded-btn, 0.5rem);
-    border: 1px solid var(--color-base-300);
+    border: 1px solid var(--color-base-content);
     background-color: var(--color-base-100);
     color: var(--color-base-content);
     font-size: 0.875rem;
@@ -194,7 +213,7 @@
   
   /* Enhanced border in light mode for better contrast */
   [data-theme="corporate"] .pagefind-ui .pagefind-ui__search-input {
-    border: 2px solid rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--color-base-content);
   }
   
   .pagefind-ui .pagefind-ui__search-input:focus {

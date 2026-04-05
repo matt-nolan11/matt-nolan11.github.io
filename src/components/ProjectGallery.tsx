@@ -473,7 +473,7 @@ export default function ProjectGallery({
             {images.map((image, idx) => (
               <div
                 key={idx}
-                className="cursor-pointer flex-shrink-0 rounded-lg"
+                className="cursor-pointer flex-shrink-0 rounded-lg overflow-hidden"
                 style={{ width: '64px' }}
                 onMouseDown={(e) => {
                   e.preventDefault();
@@ -495,7 +495,7 @@ export default function ProjectGallery({
                     <img
                       src={optimizedThumbnail.src}
                       alt={`Thumbnail: ${image.alt || image.caption || `Image ${idx + 1}`}`}
-            className={`w-full h-12 sm:h-14 md:h-16 object-cover rounded-lg transition-all duration-300 ${
+            className={`w-full h-12 sm:h-14 md:h-16 object-cover transition-all duration-300 ${
                         idx === currentSlide
               ? 'ring-2 ring-primary'
                           : 'opacity-70 hover:opacity-100'

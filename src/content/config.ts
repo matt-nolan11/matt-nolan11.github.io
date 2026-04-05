@@ -126,6 +126,7 @@ export const collections = {
         cover: image(),
         coverCaption: z.string().optional(),
         date: z.date(),
+        updated: z.date().optional(),
         tags: z.array(z.string()).default([]),
         draft: z.boolean().optional(),
         // Optional custom max-width override (CSS value like "80rem", "1200px", "calc(100vw - 10rem)")

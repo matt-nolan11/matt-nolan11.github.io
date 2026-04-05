@@ -104,9 +104,9 @@ import { navLinks } from '../config/navLinks';
       header.classList.add('header-scrolled');
       // Set border color based on theme
       if (document.documentElement.getAttribute('data-theme') === 'business') {
-        header.style.borderBottomColor = 'rgba(147, 197, 253, 0.4)';
+        header.style.borderBottomColor = 'rgba(204, 204, 204, 1)';
       } else {
-        header.style.borderBottomColor = 'rgba(30, 41, 59, 0.7)';
+        header.style.borderBottomColor = 'rgba(23, 26, 43, 1)';
       }
     } else {
       header.classList.remove('header-scrolled');
@@ -167,7 +167,7 @@ import { navLinks } from '../config/navLinks';
             transform: translateY(0) !important;
             opacity: 1 !important;
             visibility: visible !important;
-            border-bottom-width: 3px !important;
+            border-bottom-width: 1.5px !important;
             border-bottom-style: solid !important;
             border-bottom-color: ${currentBorderColor} !important;
             background-color: ${currentBgColor} !important;
@@ -234,7 +234,7 @@ import { navLinks } from '../config/navLinks';
 <style>
   /* Header base styles */
   .navbar-header {
-    border-bottom: 3px solid transparent;
+    border-bottom: 1px solid transparent;
     transition: border-bottom-color 0.3s ease, box-shadow 0.3s ease;
   }
 

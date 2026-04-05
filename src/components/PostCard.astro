@@ -25,6 +25,11 @@ const extraCount = data.tags.length - visibleTags.length;
 const formattedDate = new Date(data.date).toLocaleDateString('en-US', {
   timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric',
 });
+const formattedUpdated = data.updated
+  ? new Date(data.updated).toLocaleDateString('en-US', {
+      timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric',
+    })
+  : null;
 
 const Heading = headingLevel;
 ---
@@ -75,7 +80,10 @@ const Heading = headingLevel;
     )}
 
     <div class="flex justify-between items-center">
-      <span class="text-sm text-base-content/60">{formattedDate}</span>
+      <span class="text-sm text-base-content/60">
+        {formattedDate}
+        {formattedUpdated && <span class="italic"> (Updated {formattedUpdated})</span>}
+      </span>
     </div>
   </div>
 </article>

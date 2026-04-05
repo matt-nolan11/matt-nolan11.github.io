@@ -8,33 +8,33 @@ import aboutImage from '../assets/about.png';
 <Layout 
   pageType="about"
   seo={{
-    title: "About Matt Nolan",
-    description: "Robotics engineer and maker passionate about building innovative solutions"
+    title: "About Me",
+    description: "Robotics engineer and maker with a passion for solving problems, learning new things, and sharing knowledge."
   }}
 >
   <div>
     <!-- Hero Section - 2 Column Layout -->
     <div class="flex flex-col lg:flex-row gap-8 mb-16">
       <!-- Left Column - Image -->
-      <div class="lg:w-2/5">
+      <div class="lg:w-1/4">
         <Image 
           id="about-easter-egg-img"
           src={aboutImage} 
           alt="Matt Nolan" 
-          width={400}
-          height={500}
+          width={600}
           class="w-full rounded-2xl shadow-lg select-none cursor-default" 
+          loading="eager"
           tabindex="-1"
           draggable="false"
         />
       </div>
       
       <!-- Right Column - Content & Actions -->
-      <div class="lg:w-3/5 space-y-6">
+      <div class="lg:w-3/4 space-y-6">
         <div>
-          <h1 class="text-4xl lg:text-5xl font-bold mb-4">About Matt Nolan</h1>
+          <h1 class="text-4xl lg:text-5xl font-bold mb-4">About Me</h1>
           <p class="text-lg text-base-content/80 leading-relaxed">
-            I'm a robotics engineer and maker passionate about building innovative solutions that bridge the gap between cutting-edge technology and practical applications. Welcome to my corner of the internet where I share my projects, insights, and journey through the world of robotics and engineering.
+            My name is Matt, and I'm a robotics engineer and maker with a passion for solving problems, learning new things, and sharing knowledge. Welcome to my corner of the internet where I share my projects, experience, and engineering journey.
           </p>
         </div>
         
@@ -57,17 +57,17 @@ import aboutImage from '../assets/about.png';
             </svg>
             LinkedIn
           </a>
-          <a href="https://youtube.com/@matt-nolan11" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-md group transition-colors duration-300 hover:bg-[#CC0000] hover:border-[#CC0000] hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
-            YouTube
-          </a>
           <a href="https://github.com/matt-nolan11" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-md group transition-colors duration-300 hover:bg-gray-800 hover:border-gray-800 hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
             </svg>
             GitHub
+          </a>
+                    <a href="https://youtube.com/@matt-nolan11" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-md group transition-colors duration-300 hover:bg-[#CC0000] hover:border-[#CC0000] hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+            YouTube
           </a>
         </div>
       </div>
@@ -79,12 +79,12 @@ import aboutImage from '../assets/about.png';
         type: 'content',
         title: 'What I Do',
         content: `
-My work spans across multiple domains of robotics and engineering, from autonomous systems to precision manipulation. I'm particularly interested in:
+My work spans across multiple domains of engineering. I'm particularly interested in:
 
-- **Autonomous Robotics**: Developing intelligent systems that can navigate and operate in complex environments
-- **Robotic Manipulation**: Creating precise control systems for robotic arms and end effectors
-- **Making & Prototyping**: Building physical prototypes and exploring new fabrication techniques
-- **Space & Astronomy**: Combining my engineering skills with a passion for space exploration
+- **Autonomous Robotics**: Developing intelligent systems that can operate in complex environments
+- **Integrated Systems**: Combining mechanical, electrical, and software components to create cohesive systems
+- **Making & Prototyping**: Building physical prototypes and exploring fabrication technologies
+- **Embedded Systems**: Designing and developing smart, connected devices
         `
       }
     ]} />
@@ -94,9 +94,9 @@ My work spans across multiple domains of robotics and engineering, from autonomo
         type: 'content',
         title: 'My Approach',
         content: `
-I believe in learning by doing. Whether it's building a new robot from scratch, exploring the latest in autonomous navigation, or diving deep into the mechanics of robotic systems, I approach each project with curiosity and a commitment to understanding the fundamentals.
+I strongly believe in learning by doing. Whether it's building a new robot from scratch, spinning up new smart devices, or diving deep into the mechanics of robotic systems, I approach each project with curiosity and a commitment to understanding the fundamentals while getting my hands dirty.
 
-This blog serves as both a documentation of my projects and a place to share insights that might help other makers and engineers on their own journeys.
+This portfolio / blog serves as both a documentation of my projects and a place to share insights that might help other makers and engineers on their own journeys.
         `
       }
     ]} />
@@ -106,7 +106,7 @@ This blog serves as both a documentation of my projects and a place to share ins
         type: 'content',
         title: 'Beyond Engineering',
         content: `
-When I'm not working on engineering projects, you'll find me honing my piano skills, fighting combat robots, playing chess, hiking, and spending time with friends and family.
+When I'm not at work, you'll find me building and fighting combat robots, playing chess and piano, reading, and spending time with friends and family.
         `
       }
     ]} />
@@ -117,6 +117,8 @@ When I'm not working on engineering projects, you'll find me honing my piano ski
         title: 'Contact Me',
         content: `
 If you'd like to get in touch, please use the contact form, reach out to me on LinkedIn, or email me directly. I'm always open to discussing new and current projects, collaborations, or just sharing ideas about robotics and engineering!
+
+You can also find me on [Github](https://github.com/matt-nolan11), and [YouTube](https://youtube.com/@matt-nolan11).
         `
       },
       {

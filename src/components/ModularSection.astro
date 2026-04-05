@@ -6,7 +6,7 @@ import ModelViewer from './ModelViewer';
 import Summary from './Summary.astro';
 import YouTube from './YouTube.astro';
 
-const { columns } = Astro.props;
+const { columns, class: className, style: styleProp } = Astro.props;
 
 if (!columns || columns.length === 0) {
   throw new Error('ModularSection requires a columns prop with at least one column');
@@ -216,15 +216,16 @@ if (!columns || columns.length === 0) {
   };
   
   const gridStyles = getGridStyles(columns);
-  
+  const gridStyleStr = Object.entries(gridStyles).map(([k, v]) => `${k}: ${v}`).join('; ');
+  const finalStyle = styleProp ? `${gridStyleStr}; ${styleProp}` : gridStyleStr;
+
   return (
-    <div class={`${
+    <div class:list={[(
       columns.length <= 2 ? (columns.length === 2 ? 'responsive-columns' : 'flex flex-col lg:flex-row lg:items-start') :
       columns.length === 3 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
       columns.length === 4 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4' :
       'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' // Fallback for 5+ columns
-    } gap-6 mb-8`}
-         style={gridStyles}>
+    ), 'gap-6', 'modular-section', className]} style={finalStyle}>
       {columns.map((column: any, columnIndex: number) => {
         // Determine column class based on layout type
         let columnClass;

@@ -28,6 +28,11 @@ const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
     <h1>{post.data.title}</h1>
     <p class="text-sm text-base-content/70 font-bold mb-4">
       {post.data.date.toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })}
+      {post.data.updated && (
+        <span class="ml-2 font-normal italic">
+          (Updated {post.data.updated.toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })})
+        </span>
+      )}
     </p>
     
     <!-- Tags -->
