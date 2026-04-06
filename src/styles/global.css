@@ -29,6 +29,36 @@
   themes: corporate --default, business --prefersdark;
 }
 
+/* Tooltip variant: appears below the element, left-aligned with its left edge */
+.tooltip-bottom-start::before {
+  left: 0 !important;
+  transform: translateX(0) !important;
+  z-index: 9999 !important;
+  text-align: left !important;
+  max-width: 20rem !important;
+}
+.tooltip-bottom-start::after {
+  left: 0.75rem !important;
+  transform: translateX(0) !important;
+  z-index: 9999 !important;
+}
+
+/* Tooltip variant: appears below the element, right-aligned (expands leftward) */
+.tooltip-bottom-end::before {
+  right: 0 !important;
+  left: auto !important;
+  transform: translateX(0) !important;
+  z-index: 9999 !important;
+  text-align: left !important;
+  max-width: 20rem !important;
+}
+.tooltip-bottom-end::after {
+  right: 0.75rem !important;
+  left: auto !important;
+  transform: translateX(0) !important;
+  z-index: 9999 !important;
+}
+
 /* Page Width Control System 
  * 
  * This system allows centralized control of maximum widths across different page types.
@@ -418,6 +448,11 @@
 /* Specific class for status badges to ensure bold font weight */
 .status-badge {
   font-weight: bold !important;
+}
+
+/* Project card: raise stacking context on hover so tooltip escapes neighboring cards. */
+.project-card:hover {
+  z-index: 10;
 }
 
 /* Model Viewer Optimizations - Prevent Flash */

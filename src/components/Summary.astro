@@ -115,23 +115,23 @@ function formatPlacement(placement: number | string): string {
     <div class="text-sm text-base-content/60">
       {status === 'completed' && endDate ? (
         <div class="flex items-center gap-4">
-          <span class="badge status-badge badge-success">Completed</span>
+          <div class="tooltip tooltip-bottom tooltip-bottom-start" data-tip="This project is finished, and no new development is currently planned"><span class="badge status-badge badge-success">Completed</span></div>
           <span>{formatProjectDate(startDate)} → {formatProjectDate(endDate)}</span>
           <span class="font-medium">({calculateDuration(startDate, endDate)})</span>
         </div>
       ) : status === 'in-progress' ? (
         <div class="flex items-center gap-4">
-          <span class="badge status-badge badge-warning">In Progress</span>
+          <div class="tooltip tooltip-bottom tooltip-bottom-start" data-tip="This project is under active development"><span class="badge status-badge badge-warning">In Progress</span></div>
           <span>Started {formatProjectDate(startDate)}</span>
         </div>
       ) : status === 'active' ? (
         <div class="flex items-center gap-4">
-          <span class="badge status-badge badge-accent">Active</span>
+          <div class="tooltip tooltip-bottom tooltip-bottom-start" data-tip="This project is being maintained, but no new development is currently planned"><span class="badge status-badge badge-accent">Active</span></div>
           <span>Started {formatProjectDate(startDate)}</span>
         </div>
       ) : (
         <div class="flex items-center gap-4">
-          <span class="badge status-badge badge-info">Planned</span>
+          <div class="tooltip tooltip-bottom tooltip-bottom-start" data-tip="This project is in the planning stage, and has not started active development yet"><span class="badge status-badge badge-info">Planned</span></div>
           <span>Planned for {formatProjectDate(startDate)}</span>
         </div>
       )}

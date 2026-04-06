@@ -31,7 +31,7 @@ const { items } = Astro.props;
     <h2 class="text-2xl font-bold mb-6">Related Content</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {items.map(item => (
-        <article class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-200 rounded-xl overflow-hidden">
+        <article class="project-card card bg-base-100 shadow hover:shadow-lg transition-shadow duration-200 rounded-xl overflow-hidden relative">
           <a
             href={`/${item.type === 'project' ? 'projects' : 'posts'}/${item.slug}/`}
             class="block"
@@ -59,6 +59,28 @@ const { items } = Astro.props;
               <h3 class="card-title text-base">{item.data.title || item.slug.replace(/-/g, ' ')}</h3>
             </div>
           </a>
+          {item.type === 'project' && item.data.status && (
+            <div class="absolute top-2 right-2 z-50">
+              <div class="tooltip tooltip-bottom tooltip-bottom-end" data-tip={
+                item.data.status === 'completed' ? 'This project is finished, and no new development is currently planned'
+                : item.data.status === 'in-progress' ? 'This project is under active development'
+                : item.data.status === 'active' ? 'This project is being maintained, but no new development is currently planned'
+                : 'This project is in the planning stage, and has not started active development yet'
+              }>
+                <div class={`badge status-badge ${
+                  item.data.status === 'completed' ? 'badge-success'
+                  : item.data.status === 'in-progress' ? 'badge-warning'
+                  : item.data.status === 'active' ? 'badge-accent'
+                  : 'badge-info'
+                }`}>{
+                  item.data.status === 'completed' ? 'Completed'
+                  : item.data.status === 'in-progress' ? 'In Progress'
+                  : item.data.status === 'active' ? 'Active'
+                  : 'Planned'
+                }</div>
+              </div>
+            </div>
+          )}
           <div class="px-4 pb-4">
             <TagList tags={item.sharedTags} size="xs" />
           </div>
