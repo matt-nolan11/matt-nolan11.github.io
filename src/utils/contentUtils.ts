@@ -7,9 +7,29 @@
 import type { CollectionEntry } from 'astro:content';
 import { getSortableDate } from './dateUtils';
 
+function normalizeEntryId(id: string): string {
+  return id.replace(/\\/g, '/');
+}
+
+/**
+ * Returns a stable route slug for content entries across Astro versions/loaders.
+ */
+export function getEntrySlug(
+  entry: { id: string },
+): string {
+  return normalizeEntryId(entry.id)
+    .replace(/\/index(\.mdx?|\.md)?$/, '')
+    .replace(/\.(mdx?|md)$/, '');
+}
+
 /** Returns true for the routable index file of a project (index.mdx / index.md). */
 export function isMainEntry(entry: CollectionEntry<'projects'>): boolean {
-  const fileName = entry.id.split('/').pop();
+  const normalizedId = normalizeEntryId(entry.id);
+
+  // With Astro loaders, index.mdx often resolves to just the directory slug (no slash).
+  if (!normalizedId.includes('/')) return true;
+
+  const fileName = normalizedId.split('/').pop();
   const baseName = fileName?.replace(/\.(mdx?|md)$/, '');
   return baseName === 'index';
 }

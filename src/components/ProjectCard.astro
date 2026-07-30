@@ -11,6 +11,7 @@
  */
 import { Image } from 'astro:assets';
 import { formatProjectDate } from '../utils/dateUtils';
+import { getEntrySlug } from '../utils/contentUtils';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -29,7 +30,8 @@ const {
   headingLevel = 'h2',
 } = Astro.props;
 
-const { data, slug } = project;
+const { data } = project;
+const slug = getEntrySlug(project);
 const visibleTags = maxTags === Infinity ? data.tags : data.tags.slice(0, maxTags);
 const extraCount = data.tags.length - visibleTags.length;
 

@@ -1,6 +1,7 @@
 ---
 import { getProjectVersions, hasMultipleVersions } from '../utils/versionUtils';
 import { getSortableDate } from '../utils/dateUtils';
+import { render } from 'astro:content';
 
 interface Props {
   projectSlug?: string;
@@ -62,7 +63,7 @@ try {
     // Create array with version content rendered
     versions = await Promise.all(
       projectVersions.map(async (v) => {
-        const { Content } = await v.content.render();
+        const { Content } = await render(v.content);
         const fm = v.content.data;
         return {
           tabTitle: fm.tabTitle ?? 'Version',

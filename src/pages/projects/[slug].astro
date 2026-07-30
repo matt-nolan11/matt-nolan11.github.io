@@ -1,23 +1,25 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import RelatedContent from '../../components/RelatedContent.astro';
 import { getRelatedContent } from "../../utils/tagUtils.ts";
-import { isMainEntry } from '../../utils/contentUtils';
+import { getEntrySlug, isMainEntry } from '../../utils/contentUtils';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
   const mainProjects = projects.filter(isMainEntry);
   
   return mainProjects.map((project) => ({
-    params: { slug: project.slug },
-    props: { project },
+    params: { slug: getEntrySlug(project) },
+    props: { entryId: project.id },
   }));
 }
 
-const { project } = Astro.props;
-const { Content } = await project.render();
-const relatedContent = await getRelatedContent(project.data.tags, project.slug, 3);
+const { entryId } = Astro.props;
+const project = await getEntry('projects', entryId);
+if (!project) throw new Error(`Project entry "${entryId}" not found`);
+const { Content } = await render(project);
+const relatedContent = await getRelatedContent(project.data.tags, getEntrySlug(project), 3);
 ---
 
 <Layout title={project.data.title} description={project.data.description} pageType="project">

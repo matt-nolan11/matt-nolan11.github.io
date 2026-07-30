@@ -4,7 +4,7 @@
 
 import { getCollection } from 'astro:content';
 import { getSortableDate } from './dateUtils';
-import { isMainEntry } from './contentUtils';
+import { getEntrySlug, isMainEntry } from './contentUtils';
 
 /**
  * Gets all unique tags from both projects and posts with their counts
@@ -98,8 +98,18 @@ export async function getRelatedContent(
   const mainProjects = projects.filter(isMainEntry);
 
   const allContent = [
-    ...mainProjects.map(p => ({ ...p, type: 'project' as const })),
-    ...posts.map(p => ({ ...p, type: 'post' as const }))
+    ...mainProjects.map((p) => ({
+      id: p.id,
+      type: 'project' as const,
+      slug: getEntrySlug(p),
+      data: p.data,
+    })),
+    ...posts.map((p) => ({
+      id: p.id,
+      type: 'post' as const,
+      slug: getEntrySlug(p),
+      data: p.data,
+    }))
   ];
 
   // Calculate relevance scores based on shared tags
@@ -112,7 +122,13 @@ export async function getRelatedContent(
     .map(content => {
       const sharedTags = content.data.tags.filter(tag => currentTags.includes(tag));
       const relevanceScore = sharedTags.length;
-      return { ...content, relevanceScore, sharedTags };
+      return {
+        type: content.type,
+        slug: content.slug,
+        data: content.data,
+        relevanceScore,
+        sharedTags,
+      };
     })
     .sort((a, b) => {
       // Sort by relevance score first, then by date

@@ -1,22 +1,26 @@
 ---
-import { getCollection, getEntry } from "astro:content";
+import { getCollection, getEntry, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import RelatedContent from '../../components/RelatedContent.astro';
 import { getRelatedContent } from "../../utils/tagUtils.ts";
+import { getEntrySlug } from "../../utils/contentUtils";
 
 export const prerender = true;
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts");
-  return posts.map(({ slug }) => ({ params: { slug } }));
+  return posts.map((post) => ({
+    params: { slug: getEntrySlug(post) },
+    props: { entryId: post.id },
+  }));
 }
 
-const { slug } = Astro.params;
-const post = await getEntry("posts", slug);
-if (!post) throw new Error(`Post "${slug}" not found`);
+const { entryId } = Astro.props;
+const post = await getEntry("posts", entryId);
+if (!post) throw new Error(`Post entry "${entryId}" not found`);
 
-const { Content } = await post.render();
-const relatedContent = await getRelatedContent(post.data.tags, post.slug, 3);
+const { Content } = await render(post);
+const relatedContent = await getRelatedContent(post.data.tags, getEntrySlug(post), 3);
 ---
 
 <Layout 

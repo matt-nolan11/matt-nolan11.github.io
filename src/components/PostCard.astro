@@ -4,6 +4,7 @@
  */
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import { getEntrySlug } from '../utils/contentUtils';
 
 interface Props {
   post: CollectionEntry<'posts'>;
@@ -19,7 +20,8 @@ const {
   headingLevel = 'h2',
 } = Astro.props;
 
-const { data, slug } = post;
+const { data } = post;
+const slug = getEntrySlug(post);
 const visibleTags = maxTags === Infinity ? data.tags : data.tags.slice(0, maxTags);
 const extraCount = data.tags.length - visibleTags.length;
 const formattedDate = new Date(data.date).toLocaleDateString('en-US', {
