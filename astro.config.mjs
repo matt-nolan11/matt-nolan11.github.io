@@ -11,6 +11,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import mdx from '@astrojs/mdx';
+import { unified } from '@astrojs/markdown-remark';
 
 
 const expressiveCode = astroExpressiveCode({
@@ -39,8 +40,10 @@ export default defineConfig({
     assetsInclude: ['**/*.glb', '**/*.gltf'],
   },
   markdown: {
-    remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeKatex],
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeKatex],
+    }),
   },
   integrations: [sitemap(), react(), pagefind(), expressiveCode, mdx()]
 });

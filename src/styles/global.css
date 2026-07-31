@@ -241,20 +241,9 @@
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   }
   
-  /* Enhanced border in light mode for better contrast */
-  [data-theme="corporate"] .pagefind-ui .pagefind-ui__search-input {
-    border: 2px solid var(--color-base-content);
-  }
-  
   .pagefind-ui .pagefind-ui__search-input:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px var(--color-primary-content);
-  }
-  
-  /* Enhanced focus state for light mode */
-  [data-theme="corporate"] .pagefind-ui .pagefind-ui__search-input:focus {
-    border: 2px solid var(--color-primary);
     box-shadow: 0 0 0 2px var(--color-primary-content);
   }
 
