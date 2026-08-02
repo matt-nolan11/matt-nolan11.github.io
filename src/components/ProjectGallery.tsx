@@ -77,25 +77,11 @@ export default function ProjectGallery({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(autoplay);
-  const [isMobile, setIsMobile] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const userInteractionRef = useRef(false);
   const isPlayingRef = useRef(isPlaying);
   const autoplayIntervalRef = useRef(autoplayInterval);
-
-  // Detect mobile screens
-  useEffect(() => {
-    const updateLayout = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-
-    if (typeof window !== 'undefined') {
-      updateLayout();
-      window.addEventListener('resize', updateLayout);
-      return () => window.removeEventListener('resize', updateLayout);
-    }
-  }, []);
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -235,6 +221,43 @@ export default function ProjectGallery({
     };
   }, [loaded, autoplay, startAutoplay]);
 
+  // Re-measure when our container resizes.
+  //
+  // renderMode: "precision" makes keen-slider write inline pixel widths and
+  // transform offsets onto each slide, measured once at init. keen-slider only
+  // re-measures on *window* resize, so anything that changes our width without
+  // resizing the window (the ModularSection height balancer, a version tab
+  // becoming visible) leaves those pixel values stale: the active image renders
+  // at the wrong scale and the edge of the next slide bleeds in.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !loaded) return;
+
+    let lastWidth = container.getBoundingClientRect().width;
+    let frame = 0;
+
+    const observer = new ResizeObserver(() => {
+      const width = container.getBoundingClientRect().width;
+      if (!width || Math.abs(width - lastWidth) < 1) return;
+      lastWidth = width;
+
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const slider = instanceRef.current;
+        if (!slider?.track?.details) return;
+        // Pass the current index so re-measuring doesn't jump back to slide 0.
+        slider.update(undefined, slider.track.details.rel);
+      });
+    });
+
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [loaded]);
+
   // Pause autoplay when document/tab is hidden; resume when visible
   useEffect(() => {
     if (!autoplay) return;
@@ -305,42 +328,6 @@ export default function ProjectGallery({
     restoreAutoplayIfNeeded(wasAutoplayActive);
   }, [loaded, isPlaying, autoplay, clearFocus, restoreAutoplayIfNeeded]);
 
-  // Keyboard navigation (scoped to gallery container)
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!instanceRef.current || !loaded || !instanceRef.current.track?.details) return;
-      
-      switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          handlePrev();
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          handleNext();
-          break;
-        case ' ':
-          e.preventDefault();
-          setIsPlaying(!isPlaying);
-          break;
-        case 'Home':
-          e.preventDefault();
-          goToSlide(0);
-          break;
-        case 'End':
-          e.preventDefault();
-          goToSlide(images.length - 1);
-          break;
-      }
-    };
-
-    container.addEventListener('keydown', handleKeyDown);
-    return () => container.removeEventListener('keydown', handleKeyDown);
-  }, [loaded, isPlaying, images.length, handlePrev, handleNext, goToSlide]);
-
   // Enhanced image optimization with realistic fallback support
   const createOptimizedImage = (src: string | { src: string; width?: number; height?: number; format?: string }, width: number, quality: number = 80): { 
     src: string; 
@@ -394,20 +381,22 @@ export default function ProjectGallery({
       ref={containerRef}
       className={`project-gallery ${className}`} 
       style={{ width: '100%' }} // Always use full width of column
-      role="region" 
+      role="region"
       aria-label="Project image gallery"
-      tabIndex={0}
     >
-      {/* Main carousel */}
+      {/* Main carousel.
+          No opacity gate on `loaded`: the base CSS (flex row, overflow hidden,
+          100%-width slides) already shows exactly slide 1 before keen-slider
+          initialises, so the first image paints without waiting for JS. Gating
+          it would flash an empty gallery now that the balancer reveals the page
+          before hydration completes. */}
       <div className="relative group">
-        <div 
-          ref={sliderRef} 
+        <div
+          ref={sliderRef}
           className="keen-slider main-carousel rounded-xl overflow-hidden shadow-lg"
-          style={{ 
+          style={{
             aspectRatio: `${galleryAspectRatio}`,
             width: '100%',
-            opacity: loaded ? 1 : 0,
-            transition: loaded ? 'opacity 0.3s ease-in-out' : 'none'
           }}
         >
           {images.map((image, idx) => {
@@ -435,8 +424,11 @@ export default function ProjectGallery({
           })}
         </div>
 
-        {/* Navigation arrows */}
-        {images.length > 1 && loaded && instanceRef.current && (
+        {/* Navigation arrows.
+            Rendered during SSR rather than gated behind `loaded`: the handlers
+            below already no-op until the slider exists, and keeping the markup
+            stable across hydration means the layout never shifts. */}
+        {images.length > 1 && (
           <>
             <button
               onMouseDown={(e) => {
@@ -466,14 +458,23 @@ export default function ProjectGallery({
         )}
       </div>
 
-      {/* Thumbnails */}
-      {showThumbnails && images.length > 1 && loaded && instanceRef.current && (
-  <div className="mt-4 overflow-x-auto thumbnails-row">
-          <div className="flex gap-3 sm:gap-4 min-w-max thumbnails-row">
+      {/* Thumbnails.
+          These must server-render. They are the only part of the gallery that
+          affects the column's HEIGHT, so gating them behind `loaded` made the
+          column grow at hydration — which kept the ModularSection balancer's
+          settle poll re-triggering until it hit its timeout, delaying the
+          page-load reveal for every section on the page. */}
+      {showThumbnails && images.length > 1 && (
+  <div className="mt-4 thumbnails-row" style={{ padding: '2px' }}>
+          <div className="flex flex-wrap gap-3 sm:gap-4 thumbnails-row">
             {images.map((image, idx) => (
               <div
                 key={idx}
-                className="cursor-pointer flex-shrink-0 rounded-lg overflow-hidden"
+                className={`cursor-pointer flex-shrink-0 rounded-lg transition-all duration-300 ${
+                  idx === currentSlide
+                    ? 'ring-2 ring-white'
+                    : 'opacity-60 hover:opacity-90'
+                }`}
                 style={{ width: '64px' }}
                 onMouseDown={(e) => {
                   e.preventDefault();
@@ -495,11 +496,7 @@ export default function ProjectGallery({
                     <img
                       src={optimizedThumbnail.src}
                       alt={`Thumbnail: ${image.alt || image.caption || `Image ${idx + 1}`}`}
-            className={`w-full h-12 sm:h-14 md:h-16 object-cover transition-all duration-300 ${
-                        idx === currentSlide
-              ? 'ring-2 ring-primary'
-                          : 'opacity-70 hover:opacity-100'
-                      }`}
+                      className="gallery-thumb-img w-full h-12 sm:h-14 md:h-16 object-cover rounded-lg block"
                       loading="lazy"
                     />
                   );
@@ -546,17 +543,6 @@ export default function ProjectGallery({
         <div></div>
       </div>
 
-      {/* Keyboard shortcuts info */}
-      {!isMobile && (
-        <details className="mt-1 inline-block">
-          <summary className="text-xs text-base-content/50 cursor-pointer hover:text-base-content/70">
-            Keyboard shortcuts
-          </summary>
-          <div className="text-xs text-base-content/60 mt-1">
-            <p>← → : Navigate | Space: Play/Pause | Home/End: First/Last image</p>
-          </div>
-        </details>
-      )}
     </div>
   );
 }

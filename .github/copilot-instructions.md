@@ -12,7 +12,7 @@ This is an Astro 5 site with Tailwind/DaisyUI and a few React islands. Content i
 ## Key files and patterns
 - Schema: `src/content/config.ts` — read before changing frontmatter. In MDX, import assets (e.g., `import cover from './images/cover.jpg'`).
 - Projects route: `src/pages/projects/[slug].astro` renders the MDX `<Content />` of `index.mdx` and appends “Related Content” via `getRelatedContent` (`src/utils/tagUtils.ts`).
-- Modular content: `src/components/ModularSection.astro` accepts `columns` with types: `content | image | gallery | model | summary`. Layout is generic; two-column sections use unified width logic and class names. Image columns accept `src/alt/caption` or legacy `image/imageAlt/imageCaption`.
+- Modular content: `src/components/ModularSection.astro` accepts `columns` with types: `content | image | gallery | model | video | summary | stack`. Layout is generic; two-column sections use unified width logic and class names. Image columns accept `src/alt/caption` or legacy `image/imageAlt/imageCaption`. A `stack` column takes `items: [...]` to render several blocks in one column. Two-column sections auto-balance their heights client-side; the authored `width` is the seed (`autoBalance={false}` opts out).
 - 3D/AR: `src/components/ModelViewer.tsx` wraps `@google/model-viewer` (responsive camera, AR). Hydrates early (`client:load`) and dynamically imports on mount. `.glb` allowed via `assetsInclude` in `astro.config.mjs`.
 - Theme: `src/scripts/themeController.ts` syncs `.theme-controller` checkboxes + `localStorage.theme` (tests: `__tests__/themeController.test.ts`).
 - Layout/SEO: `src/layouts/Layout.astro` sets theme early, uses `astro-seo`, embeds JSON-LD.

@@ -104,7 +104,21 @@ function formatPlacement(placement: number | string): string {
   }
 </style>
 
-<div class="summary-content">
+{/*
+  @container makes everything below respond to this column's own width rather
+  than the viewport's. That is what lets the summary compress: in a narrow
+  column the metrics stack and the tournament table drops to its compact
+  layout, so the summary gets genuinely taller instead of just cramped. The
+  ModularSection balancer needs that to be true — while these were viewport
+  breakpoints, a wide screen forced 4-across metrics and the full table no
+  matter how narrow the column was, so the balancer could never justify giving
+  the visual column more room.
+*/}
+<div class="summary-content @container max-w-3xl">
+{/* No per-block width caps anywhere below — the single max-w-3xl on
+    .summary-content governs every block, so they all share one edge. Piecemeal
+    caps (24ch here, 60ch there, 3xl elsewhere) left the heading and blurb
+    visibly narrower than the tiles and tournaments beneath them. */}
 <h1 class={`font-bold mb-4 text-base-content ${titleSizeClass}`}>
   {title}
 </h1>
@@ -144,11 +158,15 @@ function formatPlacement(placement: number | string): string {
       <h3 class="text-sm font-semibold mb-2 text-base-content">
         {metrics.sectionTitle || "Project Stats"}
       </h3>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
-        {metrics.customFields.map((field, index) => (
-          <div class="stat-item text-left">
-            <div class="text-base-content/60">{field.label}:</div>
-            <div class={`font-medium text-base-content ${
+      {/* Stat tiles: small-caps label over a large value, in a subtle tile.
+          The column count must keep increasing with width — the balancer solves
+          for the width where the two columns' heights meet, and it can only do
+          that if height actually responds to width. */}
+      <div class="grid grid-cols-1 @xs:grid-cols-2 @2xl:grid-cols-3 gap-2">
+        {metrics.customFields.map((field) => (
+          <div class="stat-tile">
+            <div class="stat-tile-label">{field.label}</div>
+            <div class={`stat-tile-value ${
               field.highlight && field.color ? `text-${field.color}` : ''
             }`}>
               {field.value}{field.unit ? ` ${field.unit}` : ''}
@@ -162,9 +180,14 @@ function formatPlacement(placement: number | string): string {
   <!-- Competition History -->
   {competitions && competitions.length > 0 && (
     <div class="mb-6">
+      {/* One layout that reflows rather than two swapped ones. Narrow: name
+          stacked over date, two lines per row. Wide: they sit side by side,
+          one line per row — half the height. That swing is what gives the
+          balancer a height/width curve to solve against. The canyon the
+          original table opened up between name and badges is prevented by the
+          shared cap on .summary-content rather than a cap here. */}
       <div class="space-y-2">
-        {/* Mobile Layout */}
-        <div class="lg:hidden">
+        <div>
           <div class="flex items-center justify-between text-xs pb-1 border-b border-base-content/70">
             <span class="text-sm text-base-content/70">{competitionsOptions?.sectionTitle || "Competition History"}</span>
             <div class="flex items-center gap-4 text-sm text-base-content/70">
@@ -177,8 +200,8 @@ function formatPlacement(placement: number | string): string {
           {competitionsToShow.map(comp => (
             <div class="pt-1 pb-1 border-b border-base-content/25">
               <div class="flex items-center justify-between">
-                <div class="flex flex-col flex-1 min-w-0">
-                  <div class="mb-0.5">
+                <div class="flex flex-col @xl:flex-row @xl:items-center @xl:justify-between @xl:gap-4 flex-1 min-w-0">
+                  <div class="mb-0.5 @xl:mb-0 min-w-0">
                     {comp.url ? (
                       <a 
                         href={comp.url} 
@@ -191,7 +214,7 @@ function formatPlacement(placement: number | string): string {
                       <span class="font-medium text-sm truncate text-base-content">{comp.name}</span>
                     )}
                   </div>
-                  <div class="text-xs text-base-content/70">{comp.date}</div>
+                  <div class="text-xs text-base-content/70 whitespace-nowrap @xl:text-right">{comp.date}</div>
                 </div>
                 
                 <div class="flex items-center gap-4 flex-shrink-0 ml-3">
@@ -214,48 +237,6 @@ function formatPlacement(placement: number | string): string {
           ))}
         </div>
 
-        {/* Desktop Layout */}
-        <div class="hidden lg:block">
-          <div class="flex items-center justify-between text-xs pb-1 border-b border-base-content/70">
-            <span class="text-sm text-base-content/70">{competitionsOptions?.sectionTitle || "Competition History"}</span>
-            <div class="flex items-center gap-6 text-sm text-base-content/70">
-              <span class="w-32 text-right">Date</span>
-              {hasRecords && <span class="w-12 text-center">Record</span>}
-              <span class="w-16.5 text-center">Placement</span>
-            </div>
-          </div>
-          
-          {/* Desktop Entries */}
-          {competitionsToShow.map(comp => (
-            <div class="flex items-center justify-between text-sm py-2 border-b border-base-content/25">
-              <div class="flex items-center gap-3">
-                {comp.url ? (
-                  <a 
-                    href={comp.url} 
-                    class="font-medium text-base-content hover:text-blue-400 transition-colors underline decoration-solid underline-offset-2"
-                    title={comp.hoverText || `Read more about ${comp.name}`}
-                  >
-                    {comp.name}
-                  </a>
-                ) : (
-                  <span class="font-medium text-base-content">{comp.name}</span>
-                )}
-              </div>
-              <div class="flex items-center gap-6">
-                <span class="w-32 text-right text-base-content">{comp.date}</span>
-                {comp.record && (
-                  <span class="badge badge-sm badge-outline w-12 text-center text-base-content">{comp.record}</span>
-                )}
-                {!comp.record && hasRecords && (
-                  <span class="w-12"></span>
-                )}
-                <span class={`badge badge-sm w-16.5 text-center ${placementBadgeClass(comp.placement)}`}>
-                  {formatPlacement(comp.placement)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   )}

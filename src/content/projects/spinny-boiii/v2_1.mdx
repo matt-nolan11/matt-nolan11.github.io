@@ -1,0 +1,67 @@
+---
+tabTitle: "v2.1"
+---
+
+import ModularSection from '../../../components/ModularSection.astro';
+import UnderConstruction from '../../../components/UnderConstruction.astro';
+import v2CleatsImage from './images/v2/v2Cleats.jpg';
+
+<ModularSection 
+  columns={[
+    {
+      type: "summary",
+      width: 53,
+      summaryTitle: "Version 2.1 - First taste of victory",
+      summaryDescription: "Material overhaul with magnet-assisted drive and refined weapon system",
+      startDate: "2022-01",
+      endDate: "2023-08",
+      status: "completed",
+      headerTitleSize: "lg",
+      metrics: {
+        sectionTitle: "Quick Facts",
+        customFields: [
+          { label: "Weapon Type", value: "Egg-beater drum" },
+          { label: "Weapon Material", value: "AR500 steel" },
+          { label: "Weapon Diameter", value: "2.8 inches" },
+          { label: "Frame Setup", value: "Titanium - TPU sandwich" },
+          { label: "Drive Motors", value: "Repeat Compact" },
+          { label: "Weapon Motor", value: "Propdrive 2836 1000kv" }
+        ]
+      },
+      competitions: [
+        {
+          name: "Bay Area Bot Battles 2023",
+          date: "August 26, 2023",
+          placement: 13,
+          record: "0-2"
+        },
+        {
+          name: "ARC: RoboRumble 2023",
+          date: "June 10, 2023",
+          placement: 2,
+          record: "5-2"
+        },
+        {
+          name: "ARC: RoboRumble 2022",
+          date: "July 9, 2022",
+          placement: 11,
+          record: "1-2"
+        }
+      ],
+
+      competitionsOptions: {
+        sectionTitle: "Tournament History",
+        maxDisplay: 0
+      }
+    },
+    {
+      type: "image",
+      width: 47,
+      image: v2CleatsImage,
+      imageAlt: "Version 2.0 with carbon fiber frame and shock-mounted weapon system",
+      imageCaption: "Version 2.0 with carbon fiber frame and shock-mounted weapon system"
+    }
+  ]} 
+/>
+
+<UnderConstruction message="The full write-up for this version is still being written — check back soon." />

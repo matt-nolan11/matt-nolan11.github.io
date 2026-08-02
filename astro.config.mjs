@@ -10,6 +10,7 @@ import pagefind from 'astro-pagefind';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import remarkUnderConstruction from './src/plugins/remark-under-construction.mjs';
 import mdx from '@astrojs/mdx';
 import { unified } from '@astrojs/markdown-remark';
 
@@ -41,7 +42,7 @@ export default defineConfig({
   },
   markdown: {
     processor: unified({
-      remarkPlugins: [remarkMath],
+      remarkPlugins: [remarkMath, remarkUnderConstruction],
       rehypePlugins: [rehypeKatex],
     }),
   },

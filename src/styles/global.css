@@ -6,6 +6,9 @@
 .prose .project-gallery img {
   border-radius: 0;
 }
+.prose .project-gallery .gallery-thumb-img {
+  border-radius: 0.5rem;
+}
 
 /* ModularSection spacing — override prose auto-margins */
 .prose .modular-section {
@@ -21,6 +24,38 @@
    controlled by the ModularSection's margin-bottom (or style prop). */
 .prose .modular-section + :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote) {
   margin-top: 0 !important;
+}
+
+/* Page-load gate for auto-balanced ModularSections.
+   ---------------------------------------------------------------------------
+   A balanced section's final column split is not knowable until fonts have
+   loaded and its islands have hydrated, and applying that split changes the
+   section's HEIGHT. Hiding only the section does not help: visibility:hidden
+   still reserves layout space, so the height change shoves every element below
+   it — which is why prose outside a ModularSection appeared to settle first and
+   then jump.
+
+   So hold the whole of <main> until no section is still pending. Navbar and
+   Footer live outside <main> and keep rendering immediately, so the page frame
+   is up straight away and the content appears once, already in final position.
+
+   Scoped to >=1024px because the grid is single-column below that and nothing
+   is ever balanced, so there is no motion to suppress and no reason to wait. */
+@media (min-width: 1024px) {
+  main:has([data-balance-pending]) {
+    visibility: hidden;
+    /* Self-healing release. If the balancer's script never runs at all — failed
+       to load, threw on init — the per-section JS timeout never fires either,
+       and this would otherwise hide the page forever. This needs no JS: at 700ms
+       the animation applies its final frame and the content comes back. */
+    animation: balance-gate-release 0s linear 0.7s forwards;
+  }
+
+  @keyframes balance-gate-release {
+    to {
+      visibility: visible;
+    }
+  }
 }
 
 @import "tailwindcss";
@@ -500,6 +535,78 @@ model-viewer [slot="progress-bar"] {
 /* Article container - respects page margins */
 article {
   position: relative;
+}
+
+/* Summary stat tiles.
+   Global for the same reason as the banner below: Summary renders inside
+   version tabs via ProjectVersionsSection's dynamic render(), where Astro does
+   not propagate a component's scoped styles. */
+.stat-tile {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid color-mix(in oklch, var(--color-base-content) 14%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in oklch, var(--color-base-content) 4%, transparent);
+}
+
+.stat-tile-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+}
+
+.stat-tile-value {
+  margin-top: 0.1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-base-content);
+}
+
+/* UnderConstruction banner.
+   Global rather than scoped inside the component: version files are rendered
+   by ProjectVersionsSection through a dynamic `render()` + <Content />, and
+   Astro does not propagate scoped styles for components used only inside those
+   entries — the banner came out as unstyled text on every project with version
+   tabs. See src/components/UnderConstruction.astro. */
+.under-construction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 2rem 0;
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+  border: 2px dashed color-mix(in oklch, var(--color-warning) 55%, transparent);
+  border-radius: 0.75rem;
+  /* Faint hazard stripes, warning-tinted so it tracks the active theme. */
+  background-color: color-mix(in oklch, var(--color-warning) 7%, transparent);
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in oklch, var(--color-warning) 9%, transparent) 0 10px,
+    transparent 10px 20px
+  );
+}
+
+.under-construction .uc-icon {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.under-construction .uc-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-base-content);
+}
+
+.under-construction .uc-message {
+  margin: 0;
+  max-width: 34rem;
+  font-size: 0.875rem;
+  color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
 }
 
 /* ProjectGallery base styles (moved from runtime injection) */

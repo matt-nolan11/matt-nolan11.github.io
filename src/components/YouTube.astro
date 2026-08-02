@@ -9,6 +9,8 @@ interface Props {
   controls?: boolean;
   caption?: string;
   className?: string;
+  poster?: string; // override the thumbnail (e.g. a local import's .src)
+  eager?: boolean; // skip the facade and embed the player immediately
 }
 
 const {
@@ -20,7 +22,9 @@ const {
   muted = false,
   controls = true,
   caption,
-  className = ''
+  className = '',
+  poster,
+  eager = false
 } = Astro.props as Props;
 
 // Parse aspect ratio into CSS aspect-ratio value (w/h)
@@ -48,6 +52,16 @@ const params = new URLSearchParams({
 if (start && start > 0) params.set('start', String(start));
 
 const src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
+
+// The facade loads the player on click, so autoplay is always appropriate
+// there — the click is the user gesture browsers require.
+const clickParams = new URLSearchParams(params);
+clickParams.set('autoplay', '1');
+const clickSrc = `https://www.youtube-nocookie.com/embed/${id}?${clickParams.toString()}`;
+
+// hqdefault always exists for every video; maxresdefault 404s on older ones.
+// It is 4:3 with letterboxing, which object-fit: cover crops back off.
+const posterSrc = poster || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 ---
 <style>
   /* Eliminate stray whitespace around iframes similar to gallery spacing fix */
@@ -55,22 +69,167 @@ const src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
   .yt-embed > div { margin: 0; padding: 0; }
   .yt-embed iframe { display: block; }
   .yt-embed figcaption { line-height: initial; font-size: 0.875rem; }
+
+  /* The player is injected on click and carries no scope attribute, so it
+     needs a :global() selector to pick up these styles. */
+  .yt-frame :global(iframe) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  .yt-facade {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    background: var(--color-base-200);
+    display: block;
+    overflow: hidden;
+  }
+
+  .yt-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .yt-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgb(33 33 33 / 0.75);
+    transition: background 0.15s ease-in-out;
+  }
+
+  .yt-facade:hover .yt-play,
+  .yt-facade:focus-visible .yt-play {
+    background: #f00;
+  }
+
+  .yt-play svg {
+    width: 26px;
+    height: 26px;
+    fill: #fff;
+    /* Nudge the triangle to look optically centred in the rounded plate. */
+    margin-left: 3px;
+  }
 </style>
 
 <figure class={`yt-embed w-full ${className}`}>
-  <div style={`aspect-ratio: ${aspectStyle};`} class="w-full rounded-lg overflow-hidden bg-base-200">
-    <iframe
-      src={src}
-      title={title}
-      loading="lazy"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen
-      class="w-full h-full border-0 block"
-      referrerpolicy="strict-origin-when-cross-origin"
-    />
+  <div
+    style={`aspect-ratio: ${aspectStyle};`}
+    class="yt-frame w-full rounded-lg overflow-hidden bg-base-200"
+  >
+    {eager ? (
+      <iframe
+        src={src}
+        title={title}
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        class="w-full h-full border-0 block"
+        referrerpolicy="strict-origin-when-cross-origin"
+      />
+    ) : (
+      <button
+        type="button"
+        class="yt-facade"
+        data-yt-src={clickSrc}
+        data-yt-title={title}
+        aria-label={`Play video: ${title}`}
+      >
+        <img
+          src={posterSrc}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          class="yt-poster"
+          width="480"
+          height="360"
+        />
+        <span class="yt-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+        </span>
+      </button>
+    )}
   </div>
   {caption && (
     <figcaption class="mt-2 text-center text-base-content/60 text-sm">{caption}</figcaption>
   )}
-  
 </figure>
+
+<script>
+  /**
+   * Click-to-load YouTube players.
+   *
+   * A real embed pulls roughly a megabyte of player JS and keeps working
+   * through requestIdleCallback long after the page is interactive, competing
+   * for the main thread during load. The facade is a thumbnail plus a play
+   * button; the actual iframe is only created once someone asks for it, and
+   * autoplays because the click is the required user gesture.
+   *
+   * Delegated from the document so one listener covers every embed on the
+   * page, including any inside version tabs that were hidden at load.
+   */
+  function injectPlayer(facade: HTMLElement) {
+    const src = facade.dataset.ytSrc;
+    if (!src) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.src = src;
+    iframe.title = facade.dataset.ytTitle || 'YouTube video';
+    iframe.allow =
+      'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    facade.replaceWith(iframe);
+  }
+
+  document.addEventListener('click', (event) => {
+    const facade = (event.target as Element | null)?.closest<HTMLElement>(
+      '.yt-facade'
+    );
+    if (facade) injectPlayer(facade);
+  });
+
+  // Warm up the connection on intent, so the click itself feels immediate.
+  let warmed = false;
+  function warmConnections() {
+    if (warmed) return;
+    warmed = true;
+    for (const href of [
+      'https://www.youtube-nocookie.com',
+      'https://www.google.com',
+      'https://googlevideo.com',
+    ]) {
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = href;
+      document.head.appendChild(link);
+    }
+  }
+
+  for (const type of ['pointerover', 'focusin'] as const) {
+    document.addEventListener(
+      type,
+      (event) => {
+        if ((event.target as Element | null)?.closest('.yt-facade')) {
+          warmConnections();
+        }
+      },
+      { passive: true }
+    );
+  }
+</script>

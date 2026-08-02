@@ -1,0 +1,47 @@
+---
+/**
+ * Marks the rest of an MDX file as unfinished.
+ *
+ * Drop it in and everything below it is removed at build time by
+ * `src/plugins/remark-under-construction.mjs` — the content is not hidden,
+ * it is never rendered. Place it at the top of a file for a whole page, or
+ * partway down to publish what is ready and hold back the rest.
+ *
+ *   import UnderConstruction from '../../components/UnderConstruction.astro';
+ *
+ *   ...finished content...
+ *
+ *   <UnderConstruction />
+ *
+ *   ...drafts below here never ship...
+ */
+interface Props {
+  title?: string;
+  message?: string;
+  class?: string;
+}
+
+const {
+  title = 'Under construction',
+  message = "This part isn't finished yet — check back soon.",
+  class: className = '',
+} = Astro.props as Props;
+---
+
+<!--
+  Styling lives in src/styles/global.css under "UnderConstruction banner",
+  not in a scoped <style> block here.
+
+  Project version files (v1.mdx, v2_0.mdx, ...) are rendered by
+  ProjectVersionsSection via a dynamic `await render(entry)` and `<Content />`.
+  Astro's scoped-style propagation does not reach components used only inside
+  those entries: the scope attribute is emitted on the markup but the
+  stylesheet is never bundled into the page, so the banner rendered as bare
+  unstyled text on any project with version tabs. Keeping these rules global
+  makes them available wherever the component ends up.
+-->
+<aside class:list={['under-construction', 'not-prose', className]} role="status">
+  <span class="uc-icon" aria-hidden="true">🚧</span>
+  <p class="uc-title">{title}</p>
+  <p class="uc-message"><slot>{message}</slot></p>
+</aside>

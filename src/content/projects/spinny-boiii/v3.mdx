@@ -3,29 +3,41 @@ tabTitle: "v3.0"
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
-import v4IsoView from './images/v4/v4IsoView.jpg';
+import vsZ3phyr3Image from './images/v3/vsZ3phyr3.jpg';
+
+import halfDoneDrumImage from './images/v3/halfDoneDrum.jpg';
+import beforeAfterDrumImage from './images/v3/beforeAfterDrum.jpg';
+import doneDrumImage from './images/v3/doneDrum.jpg';
+import pulliesImage from './images/v3/pullies.jpg';
+import heatTreatImage from './images/v3/heatTreat.jpg';
+import heatTreatCoolImage from './images/v3/heatTreatCool.jpg';
+import assembledDrumImage from './images/v3/assembledDrum.jpg';
+import testFitImage from './images/v3/testFit.jpg';
+import brokenDrumImage from './images/v3/brokenDrum.jpg';
 
 <ModularSection 
   columns={[
     {
       type: "summary",
-      width: 53,
-      summaryTitle: "Version 3.0 - spinny boiii gets competitive",
+      width: 50,
+      summaryTitle: "Version 3 - spinny boiii gets competitive",
       summaryDescription: "Major redesign with an overhauled weapon system and updated materials",
       startDate: "2024-02",
       status: "active",
       headerTitleSize: "lg",
       metrics: {
-        sectionTitle: "Specifications",
+        sectionTitle: "Quick Facts",
         customFields: [
-          { label: "Weapon Type", value: "Egg-beater drum" },
-          { label: "Weapon Material", value: "S7 tool steel" },
+          { label: "Fight Record", value: "18-4" },
+          { label: "Weapon Type", value: "Beater bar drum" },
+          { label: "Weapon Material", value: "S7 tool steel (54 HRC)" },
           { label: "Weapon Diameter", value: "2.8 inches" },
-          { label: "Weapon Mass", value: "272g" },
+          { label: "Weapon Mass", value: "279g" },
+          { label: "Weapon Tip Speed", value: "228 mph"},
           { label: "Frame Setup", value: "Carbon fiber - TPU sandwich" },
           { label: "Drive Motors", value: "Repeat Pro 2006" },
-          { label: "Weapon Motor", value: "BA2320-1860kv" },
-          { label: "Weapon Tip Speed", value: "228 mph"}
+          { label: "Weapon Motor", value: "BA2320-1860kv" }
+
         ]
       },
       competitions: [
@@ -35,7 +47,7 @@ import v4IsoView from './images/v4/v4IsoView.jpg';
           placement: 5,
           record: "4-2",
           url: "/posts/spinny-boiii-event-recap-rcl-nationals-2025/",
-          hoverText: "Read more about the 2025 RCL National Championship"
+          hoverText: "Read more about spinny boiii's performance at this event"
         },
         {
           name: "Sonoran Showdown",
@@ -50,7 +62,7 @@ import v4IsoView from './images/v4/v4IsoView.jpg';
           record: "5-0"
         },
         {
-          name: "ARC Roborumble 2024",
+          name: "ARC: Roborumble 2024",
           date: "June 15, 2024",
           placement: 1,
           record: "5-0"
@@ -64,108 +76,90 @@ import v4IsoView from './images/v4/v4IsoView.jpg';
     },
     {
       type: "image",
-      width: 47,
-      image: v4IsoView,
-      imageAlt: "Version 2.0 with carbon fiber frame and shock-mounted weapon system",
-      imageCaption: "Version 2.0 with carbon fiber frame and shock-mounted weapon system"
+      width: 50,
+      image: vsZ3phyr3Image,
+      imageAlt: "Version 3 pops Z3phyr up into the air",
+      imageCaption: "Version 3.0 spinny boiii pops Z3phyr up into the air"
     }
   ]} 
 />
 
-Version 2 represented a major redesign incorporating all the lessons learned from the original prototype. The focus shifted from pure learning to competitive performance.
+Version 3 of spinny boiii (yes, we add an extra "i" for each major version) proved to be a major step forward in both performance and reliability. The previous version was reasonably durable against vertical spinners, but if it was hit hard by a horizontal spinner, the front side armor and weapon mounts would fail, often resulting in a fully ejected weapon. The biggest change in V3 was the addition of a dead shaft mounted to thick TPU side rails, preventing them from being pulled apart. The metal front side armor was replaced with thick TPU guards, which can have chunks torn free but don't deform plastically. These guards take a lot of damage, but they are easy to replace and cheap to make.
+
+This version also benefited from a lot of custom CNC-machined parts that I machined at work. These include a S7 tool steel beater bar weapon (which I hardened to 54HRC in my heat treat oven at home), aluminum timing pulleys, and a weapon motor mounting insert that doubles as a small heatsink. Since upgrading to machined pullies, we have yet to break a timing belt, even after 22 fights, and there is effectively zero pulley wear.
 
 <ModularSection
-    className="-mt-10"
     spacing="compact"
     columnGap="normal"
     columns={[
     {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "video",
+          videoId: "QA3G5bEvmXQ",
+          videoTitle: "Version 3 construction and testing"
+        },
+        {
+          type: "gallery",
+          gallery: [
+            { src: halfDoneDrumImage, caption: "Just-machined drum, clamped in the mill's vise with soft jaws" },
+            { src: beforeAfterDrumImage, caption: "The beater bar (right) was machined from a $10 offcut of S7 tool steel (left)" },
+            { src: doneDrumImage, caption: "Finished drum with its needle bearings and dead shaft" },
+            { src: pulliesImage, caption: "CNC machined aluminum timing pulleys" },
+            { src: heatTreatImage, caption: "Two drums in the heat treat oven" },
+            { src: heatTreatCoolImage, caption: "Drums air-quenching after the initial treatment" },
+            { src: assembledDrumImage, caption: "A heat-treated drum with its pulley. The white TPU insert helps reduce shock transfer to the weapon motor" },
+            { src: brokenDrumImage, caption: "One of the beater bars broke during its 5th fight, but it kept spinning and we won! Future versions will improve the drum durability" }
+          ],
+          galleryOptions: {
+            autoplay: true,
+            autoplayInterval: 5000,
+            showThumbnails: true
+          }
+        }
+      ]
+    },
+    {
     type: "content",
     title: "Major Improvements",
     width: 50,
-    content: `Version 2 addressed every major weakness of the original:
-    
-    **Weight Reduction:**
-    - Carbon fiber frame plates (60% weight savings)
-    - Titanium weapon bolts
-    - Optimized internal layout
-    - Total frame weight: 1.1 lbs
+    content: `
     
     **Weapon System:**
-    - Brushless motor with speed control
-    - Shock-mounted weapon assembly
-    - Hardened S7 tool steel disk
-    - Improved balance and spin-up time
-    
+    - New CNC-machined S7 tool steel drum (asymmetric egg-beater design)
+    - Hardened dead shaft mounts to thick TPU side rails, preventing them from pulling apart during side impacts
+    - Custom CNC aluminum timing pulleys, with TPU mounting insert to reduce shock transfer to the weapon motor
+    - No screw holes in the drum to prevent stress risers and cracking (pullies mount with driving dogs instead)
+
+    **Drive System:**
+    - Repeat Pro 2006 motors, for more power and tougher gearboxes / shafts
+    - [High-quality magnets](https://www.kjmagnetics.com/bx082-n52-neodymium-block-magnet) from K&J Magnetics, for better traction
+    - [Clamping wheel hubs](https://www.studica.co/6mm-d-shaft-low-profile-clamping-hub) with D profile to prevent slippage
+
+    **Frame and Armor:**
+    - [T700 carbon fiber](https://cncmadness.com/materials/carbon-fiber/) top and bottom plates, joined with aluminum standoffs
+    - Thick TPU side rails help reduce shock transfer to the motors
+    - Bulky TPU front guards are strong enough for 1-3 matches, don't fail catastrophically, and are easy to replace
+  
     **Electronics:**
-    - Modern ESCs with programmable settings
-    - Redundant wiring and connections
-    - Better vibration isolation
-    - Improved radio reliability`
-  },
-  {
-    type: "content",
-    title: "Construction Details", 
-    width: 50,
-    content: `The rebuild used modern materials and techniques:
+    - Upgraded to [BA2320-1860kv](https://rcdude.com/badass-2320-1860kv-brushless-motor.html) for higher tip speed
+    - Upgraded to ELRS receiver for better signal reliability
+    - [Silicone foam](https://www.aliexpress.us/item/3256806735800899.html?spm=a2g0o.order_list.order_list_main.10.1b4c1802aNTgaH&gatewayAdapt=glo2usa) wrapping for better shock absorption
+    - Conformal coating of [electronic potting compound](https://www.amazon.com/dp/B073JNDRXH?th=1) to protect against impact and debris
     
-    **Frame:**
-    - 3mm carbon fiber top and bottom plates
-    - CNC machined aluminum side rails
-    - Titanium hardware throughout
-    - Integrated wire management
-    
-    **Manufacturing:**
-    - Waterjet cutting for carbon fiber
-    - CNC machining for precision parts
-    - Professional assembly and testing
-    
-    **Testing:**
-    - Extensive bench testing of all systems
-    - Weapon balance verification
-    - Shock testing of mounting systems`
+    `
   }
 ]} />
 
-## Performance Improvements
+## Fight Video Playlists
+[RCL Nationals May 2025](https://www.youtube.com/playlist?list=PLgp8zR6Bmp05vWLzOsBY7gpqVgXG-l98z)
 
-The combination of weight reduction and improved systems resulted in dramatically better performance:
+[Sonoran Showdown 2025](https://www.youtube.com/playlist?list=PLgp8zR6Bmp05zfiB-b38dhOFBHgld7Svn)
 
-### Speed and Agility
-- **Weight**: Reduced from 2.8 lbs to 2.1 lbs total
-- **Power-to-weight**: 40% improvement
-- **Acceleration**: Much more responsive drive system
+[EVAC Cactus Clash 2024](https://www.youtube.com/playlist?list=PLgp8zR6Bmp05xhmaJGkNCDmgQKUG9g_3a)
 
-### Weapon Performance  
-- **Spin-up time**: Reduced from 8 seconds to 3 seconds
-- **Tip speed**: Increased from 180 mph to 220 mph
-- **Reliability**: Zero shock-related failures
+[ARC: Roborumble 2024](https://www.youtube.com/playlist?list=PLgp8zR6Bmp04TJwsmw5k9PwF9zq9AjsEJ)
 
-### Competition Success
-V2 marked the transition from learning platform to competitive robot:
 
-- **First tournament win** at local competition
-- **Consistent performance** across multiple events
-- **Podium finishes** in 3 out of 4 competitions entered
-- **Fan favorite** due to spectacular sparks and hits
-
-## Key Innovations
-
-Several design elements from V2 became signatures of the spinny boiii platform:
-
-### Shock Mounting System
-- Custom rubber isolation mounts
-- Allows weapon movement without frame damage
-- Significantly improved component longevity
-
-### Modular Electronics
-- Easy field repairs and upgrades
-- Standardized connections
-- Redundant critical systems
-
-### Optimized Geometry
-- Lower center of gravity
-- Better weight distribution
-- Improved stability during weapon operation
-
-Version 2 proved that careful engineering and attention to detail could transform a basic concept into a competitive platform. The lessons learned here directly influenced the current generation design.

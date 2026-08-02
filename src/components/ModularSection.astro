@@ -6,11 +6,28 @@ import ModelViewer from './ModelViewer';
 import Summary from './Summary.astro';
 import YouTube from './YouTube.astro';
 
-const { columns, class: className, style: styleProp } = Astro.props;
+const {
+  columns,
+  class: className,
+  style: styleProp,
+  autoBalance = true,
+  // Wide enough that the solver settles on shape rather than on a clamp.
+  //
+  // Clamping was doing the work while Summary was short-and-wide: too wide a
+  // range let it starve the visual column, too narrow a one pinned different
+  // sections against opposite ends. Now that Summary is tall-and-narrow by
+  // construction, the height curves actually cross inside this range.
+  balanceRange = [30, 72],
+} = Astro.props;
 
 if (!columns || columns.length === 0) {
   throw new Error('ModularSection requires a columns prop with at least one column');
 }
+
+// Height balancing only makes sense for a true two-column layout. The authored
+// `width` still drives SSR/no-JS/mobile; the client just refines it from there.
+const canBalance = autoBalance !== false && columns.length === 2;
+const [balanceMin, balanceMax] = balanceRange;
 ---
 
 <style>
@@ -74,6 +91,16 @@ if (!columns || columns.length === 0) {
   @media (min-width: 1024px) {
     .responsive-columns {
       grid-template-columns: var(--col1-width, 1fr) var(--col2-width, 1fr);
+    }
+
+    /* Hold the section back until the balancer has picked a split, so the
+       authored seed split never paints first. Only applies side-by-side —
+       below this breakpoint the grid is single-column and nothing is solved.
+       The attribute is server-rendered (so there is no visible-then-hidden
+       flash) and removed by script; the <noscript> block below and a
+       setTimeout fallback both guarantee it cannot get stuck. */
+    .responsive-columns[data-balance-pending] {
+      visibility: hidden;
     }
   }
   
@@ -151,16 +178,363 @@ if (!columns || columns.length === 0) {
 
 </style>
 
+<script>
+  /**
+   * Auto-balance two-column ModularSections so both columns end up as close to
+   * the same content height as possible at whatever width the visitor's screen
+   * happens to be.
+   *
+   * Approach: sweep candidate splits and measure the real elements. Predicting
+   * text height analytically is too fragile (fonts, headings, list items), and
+   * it can't be done at build time anyway since it needs pixel widths.
+   *
+   * The sweep runs synchronously in a single task. The browser computes a
+   * layout for each candidate but never paints an intermediate one, so the
+   * whole search is invisible — only the final split is ever rendered.
+   *
+   * Getting *one* solve is the other half of the problem. Web fonts and
+   * client:load islands (the gallery only renders thumbnails once hydrated)
+   * both change content height after first paint, so solving eagerly and again
+   * later paints a different split each time. Instead we wait for fonts, then
+   * poll until heights stop moving, and solve exactly once. The section is
+   * held at visibility:hidden until that lands so no intermediate split shows.
+   */
+
+  // Matches the min-width in the .responsive-columns media query. Below this
+  // the grid collapses to one column and the widths are unused.
+  const SIDE_BY_SIDE_MIN = 1024;
+
+  // Column heights must be unchanged for this many consecutive frames before
+  // we trust them enough to solve. One is enough now that nothing moves after
+  // first paint (no web fonts, gallery thumbnails server-render); each extra
+  // frame is ~16ms added to every page load.
+  const SETTLE_FRAMES = 1;
+
+  // ?balanceDebug on any URL logs where the time actually goes.
+  const DEBUG =
+    typeof location !== 'undefined' && location.search.includes('balanceDebug');
+
+  // Caps on waiting for the layout to settle, and a last-resort reveal so a
+  // section can never stay hidden because something upstream stalled.
+  //
+  // The settle cap can be short because the pieces that used to move after
+  // first paint no longer do: there are no web fonts, and ProjectGallery now
+  // server-renders its thumbnails so hydration does not change column height.
+  // In the common case the poll confirms stability in ~2 frames and never
+  // approaches this ceiling.
+  const MAX_SETTLE_MS = 150;
+  const REVEAL_FALLBACK_MS = 1000;
+
+  // Keep the authored width if it's already within this many pixels of the best
+  // split found — respects author intent and avoids pointless nudging.
+  const DEADBAND_PX = 8;
+
+  // Coarse sweep granularity. Halved repeatedly around the running winner
+  // until it reaches 1%, so the range is covered in ~13 probes rather than the
+  // ~19 a coarse-then-flat-fine pass needed.
+  const COARSE_STEP = 8;
+
+  /**
+   * Height of a column's actual content.
+   *
+   * Note: we cannot measure the column element itself. Grid cells stretch to
+   * the row height, so both columns would always report identical heights and
+   * every candidate would tie. Measuring the children gives the natural height.
+   */
+  function contentHeight(col: Element): number {
+    let top = Infinity;
+    let bottom = -Infinity;
+    for (const kid of Array.from(col.children)) {
+      const r = kid.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) continue; // skip collapsed nodes
+      top = Math.min(top, r.top);
+      bottom = Math.max(bottom, r.bottom);
+    }
+    return bottom > top ? bottom - top : 0;
+  }
+
+  function applySplit(section: HTMLElement, pct: number) {
+    section.style.setProperty('--col1-width', `${pct}fr`);
+    section.style.setProperty('--col2-width', `${100 - pct}fr`);
+  }
+
+  /**
+   * Of everything measured so far, the split with the smallest height
+   * mismatch. Among splits that are effectively tied, prefer the one nearest
+   * the authored width so the result stays close to the intended proportions.
+   */
+  function bestSplit(results: Map<number, number>, seed: number): number {
+    const minDiff = Math.min(...results.values());
+    let best = seed;
+    let found = false;
+    for (const [pct, diff] of results) {
+      if (diff > minDiff + 0.5) continue;
+      if (!found || Math.abs(pct - seed) < Math.abs(best - seed)) {
+        best = pct;
+        found = true;
+      }
+    }
+    return best;
+  }
+
+  function balance(section: HTMLElement) {
+    if (window.innerWidth < SIDE_BY_SIDE_MIN) return;
+
+    const cols = section.querySelectorAll<HTMLElement>(':scope > .column');
+    if (cols.length !== 2) return;
+
+    // A section inside an unselected version tab is display:none and measures
+    // as zero. Skip it; the ResizeObserver re-runs us when the tab is shown.
+    if (!section.getBoundingClientRect().width) return;
+
+    const seed = Math.round(Number(section.dataset.balanceSeed) || 50);
+    const min = Math.round(Number(section.dataset.balanceMin) || 30);
+    const max = Math.round(Number(section.dataset.balanceMax) || 70);
+
+    // Pin the section's outer height for the duration of the sweep.
+    //
+    // This is the single biggest cost saver. Each probe forces a synchronous
+    // relayout, and without this the section's height changes on every one,
+    // so the browser must re-lay-out the entire rest of the document each
+    // time. With the outer box fixed, the work is confined to this section's
+    // subtree. Children are still auto-height, so their measured content
+    // heights are unaffected; overflow is clipped so the temporarily
+    // oversized content cannot alter ancestor scroll height or width.
+    const priorHeight = section.style.height;
+    const priorOverflow = section.style.overflow;
+    section.style.height = `${section.getBoundingClientRect().height}px`;
+    section.style.overflow = 'hidden';
+
+    const results = new Map<number, number>();
+    const probe = (raw: number) => {
+      const pct = Math.min(max, Math.max(min, Math.round(raw)));
+      if (!results.has(pct)) {
+        applySplit(section, pct);
+        // Reading geometry here forces the layout we just asked for.
+        results.set(
+          pct,
+          Math.abs(contentHeight(cols[0]) - contentHeight(cols[1]))
+        );
+      }
+    };
+
+    // Try the authored split first. Hand-tuned widths are usually close, and
+    // if this one is already balanced within the deadband we are done after a
+    // single probe instead of sweeping the entire range.
+    probe(seed);
+    if ((results.get(seed) ?? Infinity) <= DEADBAND_PX) {
+      applySplit(section, seed);
+      section.style.height = priorHeight;
+      section.style.overflow = priorOverflow;
+      return results.size;
+    }
+
+    // Otherwise sweep: one coarse pass over the whole range to find the right
+    // basin, then successively halve the step around the running winner.
+    //
+    // Each probe costs a forced synchronous relayout of this section, so probe
+    // count is the dominant cost of the whole feature. Halving reaches 1%
+    // precision in roughly a third of the probes a flat fine pass needs, while
+    // still starting from a full-range scan so a distant optimum is not missed.
+    for (let pct = min; pct <= max; pct += COARSE_STEP) probe(pct);
+    probe(max);
+
+    let step = COARSE_STEP;
+    while (step > 1) {
+      const finer = Math.max(1, Math.floor(step / 2));
+      const around = bestSplit(results, seed);
+      probe(around - finer);
+      probe(around + finer);
+      step = finer;
+    }
+
+    const best = bestSplit(results, seed);
+    const seedDiff = results.get(seed);
+    const bestDiff = results.get(best) ?? Infinity;
+    const keepSeed = seedDiff !== undefined && seedDiff <= bestDiff + DEADBAND_PX;
+
+    const chosen = keepSeed ? seed : best;
+    applySplit(section, chosen);
+
+    // Release the height pin so the section resizes to the winning split.
+    section.style.height = priorHeight;
+    section.style.overflow = priorOverflow;
+
+    if (DEBUG) {
+      // The probe table is the ground truth for whether the search is sane.
+      // If diff keeps falling toward one end but we stopped at the opposite
+      // clamp, the search is wrong; if it genuinely bottoms out at the clamp,
+      // the objective is wrong. These need different fixes.
+      const table = [...results.entries()]
+        .sort((a, b) => a[0] - b[0])
+        .map(([pct, diff]) => `${pct}:${Math.round(diff)}`)
+        .join('  ');
+      console.info(`[balance]   probes (split:heightDiff)  ${table}`);
+
+      // Re-measure a couple of splits one frame later. If these disagree with
+      // the table above, the synchronous sweep is reading stale layout —
+      // container queries not re-resolving inside a forced reflow.
+      const recheck = [min, Math.round((min + max) / 2), max];
+      const sync = recheck.map((pct) => results.get(pct));
+      requestAnimationFrame(() => {
+        const live = recheck.map((pct) => {
+          applySplit(section, pct);
+          return Math.round(
+            Math.abs(contentHeight(cols[0]) - contentHeight(cols[1]))
+          );
+        });
+        applySplit(section, chosen);
+        console.info(
+          `[balance]   recheck at ${recheck.join('/')} -> ` +
+            `sweep said ${sync.map((v) => (v === undefined ? '?' : Math.round(v))).join('/')} | ` +
+            `live says ${live.join('/')}` +
+            `${sync.some((v, i) => v !== undefined && Math.abs(v - live[i]) > 20) ? '  <-- MISMATCH, sweep is reading stale layout' : '  (consistent)'}`
+        );
+      });
+
+      console.info(
+        `[balance]   ${Math.round(section.getBoundingClientRect().width)}px wide ` +
+          `-> ${chosen}/${100 - chosen}` +
+          `${chosen === min ? ' (AT MIN)' : chosen === max ? ' (AT MAX)' : ''}` +
+          `${keepSeed ? ' (kept seed)' : ''} | ` +
+          `heights ${Math.round(contentHeight(cols[0]))}/${Math.round(contentHeight(cols[1]))} | ` +
+          `${results.size} probes`,
+        section
+      );
+    }
+
+    return results.size;
+  }
+
+  /** Cheap fingerprint of both columns' content heights. */
+  function heightSignature(cols: HTMLElement[]): string {
+    return cols.map((c) => Math.round(contentHeight(c))).join('|');
+  }
+
+  /**
+   * Wait until the columns' heights hold steady across consecutive frames,
+   * which is what tells us fonts have applied and any client:load island in
+   * the section has finished hydrating. Bounded so a page that never settles
+   * (e.g. an animation inside a column) still gets solved.
+   */
+  function whenSettled(cols: HTMLElement[], done: () => void) {
+    const start = performance.now();
+    let previous = '';
+    let stableFrames = 0;
+
+    const tick = () => {
+      const signature = heightSignature(cols);
+      if (signature === previous) {
+        stableFrames++;
+      } else {
+        stableFrames = 0;
+        previous = signature;
+      }
+
+      if (stableFrames >= SETTLE_FRAMES || performance.now() - start > MAX_SETTLE_MS) {
+        done();
+      } else {
+        requestAnimationFrame(tick);
+      }
+    };
+
+    requestAnimationFrame(tick);
+  }
+
+  function init() {
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-auto-balance]')
+    ).filter((section) => !section.dataset.balanceReady);
+
+    if (!sections.length) return;
+    sections.forEach((s) => (s.dataset.balanceReady = 'true'));
+
+    const t0 = performance.now();
+    const revealAll = () =>
+      sections.forEach((s) => s.removeAttribute('data-balance-pending'));
+
+    // Never leave the page hidden, whatever happens below.
+    setTimeout(revealAll, REVEAL_FALLBACK_MS);
+
+    sections.forEach((section) => {
+      // Re-solve when the *container* width changes: viewport resize, or a
+      // version tab going from display:none to visible. Deliberately ignores
+      // height changes, which our own column edits cause — comparing width
+      // only is what keeps this from feeding back into itself.
+      let lastWidth = section.getBoundingClientRect().width;
+      let frame = 0;
+      new ResizeObserver(() => {
+        const width = section.getBoundingClientRect().width;
+        if (Math.abs(width - lastWidth) < 1) return;
+        lastWidth = width;
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => balance(section));
+      }).observe(section);
+    });
+
+    // Waiting on document.fonts.ready costs ~30-50ms because it does not
+    // resolve until initial layout finishes, and we only care if a font swap
+    // could still reflow text.
+    //
+    // Checking `size` is not enough: global.css imports KaTeX, which registers
+    // 20 @font-face rules on every page whether or not any math is rendered.
+    // `status` is the real signal — a registered face that nothing uses is
+    // never fetched, so status stays 'loaded' and we can skip the wait. A page
+    // that genuinely is downloading a font reports 'loading' and still waits.
+    const fontsLoading = document.fonts?.status === 'loading';
+    const fontsReady = fontsLoading ? document.fonts.ready : Promise.resolve();
+
+    fontsReady
+      .then(() => {
+        const tFonts = performance.now();
+
+        // One settle poll across every column on the page, then every sweep in
+        // a single task. Per-section polling serialised badly: each section's
+        // sweep blocked the frame the next section's poll needed to tick, so
+        // their start times stacked up instead of overlapping.
+        const allCols = sections.flatMap((section) =>
+          Array.from(
+            section.querySelectorAll<HTMLElement>(':scope > .column')
+          )
+        );
+
+        whenSettled(allCols, () => {
+          const tSettled = performance.now();
+          let probes = 0;
+          sections.forEach((section) => {
+            probes += balance(section) ?? 0;
+          });
+          revealAll();
+
+          if (DEBUG) {
+            const now = performance.now();
+            console.info(
+              `[balance] ${sections.length} sections | ` +
+                `fonts ${(tFonts - t0).toFixed(1)}ms | ` +
+                `settle ${(tSettled - tFonts).toFixed(1)}ms | ` +
+                `sweep ${(now - tSettled).toFixed(1)}ms (${probes} probes) | ` +
+                `total ${(now - t0).toFixed(1)}ms`
+            );
+          }
+        });
+      })
+      .catch(revealAll);
+  }
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
 {(() => {
-  // Calculate CSS custom properties for responsive CSS Grid
-  const getGridStyles = (columns: any[]) => {
-    if (columns.length !== 2) return {};
-    
+  // Resolve the width percentage for column 1 (column 2 takes the remainder).
+  const getCol1Width = (columns: any[]): number => {
+    if (columns.length !== 2) return 50;
+
     const col1 = columns[0];
     const col2 = columns[1];
-    
+
     let col1Width = 50; // Default
-    
+
     // Check for explicit width on either column
     if (col1.width !== undefined) {
       col1Width = col1.width;
@@ -207,25 +581,126 @@ if (!columns || columns.length === 0) {
       }
     }
     
-    const col2Width = 100 - col1Width;
-    
-    return {
-      '--col1-width': `${col1Width}fr`,
-      '--col2-width': `${col2Width}fr`
-    };
+    return col1Width;
   };
-  
-  const gridStyles = getGridStyles(columns);
-  const gridStyleStr = Object.entries(gridStyles).map(([k, v]) => `${k}: ${v}`).join('; ');
+
+  const col1Width = getCol1Width(columns);
+  const gridStyleStr = columns.length === 2
+    ? `--col1-width: ${col1Width}fr; --col2-width: ${100 - col1Width}fr`
+    : '';
   const finalStyle = styleProp ? `${gridStyleStr}; ${styleProp}` : gridStyleStr;
 
+  // Renders a single content block (video, gallery, image, content, summary, model).
+  // Used both for a column's own type and for each item inside a "stack" column.
+  const renderBlock = (block: any, idx: number) => {
+    // Image props: prefer new schema (src/alt/caption), fallback to legacy (image/imageAlt/imageCaption)
+    const imgSrc = block?.src || block?.image;
+    const imgAlt = block?.alt || block?.imageAlt || `Image ${idx + 1}`;
+    const imgCaption = block?.caption || block?.imageCaption;
+    // Gallery options: prefer nested galleryOptions, fallback to legacy top-level keys
+    const gOpts = block?.galleryOptions || {};
+    const galleryAutoplay = (gOpts.autoplay ?? block?.autoplay ?? (block?.gallery?.length > 1));
+    const galleryInterval = (gOpts.autoplayInterval ?? block?.autoplayInterval ?? 5000);
+    const galleryThumbs = (gOpts.showThumbnails ?? block?.showThumbnails ?? (block?.gallery?.length > 2));
+    const galleryLoop = (gOpts.loop ?? block?.loop ?? true);
+
+    return (
+      <>
+        {block.type === 'content' && (
+          <div class="prose prose-lg max-w-none">
+            {block.title && (
+              <h2 class="text-2xl font-bold mb-4">{block.title}</h2>
+            )}
+            <div set:html={marked(block.content || '')} />
+          </div>
+        )}
+
+        {block.type === 'image' && imgSrc && (
+          <figure>
+            <Image
+              src={imgSrc}
+              alt={imgAlt}
+              width={600}
+              height={400}
+              class="w-full h-auto object-cover rounded-lg shadow"
+            />
+            {imgCaption && (
+              <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={imgCaption}></figcaption>
+            )}
+          </figure>
+        )}
+
+        {block.type === 'gallery' && block.gallery && (
+          <div class="gallery-col">
+            <ProjectGallery
+              images={block.gallery}
+              autoplay={galleryAutoplay}
+              autoplayInterval={galleryInterval}
+              showThumbnails={galleryThumbs}
+              loop={galleryLoop}
+              client:load
+            />
+          </div>
+        )}
+
+        {block.type === 'summary' && (
+          <div class="info-col">
+            <Summary
+              title={block.summaryTitle || block.title}
+              description={block.summaryDescription || block.description}
+              startDate={block.startDate}
+              endDate={block.endDate}
+              status={block.status}
+              headerTitleSize={block.headerTitleSize}
+              metrics={block.metrics}
+              competitions={block.competitions}
+              competitionsOptions={block.competitionsOptions}
+              tags={block.tags || []}
+              githubUrl={block.githubUrl}
+              liveUrl={block.liveUrl}
+            />
+          </div>
+        )}
+
+        {block.type === 'model' && block.modelSrc && (
+          <ModelViewer
+            src={block.modelSrc}
+            alt={block.modelAlt || 'Interactive 3D model'}
+            {...(block.modelOptions || {})}
+            client:load
+          />
+        )}
+
+        {block.type === 'video' && block.videoId && (
+          <YouTube
+            id={block.videoId}
+            title={block.videoTitle || block.title || 'Video'}
+            aspect={block.videoAspect || '16:9'}
+            start={block.videoStart}
+            autoplay={block.videoAutoplay}
+            muted={block.videoMuted}
+            controls={block.videoControls}
+            caption={block.videoCaption}
+          />
+        )}
+      </>
+    );
+  };
+
   return (
+    <>
     <div class:list={[(
       columns.length <= 2 ? (columns.length === 2 ? 'responsive-columns' : 'flex flex-col lg:flex-row lg:items-start') :
       columns.length === 3 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
       columns.length === 4 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4' :
       'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' // Fallback for 5+ columns
-    ), 'gap-6', 'modular-section', className]} style={finalStyle}>
+    ), 'gap-6', 'modular-section', className]} style={finalStyle}
+      data-auto-balance={canBalance ? 'true' : undefined}
+      data-balance-pending={canBalance ? 'true' : undefined}
+      data-balance-seed={canBalance ? String(col1Width) : undefined}
+      data-balance-min={canBalance ? String(balanceMin) : undefined}
+      data-balance-max={canBalance ? String(balanceMax) : undefined}
+    >
       {columns.map((column: any, columnIndex: number) => {
         // Determine column class based on layout type
         let columnClass;
@@ -238,97 +713,28 @@ if (!columns || columns.length === 0) {
           columnClass = 'min-w-0'; // Grid handles sizing for 3+ columns
         }
         
-        // Image props: prefer new schema (src/alt/caption), fallback to legacy (image/imageAlt/imageCaption)
-        const imgSrc = column?.src || column?.image;
-        const imgAlt = column?.alt || column?.imageAlt || `Image ${columnIndex + 1}`;
-        const imgCaption = column?.caption || column?.imageCaption;
-        // Gallery options: prefer nested galleryOptions, fallback to legacy top-level keys
-        const gOpts = column?.galleryOptions || {};
-        const galleryAutoplay = (gOpts.autoplay ?? column?.autoplay ?? (column?.gallery?.length > 1));
-        const galleryInterval = (gOpts.autoplayInterval ?? column?.autoplayInterval ?? 5000);
-        const galleryThumbs = (gOpts.showThumbnails ?? column?.showThumbnails ?? (column?.gallery?.length > 2));
-        
         return (
           <div class={columnClass}>
-            {column.type === 'content' && (
-              <div class="prose prose-lg max-w-none">
-                {column.title && (
-                  <h2 class="text-2xl font-bold mb-4">{column.title}</h2>
-                )}
-                <div set:html={marked(column.content || '')} />
+            {column.type === 'stack' && Array.isArray(column.items) ? (
+              <div class="flex flex-col" style={`gap: ${column.stackGap || '1.5rem'}`}>
+                {column.items.map((item: any, itemIndex: number) => (
+                  <div class="stack-item">{renderBlock(item, itemIndex)}</div>
+                ))}
               </div>
-            )}
-            
-            {column.type === 'image' && imgSrc && (
-              <figure>
-                <Image 
-                  src={imgSrc}
-                  alt={imgAlt}
-                  width={600}
-                  height={400}
-                  class="w-full h-auto object-cover rounded-lg shadow"
-                />
-                {imgCaption && (
-                  <figcaption class="mt-2 text-center text-base-content/60 text-sm" set:html={imgCaption}></figcaption>
-                )}
-              </figure>
-            )}
-            
-    {column.type === 'gallery' && column.gallery && (
-              <div class="gallery-col">
-                <ProjectGallery 
-                  images={column.gallery}
-      autoplay={galleryAutoplay}
-      autoplayInterval={galleryInterval}
-      showThumbnails={galleryThumbs}
-                  client:load
-                />
-              </div>
-            )}
-            
-            {column.type === 'summary' && (
-              <div class="info-col">
-                <Summary 
-                  title={column.summaryTitle || column.title}
-                  description={column.summaryDescription || column.description}
-                  startDate={column.startDate}
-                  endDate={column.endDate}
-                  status={column.status}
-                  headerTitleSize={column.headerTitleSize}
-                  metrics={column.metrics}
-                  competitions={column.competitions}
-                  competitionsOptions={column.competitionsOptions}
-                  tags={column.tags || []}
-                  githubUrl={column.githubUrl}
-                  liveUrl={column.liveUrl}
-                />
-              </div>
-            )}
-            
-            {column.type === 'model' && column.modelSrc && (
-              <ModelViewer 
-                src={column.modelSrc}
-                alt={column.modelAlt || 'Interactive 3D model'}
-                {...(column.modelOptions || {})}
-                client:load
-              />
-            )}
-
-            {column.type === 'video' && column.videoId && (
-              <YouTube 
-                id={column.videoId}
-                title={column.videoTitle || column.title || 'Video'}
-                aspect={column.videoAspect || '16:9'}
-                start={column.videoStart}
-                autoplay={column.videoAutoplay}
-                muted={column.videoMuted}
-                controls={column.videoControls}
-                caption={column.videoCaption}
-              />
+            ) : (
+              renderBlock(column, columnIndex)
             )}
           </div>
         );
       })}
     </div>
+    {canBalance && (
+      <noscript
+        set:html={
+          '<style>main:has([data-balance-pending]),[data-balance-pending]{visibility:visible !important;animation:none !important}</style>'
+        }
+      />
+    )}
+    </>
   );
 })()}

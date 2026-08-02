@@ -42,7 +42,7 @@ startDate: 2025-05
 ```
 
 ## Modular layouts with `ModularSection`
-Use the `columns` array to compose sections. Types: `content`, `image`, `gallery`, `model`, `summary`, `video`.
+Use the `columns` array to compose sections. Types: `content`, `image`, `gallery`, `model`, `summary`, `video`, `stack`.
 
 Example (two columns):
 
@@ -72,6 +72,31 @@ import ModularSection from '../../components/ModularSection.astro'
 Notes
 - Layouts are unified. Two-column widths can be driven by `galleryOptions.layout` or `layout` strings like `60%` or `3:2`, else equal split.
 - Image columns accept either `src/alt/caption` (preferred) or legacy `image/imageAlt/imageCaption`.
+- Two-column sections auto-balance their heights per visitor; `width` acts as the seed. See `docs/content-layout-system.md`.
+
+### Stacking blocks in one column
+A column renders a single block. Use `type: 'stack'` to put several in the same
+column — each entry in `items` is an ordinary column definition and accepts the
+same props it would at the top level (so `galleryOptions`, `videoCaption`, etc.
+all work unchanged). `stackGap` sets the spacing, default `1.5rem`.
+
+```mdx
+<ModularSection columns={[
+  {
+    type: 'stack',
+    width: 50,
+    items: [
+      { type: 'video', videoId: 'dQw4w9WgXcQ', videoTitle: 'Build walkthrough' },
+      {
+        type: 'gallery',
+        gallery: [{ src: image1, alt: 'Machining' }, { src: image2, alt: 'Assembly' }],
+        galleryOptions: { autoplayInterval: 8000 },
+      },
+    ],
+  },
+  { type: 'content', width: 50, title: 'Details', content: `...` },
+]} />
+```
 
 ### YouTube video embeds
 Use a `video` column to embed a privacy-enhanced YouTube `<iframe>` via the `YouTube.astro` component.
@@ -113,6 +138,35 @@ import ModularSection from '../../components/ModularSection.astro'
 ]} />
 ```
 
+## UnderConstruction (hold back unfinished content)
+Marks the rest of a file as unfinished. Everything below the marker is removed
+from the syntax tree at build time, so it is never rendered — not hidden.
+
+```mdx
+import UnderConstruction from '../../components/UnderConstruction.astro'
+
+Finished content renders normally.
+
+<UnderConstruction />
+
+Anything below here never ships.
+```
+
+Props: `title`, `message`, `class`. Children override `message`:
+`<UnderConstruction>Waiting on final photos.</UnderConstruction>`
+
+Notes
+- Put it at the top of a file for a whole page, or partway down to publish what
+  is ready and hold back the rest. Works in `index.mdx`, version files and posts.
+- Because the content is dropped rather than hidden, it stays out of the HTML
+  source, out of the Pagefind search index, and its images are never built.
+  A CSS-based approach would leak on all three counts.
+- Keep imports at the top of the file — imports *below* the marker are dropped
+  along with everything else.
+- Only root-level markers count; one nested inside another element is ignored.
+- Implemented by `src/plugins/remark-under-construction.mjs`, registered in
+  `astro.config.mjs`.
+
 ## ProjectGallery (carousel)
 Props
 - `images`: [{ src, alt?, caption? }]
@@ -122,8 +176,9 @@ Props
 - `loop`: boolean (default true)
 
 Behavior
-- Sizes to the container with minimal chrome. Thumbnails have modest horizontal gap; equal vertical gap above and below.
-- Keyboard: ←/→, Space (play/pause), Home/End.
+- Sizes to the container with minimal chrome. Thumbnails wrap onto multiple rows rather than scrolling horizontally; the active one is ringed.
+- Navigation is via the hover arrows, the thumbnails, or swipe. There are no keyboard shortcuts.
+- Re-measures itself when its container resizes (the ModularSection height balancer changes column widths after mount).
 
 Authoring tip: Keep aspect ratios similar for more stable heights. Captions render as a subtle bottom overlay.
 

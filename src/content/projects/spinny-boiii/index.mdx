@@ -1,23 +1,21 @@
 ---
 title: "spinny boiii - 3lb Combat Robot"
 slug: "spinny-boiii"
-description: "A competitive beetleweight combat robot with an egg-beater drum weapon and a powerful magnet-assisted drive system"
+description: "A competitive beetleweight combat robot with a beater bar drum weapon and a powerful magnet-assisted drive system"
 startDate: "2020-02"
 status: "active"
 tags: ["spinny boiii", "combat robotics", "cnc machining", "heat treating", "3d printing", "rc electronics", "collaborative"]
-cover: ./images/v4/v4IsoView.jpg
+cover: ./images/v3/v3IsoView.jpg
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
 import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
 
-import v4Model from './3Dmodels/spinny_boiii_v4.glb';
-
-import v4IsoView from './images/v4/v4IsoView.jpg';
-import insidesImage from './images/v4/insides.jpg';
-import vsZ3phyr2Image from './images/v4/vsZ3phyr2.jpg';
-import damaged1Image from './images/v4/damaged1.jpg';
-import vsActionSurgeImage from './images/v4/vsActionSurge.jpg';
+import v3IsoView from './images/v3/v3IsoView.jpg';
+import insidesImage from './images/v3/insides.jpg';
+import vsZ3phyr2Image from './images/v3/vsZ3phyr2.jpg';
+import damaged1Image from './images/v3/damaged1.jpg';
+import vsActionSurgeImage from './images/v3/vsActionSurge.jpg';
 
 <ModularSection 
   columns={[
@@ -25,7 +23,7 @@ import vsActionSurgeImage from './images/v4/vsActionSurge.jpg';
     type: "gallery",
     width: 55,
     gallery: [
-      { src: v4IsoView, caption: "Latest iteration of spinny boiii, with a custom CNC-machined weapon and bulky TPU armor" },
+      { src: v3IsoView, caption: "Latest iteration of spinny boiii, with a custom CNC-machined weapon and bulky TPU armor" },
       { src: insidesImage, caption: "Internal electronics layout with motors, motor controllers, RC receiver, battery, and power distribution" },
       { src: vsZ3phyr2Image, caption: "Winning the face-to-face engagement with a shower of sparks!" },
       { src: damaged1Image, caption: "Took some heavy damage but still eeked out the win" },
@@ -46,11 +44,11 @@ import vsActionSurgeImage from './images/v4/vsActionSurge.jpg';
     status: "active",
     headerTitleSize: "2xl",
     metrics: {
-      sectionTitle: "Quick Facts:",
+      sectionTitle: "Quick Facts",
       customFields: [
         { label: "Weapon Diameter", value: "2.87 in" },
-        { label: "Weapon Type", value: "Drum spinner" },
-        { label: "Iterations", value: 4 },
+        { label: "Weapon Type", value: "Beater bar drum" },
+        { label: "Major Versions", value: 3 },
         { label: "Podium Finishes", value: 3 }
       ]
     },
@@ -61,7 +59,7 @@ import vsActionSurgeImage from './images/v4/vsActionSurge.jpg';
         placement: 5,
         record: "4-2",
         url: "/posts/spinny-boiii-event-recap-rcl-nationals-2025/",
-        hoverText: "Read more about the 2025 RCL National Championship"
+        hoverText: "Read more about spinny boiii's performance at this event"
       },
       {
         name: "EVAC Cactus Clash 2024",
@@ -70,13 +68,13 @@ import vsActionSurgeImage from './images/v4/vsActionSurge.jpg';
         record: "5-0"
       },
       {
-        name: "ARC Roborumble 2024",
+        name: "ARC: Roborumble 2024",
         date: "June 15, 2024",
         placement: 1,
         record: "5-0"
       },
       {
-        name: "ARC Roborumble 2023",
+        name: "ARC: Roborumble 2023",
         date: "June 10, 2023",
         placement: 2,
         record: "5-2"
@@ -90,7 +88,7 @@ import vsActionSurgeImage from './images/v4/vsActionSurge.jpg';
   }
 ]} />
 
-"spinny boiii" is my first competitive beetleweight (3-pound) combat robot. The design we settled on is a compact 2-wheel-drive (2WD) chassis with a wide egg-beater drum spanning the front of the bot. I started building this robot in 2020 with my teammate, Benji Miller, while I was creating ASU's student combat robotics program. Read more about each version of the robot below.
+"spinny boiii" is my first competitive beetleweight (3-pound) combat robot. The design we settled on is a compact 2-wheel-drive (2WD) chassis with a wide beater bar drum spanning the front of the bot. I started building this robot in 2020 with my teammate, Benji Miller, while I was creating ASU's student combat robotics program. Read more about each version of the robot below.
 
 <ProjectVersionsSection 
   sectionTitle="Design Iterations"
