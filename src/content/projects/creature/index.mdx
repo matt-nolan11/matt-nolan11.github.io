@@ -4,14 +4,85 @@ description: "A high-performance hobbyweight combat robot with a strong lifter, 
 startDate: "2023-07"
 status: "active"
 tags: ["creature", "combat robotics", "cnc machining", "heat treating", "mechanisms", "3d printing", "rc electronics", "collaborative"]
-cover: ./images/v4/v4Vert1.jpg
+cover: ./images/v4/v4Vert.jpg
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
 import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
 import UnderConstruction from '../../../components/UnderConstruction.astro';
 
-<UnderConstruction message="This project page is still being written — check back soon." />
+import v4DoubleLiftImage from './images/v4/v4DoubleLift.jpg';
+import v4HorizImage from './images/v4/v4Horiz.jpg';
+import v4InsidesImage from './images/v4/v4Insides.jpg';
+import v4PinFullCourtImage from './images/v4/v4PinFullCourt.jpg';
+import v4VertImage from './images/v4/v4Vert.jpg';
+import v4VertHorizImage from './images/v4/v4VertHoriz.jpg';
+import withSlamPlanImage from './images/v4/withSlamPlan.jpg';
+
+<ModularSection 
+  columns={[
+  {
+    type: "gallery",
+    width: 55,
+    gallery: [
+      { src: v4VertImage, caption: "Creature's anti-vert config, with thick TPU side armor, a flat 4140 steel wedge, and long AR500 steel forks" },
+      { src: v4InsidesImage, caption: "Internal layout showing off the frame-integrated drive gearboxes, the small lifter mechanism, and the electronnics" },
+      { src: v4HorizImage, caption: "Creature's anti-horiz config, with a 4140 wraparound wedge and a shallow 4140 hinged wedge" },
+      { src: v4PinFullCourtImage, caption: "Creature pins Full Court against the wall at RCL Nationals 2025" },
+    ],
+    galleryOptions: {
+      autoplay: true,
+      autoplayInterval: 5000,
+      showThumbnails: true
+    }
+  },
+  {
+    type: "summary",
+    width: 45,
+    summaryTitle: "Creature - 12lb Combat Robot",
+    summaryDescription: "A high-performance hobbyweight combat robot with a strong lifter, heavy armor, and a powerful 4-wheel drivetrain",
+    startDate: "2023-07",
+    status: "active",
+    headerTitleSize: "2xl",
+    metrics: {
+      sectionTitle: "Quick Facts",
+      customFields: [
+        { label: "Weapon Type", value: "Lifter" },
+        { label: "Configurations", value: "3 primary (vert, horizontal, drum)" },
+        { label: "Major Versions", value: 4 },
+        { label: "Podium Finishes", value: 5}
+      ]
+    },
+    competitions: [
+      {
+        name: "RCL National Championship 2025",
+        date: "May 3-4, 2025",
+        placement: 1,
+        record: "5-0",
+        url: "/posts/creature-event-recap-rcl-nationals-2025/",
+        hoverText: "Read more about Creature's performance at this event"
+      },
+      {
+        name: "SCAR Maker Faire Orange County 2025",
+        date: "September 13-14, 2025",
+        placement: 2,
+        record: "3-2"
+      },
+      {
+        name: "SCAR May Metal Massacre 2024",
+        date: "June 15, 2024",
+        placement: 1,
+        record: "7-1"
+      }
+    ],
+    competitionsOptions: {
+      sectionTitle: "Notable Tournaments",
+      maxDisplay: 0
+    },
+    tags: ["creature", "combat robotics", "cnc machining", "heat treating", "3d printing", "rc control systems"]
+  }
+]} />
+
 
 <ProjectVersionsSection 
   sectionTitle="Design Iterations"
