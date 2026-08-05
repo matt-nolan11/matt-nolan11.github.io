@@ -26,6 +26,13 @@ interface ProjectGalleryProps {
   showThumbnails?: boolean;
   loop?: boolean;
   className?: string;
+  /**
+   * Force the gallery's shape, as "16:9" / "4:3" or a number (width / height).
+   * Without this the ratio is derived from the widest image, so one unusually
+   * wide photo reshapes the whole gallery — and makes it inconsistent with
+   * other galleries on the same page.
+   */
+  aspectRatio?: string | number;
 }
 
 /**
@@ -41,26 +48,42 @@ export default function ProjectGallery({
   showThumbnails = true,
   loop = true,
   className = '',
+  aspectRatio,
 }: ProjectGalleryProps) {
   /**
-   * Calculate the gallery aspect ratio based on the widest (landscape) image.
-   * Uses the widest aspect ratio so no image is excessively cropped.
-   * Returns the ratio as width / height (e.g. 1.333 for 4:3).
+   * Resolve the gallery's aspect ratio as width / height (e.g. 1.333 for 4:3).
+   *
+   * An explicit `aspectRatio` wins. Otherwise it is derived from the widest
+   * image, so that landscape shots are not cropped — but note that a single
+   * unusually wide image then dictates the shape of the whole gallery, which
+   * is the usual reason to set it explicitly.
    */
   const calculateGalleryAspectRatio = (images: GalleryImage[]): number => {
+    if (typeof aspectRatio === 'number' && aspectRatio > 0) {
+      return aspectRatio;
+    }
+
+    if (typeof aspectRatio === 'string') {
+      const [w, h] = aspectRatio.split(':').map(Number);
+      if (w > 0 && h > 0) return w / h;
+
+      const single = Number(aspectRatio);
+      if (single > 0) return single;
+    }
+
     const ratios: number[] = [];
-    
+
     for (const image of images) {
       if (typeof image.src === 'object' && image.src.width && image.src.height) {
         ratios.push(image.src.width / image.src.height);
       }
     }
-    
+
     // Use the widest (largest) aspect ratio so landscape images fit well
     if (ratios.length > 0) {
       return Math.max(...ratios);
     }
-    
+
     // Fallback: 5:3 landscape ratio
     return 5 / 3;
   };

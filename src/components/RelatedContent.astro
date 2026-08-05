@@ -65,17 +65,20 @@ const { items } = Astro.props;
                 item.data.status === 'completed' ? 'This project is finished, and no new development is currently planned'
                 : item.data.status === 'in-progress' ? 'This project is under active development'
                 : item.data.status === 'active' ? 'This project is being maintained, but no new development is currently planned'
+                : item.data.status === 'paused' ? 'Development on this project is paused, and may resume in the future'
                 : 'This project is in the planning stage, and has not started active development yet'
               }>
                 <div class={`badge status-badge ${
                   item.data.status === 'completed' ? 'badge-success'
                   : item.data.status === 'in-progress' ? 'badge-warning'
                   : item.data.status === 'active' ? 'badge-accent'
+                  : item.data.status === 'paused' ? 'badge-neutral'
                   : 'badge-info'
                 }`}>{
                   item.data.status === 'completed' ? 'Completed'
                   : item.data.status === 'in-progress' ? 'In Progress'
                   : item.data.status === 'active' ? 'Active'
+                  : item.data.status === 'paused' ? 'Paused'
                   : 'Planned'
                 }</div>
               </div>

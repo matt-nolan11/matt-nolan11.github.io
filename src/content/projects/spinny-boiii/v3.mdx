@@ -3,8 +3,9 @@ tabTitle: "v3.0"
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
-import vsZ3phyr3Image from './images/v3/vsZ3phyr3.jpg';
+import VideoPlaylists from '../../../components/VideoPlaylists.astro';
 
+import vsZ3phyr3Image from './images/v3/vsZ3phyr3.jpg';
 import halfDoneDrumImage from './images/v3/halfDoneDrum.jpg';
 import beforeAfterDrumImage from './images/v3/beforeAfterDrum.jpg';
 import doneDrumImage from './images/v3/doneDrum.jpg';
@@ -14,6 +15,10 @@ import heatTreatCoolImage from './images/v3/heatTreatCool.jpg';
 import assembledDrumImage from './images/v3/assembledDrum.jpg';
 import testFitImage from './images/v3/testFit.jpg';
 import brokenDrumImage from './images/v3/brokenDrum.jpg';
+import win1Image from './images/v3/win1.jpg';
+import brokenDrum2Image from './images/v3/brokenDrum2.jpg';
+
+import spinnyV3Model from './3Dmodels/spinny_boiii_v3.glb';
 
 <ModularSection 
   columns={[
@@ -23,15 +28,16 @@ import brokenDrumImage from './images/v3/brokenDrum.jpg';
       summaryTitle: "Version 3 - spinny boiii gets competitive",
       summaryDescription: "Major redesign with an overhauled weapon system and updated materials",
       startDate: "2024-02",
-      status: "active",
+      endDate: "2025-10",
+      status: "completed",
       headerTitleSize: "lg",
       metrics: {
         sectionTitle: "Quick Facts",
         customFields: [
           { label: "Fight Record", value: "18-4" },
-          { label: "Weapon Type", value: "Beater bar drum" },
+          { label: "Weapon Type", value: "CNC beater bar drum" },
           { label: "Weapon Material", value: "S7 tool steel (54 HRC)" },
-          { label: "Weapon Diameter", value: "2.8 inches" },
+          { label: "Weapon Diameter", value: "2.875 inches" },
           { label: "Weapon Mass", value: "279g" },
           { label: "Weapon Tip Speed", value: "228 mph"},
           { label: "Frame Setup", value: "Carbon fiber - TPU sandwich" },
@@ -53,7 +59,7 @@ import brokenDrumImage from './images/v3/brokenDrum.jpg';
           name: "Sonoran Showdown",
           date: "March 29, 2025",
           placement: 5,
-          record: "4-2"
+          record: "3-2"
         },
         {
           name: "EVAC Cactus Clash 2024",
@@ -75,11 +81,24 @@ import brokenDrumImage from './images/v3/brokenDrum.jpg';
       }
     },
     {
-      type: "image",
+      type: "model",
       width: 50,
-      image: vsZ3phyr3Image,
-      imageAlt: "Version 3 pops Z3phyr up into the air",
-      imageCaption: "Version 3.0 spinny boiii pops Z3phyr up into the air"
+      modelSrc: spinnyV3Model,
+      modelAlt: "Interactive 3D model of spinny boiii version 3.0",
+      modelOptions: {
+        // Required for the viewer to have any height: it renders at
+        // height:auto, so without an aspectRatio (or an explicit height) the
+        // element collapses and only the 300px min-height holds the box open.
+        aspectRatio: "4:3",
+        mobileAspectRatio: "1:1",
+        // "theta phi radius" — theta spins the camera around the vertical
+        // axis, so 45deg presents a three-quarter view rather than head-on.
+        // cameraOrbit: "45deg 75deg auto",
+        cameraControls: true,
+        autoRotate: true,
+        ar: true,
+        interactionPrompt: "auto"
+      }
     }
   ]} 
 />
@@ -89,77 +108,139 @@ Version 3 of spinny boiii (yes, we add an extra "i" for each major version) prov
 This version also benefited from a lot of custom CNC-machined parts that I machined at work. These include a S7 tool steel beater bar weapon (which I hardened to 54HRC in my heat treat oven at home), aluminum timing pulleys, and a weapon motor mounting insert that doubles as a small heatsink. Since upgrading to machined pullies, we have yet to break a timing belt, even after 22 fights, and there is effectively zero pulley wear.
 
 <ModularSection
-    spacing="compact"
-    columnGap="normal"
-    columns={[
-    {
-      type: "stack",
-      width: 50,
-      items: [
-        {
-          type: "video",
-          videoId: "QA3G5bEvmXQ",
-          videoTitle: "Version 3 construction and testing"
-        },
-        {
-          type: "gallery",
-          gallery: [
-            { src: halfDoneDrumImage, caption: "Just-machined drum, clamped in the mill's vise with soft jaws" },
-            { src: beforeAfterDrumImage, caption: "The beater bar (right) was machined from a $10 offcut of S7 tool steel (left)" },
-            { src: doneDrumImage, caption: "Finished drum with its needle bearings and dead shaft" },
-            { src: pulliesImage, caption: "CNC machined aluminum timing pulleys" },
-            { src: heatTreatImage, caption: "Two drums in the heat treat oven" },
-            { src: heatTreatCoolImage, caption: "Drums air-quenching after the initial treatment" },
-            { src: assembledDrumImage, caption: "A heat-treated drum with its pulley. The white TPU insert helps reduce shock transfer to the weapon motor" },
-            { src: brokenDrumImage, caption: "One of the beater bars broke during its 5th fight, but it kept spinning and we won! Future versions will improve the drum durability" }
-          ],
-          galleryOptions: {
-            autoplay: true,
-            autoplayInterval: 5000,
-            showThumbnails: true
-          }
+  spacing="compact"
+  columnGap="normal"
+  columns={[
+  {
+    type: "stack",
+    width: 50,
+    items: [
+      {
+        type: "video",
+        videoId: "QA3G5bEvmXQ",
+        videoTitle: "spinny boiii vs Liberator",
+        // Temporary: embeds the real player at page load instead of the
+        // click-to-load facade. Drop this line to get the facade back.
+        videoEager: true
+      },
+      {
+        type: "gallery",
+        gallery: [
+          { src: halfDoneDrumImage, caption: "Just-machined drum, clamped in the mill's vise with soft jaws" },
+          { src: beforeAfterDrumImage, caption: "The beater bar (right) was machined from a $10 offcut of S7 tool steel (left)" },
+          { src: doneDrumImage, caption: "Finished drum with its needle bearings and dead shaft" },
+          { src: pulliesImage, caption: "CNC machined aluminum timing pulleys" },
+          { src: heatTreatImage, caption: "Two drums in the heat treat oven" },
+          { src: heatTreatCoolImage, caption: "Drums air-quenching after the initial treatment" },
+          { src: assembledDrumImage, caption: "A heat-treated drum with its pulley. The white TPU insert helps reduce shock transfer to the weapon motor" },
+          { src: brokenDrumImage, caption: "One of the beater bars broke during its 5th fight, but it kept spinning and we won! Future versions will improve the drum durability" },
+          { src: testFitImage, caption: "Test-fitting the side plates, weapon shaft, bottom plate, and battery" },
+          { src: vsZ3phyr3Image, caption: "Version 3 pops Z3phyr up into the air at RCL Nationals 2025" },
+          { src: win1Image, caption: "2 copies of spinny boiii, after winning 1st place at EVAC Cactus Clash 2024" },
+          { src: brokenDrum2Image, caption: "Our 4th and final self-machined drum broke in a grudge fight against Jimbo at EVAC Monster Mash 2025. We won the fight after Jimbo's electronics failed, but we can't fight again until we come up with a new design that is more sustainable."}
+        ],
+        galleryOptions: {
+          autoplay: true,
+          autoplayInterval: 5000,
+          showThumbnails: true
         }
-      ]
-    },
-    {
+      }
+    ]
+  },
+  {
     type: "content",
     title: "Major Improvements",
     width: 50,
     content: `
-    
-    **Weapon System:**
-    - New CNC-machined S7 tool steel drum (asymmetric egg-beater design)
-    - Hardened dead shaft mounts to thick TPU side rails, preventing them from pulling apart during side impacts
-    - Custom CNC aluminum timing pulleys, with TPU mounting insert to reduce shock transfer to the weapon motor
-    - No screw holes in the drum to prevent stress risers and cracking (pullies mount with driving dogs instead)
+        **Weapon System:**
+        - New CNC-machined S7 tool steel drum (asymmetric beater bar design)
+        - Hardened dead shaft mounts to thick TPU side rails, preventing them from pulling apart during side impacts
+        - Custom CNC aluminum timing pulleys, with TPU mounting insert to reduce shock transfer to the weapon motor
+        - No screw holes in the drum to prevent stress risers and cracking (pullies mount with driving dogs instead)
 
-    **Drive System:**
-    - Repeat Pro 2006 motors, for more power and tougher gearboxes / shafts
-    - [High-quality magnets](https://www.kjmagnetics.com/bx082-n52-neodymium-block-magnet) from K&J Magnetics, for better traction
-    - [Clamping wheel hubs](https://www.studica.co/6mm-d-shaft-low-profile-clamping-hub) with D profile to prevent slippage
+        **Drive System:**
+        - [Repeat Pro 2006 motors](), for more power and tougher gearboxes / shafts
+        - [High-quality magnets](https://www.kjmagnetics.com/bx082-n52-neodymium-block-magnet) from K&J Magnetics, for better traction
+        - [Clamping wheel hubs](https://www.studica.co/6mm-d-shaft-low-profile-clamping-hub) with D profile to prevent slippage
 
-    **Frame and Armor:**
-    - [T700 carbon fiber](https://cncmadness.com/materials/carbon-fiber/) top and bottom plates, joined with aluminum standoffs
-    - Thick TPU side rails help reduce shock transfer to the motors
-    - Bulky TPU front guards are strong enough for 1-3 matches, don't fail catastrophically, and are easy to replace
-  
-    **Electronics:**
-    - Upgraded to [BA2320-1860kv](https://rcdude.com/badass-2320-1860kv-brushless-motor.html) for higher tip speed
-    - Upgraded to ELRS receiver for better signal reliability
-    - [Silicone foam](https://www.aliexpress.us/item/3256806735800899.html?spm=a2g0o.order_list.order_list_main.10.1b4c1802aNTgaH&gatewayAdapt=glo2usa) wrapping for better shock absorption
-    - Conformal coating of [electronic potting compound](https://www.amazon.com/dp/B073JNDRXH?th=1) to protect against impact and debris
-    
-    `
+        **Frame and Armor:**
+        - [T700 carbon fiber](https://cncmadness.com/materials/carbon-fiber/) top and bottom plates, joined with aluminum standoffs
+        - Thick TPU side rails help reduce shock transfer to the motors
+        - Bulky TPU front guards are strong enough for 1-3 matches, don't fail catastrophically, and are easy to replace
+
+        **Electronics:**
+        - Upgraded to [BA2320-1860kv](https://rcdude.com/badass-2320-1860kv-brushless-motor.html) for higher tip speed
+        - Upgraded to ELRS receiver for better signal reliability
+        - [Silicone foam](https://www.aliexpress.us/item/3256806735800899.html?spm=a2g0o.order_list.order_list_main.10.1b4c1802aNTgaH&gatewayAdapt=glo2usa) wrapping for better shock absorption
+        - Conformal coating of [electronic potting compound](https://www.amazon.com/dp/B073JNDRXH?th=1) to protect against impact and debris
+      `
   }
 ]} />
 
-## Fight Video Playlists
-[RCL Nationals May 2025](https://www.youtube.com/playlist?list=PLgp8zR6Bmp05vWLzOsBY7gpqVgXG-l98z)
+<ModularSection
+  columns={[
+    {
+      type: "content",
+      title: "Issues",
+      width: 50,
+      content: `
+      - The weapon drum is prone to cracking after an average of 6 fights
+      - Narrow margin for battery capacity when pushing the weapon speed high to face other drum spinners effectively (faster tip speed wins)
+      - The TPU front armor takes damage very quickly against horizontal spinners, and if the ground-riding nubbins get torn off, the weapon can hit the ground repeatedly
+      - The robot's shape is not very compatible with modular front attachments like forks and wedges. This means we have a hard time dealing with control-centric robots with long forks
+      - Due to the rear-set wheels and the flexible chassis, the robot sometimes ends up in a mild three-point stance, with one of the wheels making poor ground contact. On steel floors, this effect is completely eliminated by our magnets, and the bot drives great. But on wood floors, the robot is almost undriveable
+      `
+    },
+    {
+      type: "video",
+      width: 50,
+      videoId: "DZot3wVV1dc",
+      videoTitle: "spinny boiii v3.0",
+      videoEager: true
+    }
+  ]}
+/>
 
-[Sonoran Showdown 2025](https://www.youtube.com/playlist?list=PLgp8zR6Bmp05zfiB-b38dhOFBHgld7Svn)
+The poor drive control on wood floors is mitigated somewhat using cleated wheels, but that adds a lot of stress to the drive gearboxes. The regular TPU wheels with cast rubber tread do a good job of isolating the motor shafts from impacts when the bot lands hard on its wheels, but the cleats remove much of that protection. This caused drive failures at Sonoran Showdown 2025, where we broke 4 Repeat Compact motors. This is part of the reason we switched to Repeat Pro's. Even with cleated wheels, the bot is still difficult to drive on wood floors, so we might have to relegate spinny boiii to steel floors only in the future. 
 
-[EVAC Cactus Clash 2024](https://www.youtube.com/playlist?list=PLgp8zR6Bmp05xhmaJGkNCDmgQKUG9g_3a)
+The drum cracking problem was feasible to work around when I had the means to machine the drums myself (\$10 in steel and \~2 hours of machining time), but I no longer have access to that mill, and outsourcing the drums is prohibitively expensive (\~\$150 each). Given that our final drum broke while fighing Jimbo (see above), we have decided to pause development of spinny boiii until we can come up with a more sustainable weapon design while keeping the same overall bot style.
 
-[ARC: Roborumble 2024](https://www.youtube.com/playlist?list=PLgp8zR6Bmp04TJwsmw5k9PwF9zq9AjsEJ)
+<VideoPlaylists
+  title="Fight Video Playlists"
+  playlists={[
+    {
+      name: "RCL Nationals 2025",
+      date: "May 3-4, 2025",
+      url: "https://www.youtube.com/playlist?list=PLgp8zR6Bmp05vWLzOsBY7gpqVgXG-l98z",
+      thumbnailId: "8ExBIVES-1k",
+      placement: 5,
+      record: "4-2"
+    },
+    {
+      name: "Sonoran Showdown 2025",
+      date: "March 29, 2025",
+      url: "https://www.youtube.com/playlist?list=PLgp8zR6Bmp05zfiB-b38dhOFBHgld7Svn",
+      thumbnailId: "GCzClSr8YAM",
+      placement: 5,
+      record: "3-2"
+    },
+    {
+      name: "EVAC Cactus Clash 2024",
+      date: "November 23, 2024",
+      url: "https://www.youtube.com/playlist?list=PLgp8zR6Bmp05xhmaJGkNCDmgQKUG9g_3a",
+      thumbnailId: "Vdo4ZiQxSZ4",
+      placement: 1,
+      record: "5-0"
+    },
+    {
+      name: "ARC: Roborumble 2024",
+      date: "June 15, 2024",
+      url: "https://www.youtube.com/playlist?list=PLgp8zR6Bmp04TJwsmw5k9PwF9zq9AjsEJ",
+      thumbnailId: "pLmORySbaig",
+      placement: 1,
+      record: "5-0"
+    }
+  ]}
+/>
 
 

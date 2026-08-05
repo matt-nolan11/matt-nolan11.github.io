@@ -3,40 +3,106 @@ tabTitle: "v1.0"
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
-import UnderConstruction from '../../../components/UnderConstruction.astro';
-import v2CleatsImage from './images/v2/v2Cleats.jpg';
+
+import CADImage from './images/v1/CAD.png';
+import damageImage from './images/v1/damage.jpg';
+import inArenaImage from './images/v1/inArena.jpg';
+import openTop1Image from './images/v1/openTop1.jpg';
+import spinnerImage from './images/v1/spinner.jpg';
+
 
 <ModularSection 
   columns={[
     {
-      type: "summary",
-      width: 53,
-      summaryTitle: "Version 1.0 - spinny boi's first steps",
-      summaryDescription: "Barely drove, but we learned a lot",
-      startDate: "2020-01",
-      endDate: "2020-03",
-      status: "completed",
-      headerTitleSize: "lg",
-      metrics: {
-        sectionTitle: "Quick Facts",
-        customFields: [
-          { label: "Weapon Type", value: "Vertical spinner" },
-          { label: "Weapon Material", value: "AR500 steel" },
-          { label: "Weapon Diameter", value: "6 inches" },
-          { label: "Frame Setup", value: "3D-printed nylon" },
-          { label: "Drive Motors", value: "22mm gearmotor" },
-          { label: "Weapon Motor", value: "DYS 3548 " }
-        ]
-      }
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "summary",
+          summaryTitle: "Version 1.0 - spinny boi's first steps",
+          summaryDescription: "It barely drove, but the spinner worked, and we learned a lot",
+          startDate: "2020-01",
+          endDate: "2020-03",
+          status: "completed",
+          headerTitleSize: "lg",
+          metrics: {
+            sectionTitle: "Quick Facts",
+            customFields: [
+              { label: "Weapon Type", value: "Vertical spinner" },
+              { label: "Weapon Material", value: "AR500 steel" },
+              { label: "Weapon Diameter", value: "6 inches" },
+              { label: "Frame Setup", value: "3D-printed NylonX" },
+              { label: "Drive Motors", value: "Silver Spark gearmotor" },
+              { label: "Weapon Motor", value: "DYS 3548" }
+            ]
+          }
+        },
+        {
+          type: "content",
+          title: "Summary",
+          content: `
+          This version of spinny boi (we added an "i" for each major version of the bot) marked my first ever attempt at a combat robot. Given that my teammate and I were college sophomores at the time, it was also one of our earliest from-scratch design projects. On top of this, we were running a series of workshops to teach ASU students how to build combat robots, and organizing the culminating tournament of the program. This meant we spent far more time helping other members of the robotics club than we did working on our own robot. As such, spinny boi v1 has several flaws in both design and execution. However, it proved to be a valuable learning experience, and it kickstarted our journey into combat robotics.
+          `
+        },
+        {
+          type: "content",
+          title: "Design and Build",
+          content: `
+          Version 1 adopted a 4-wheel drive chassis with a 6-inch diameter AR500 steel weapon. The frame consisted of 2 large 3D-printed NylonX pieces in a clamshell arrangement, with aluminum weapon supports. The drive system consisted of two Silver Spark gearmotors direct-driving the back wheels, with round belts to transmit power to the front wheels. The weapon was powered by a DYS 3548 motor via a round belt. The front of the bot was angled with the intention of adding a titanium wedge, but we didn't end up having enough weight to spare.
+
+          Because we were so busy helping other students with their bots, our final 3D-printed NylonX chassis pieces finished printing the night before the competition. They were quite warped, impacting our ground clearance, so the bot barely drove. However, the vertical spinner worked well, and we were able to land a few hits on our opponents.
+          `
+        }
+      ]
     },
     {
-      type: "image",
-      width: 47,
-      image: v2CleatsImage,
-      imageAlt: "Version 2.0 with carbon fiber frame and shock-mounted weapon system",
-      imageCaption: "Version 2.0 with carbon fiber frame and shock-mounted weapon system"
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "gallery",
+          gallery: [
+            { src: openTop1Image, alt: "Version 1.0 with open top showing internal components", caption: "Version 1.0 with open top showing internal components. It's not a college engineering project if it's not held together with at least a little duck tape" },
+            { src: CADImage, alt: "CAD model of the version 1.0 design", caption: "CAD model of the version 1.0 design, with a transparent top cover showing the internals" },
+            { src: spinnerImage, alt: "The vertical spinner weapon", caption: "The vertical spinner weapon is laser-cut out of AR500, ordered from SendCutSend" },
+            { src: inArenaImage, alt: "spinny boi in the arena", caption: "spinny boi loads into the arena for its first match" },
+            { src: damageImage, alt: "Damage dealt during a match", caption: "Damage dealt to the opposing robot during one of our first fights" }
+          ],
+          galleryOptions: {
+            autoplay: true,
+            autoplayInterval: 5000,
+            showThumbnails: true
+          }
+        },
+        {
+          type: "video",
+          videoId: "cf2nf6MYKZU",
+          videoTitle: "spinny boi v1.0 in action at the first ever Sun Devil Smackdown tournament",
+          videoEager: true
+        }
+      ]
     }
   ]} 
 />
 
-<UnderConstruction message="The full write-up for this version is still being written — check back soon." />
+<ModularSection 
+  columns={[
+    {
+      type: "content",
+      title: "Learnings",
+      content: `
+      - Clamshell chassis design is not volume-efficient, and irregular internal mounting features that are difficult to access for repair. It also has large bottom surfaces that are difficult to print out of NylonX without warping, and any significant damage means at least half the chassis needs to be replaced.
+        - More simple pieces that can be replaced individually are better for repairability and printability
+      - The Silver Spark gearmotors are definitely not suitable for 3lb combat robots. They are underpowered and prone to gearbox failure
+        - We only used them because of a last-minute sourcing issue, and we learned our lesson the hard way. Upgrading to larger motors and gearboxes in the next version was a priority
+      - Round belts are prone to slipping under load, and they stretch over time
+        - We moved to fiber-reinforced timing belts in later versions
+      - BaneBots wheels are grippy, but heavier than necessary
+      - Our weapon ESC was much larger than necessary, and we could save weight and space by moving to a drone ESC in later versions
+      - Wire management needs pre-planning!
+        - Our clamshell could never fully close because our wiring was unoptimized and bulky
+      - Final assembly should be done more than 1 day in advance!
+      `
+    }
+  ]} 
+/>

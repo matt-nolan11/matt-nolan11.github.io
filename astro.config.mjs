@@ -39,6 +39,14 @@ export default defineConfig({
       chunkSizeWarningLimit: 1500,
     },
     assetsInclude: ['**/*.glb', '**/*.gltf'],
+    optimizeDeps: {
+      // ModelViewer reaches @google/model-viewer through a dynamic import()
+      // inside a client:load island, which Vite's startup scanner does not
+      // see. Without this it is only discovered when a page first requests it,
+      // and the resulting re-optimisation bumps the dep hash and kills that
+      // very request ("Failed to fetch dynamically imported module").
+      include: ['@google/model-viewer'],
+    },
   },
   markdown: {
     processor: unified({

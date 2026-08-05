@@ -1,0 +1,115 @@
+---
+import { placementBadgeClass, formatPlacement } from '../utils/placement';
+
+interface Playlist {
+  /** Event name shown on the card. */
+  name: string;
+  /** YouTube playlist URL. */
+  url: string;
+  /**
+   * Video ID used for the cover image. YouTube has no playlist-level
+   * thumbnail endpoint — what it shows as a playlist thumbnail is simply the
+   * first video's — so pass that video's ID here.
+   */
+  thumbnailId?: string;
+  /** Optional local image, used instead of fetching from i.ytimg.com. */
+  poster?: string;
+  date?: string;
+  placement?: number | string;
+  record?: string;
+  /** Number of videos, shown on the stacked-cards badge. */
+  count?: number;
+}
+
+interface Props {
+  title?: string;
+  playlists: Playlist[];
+  class?: string;
+}
+
+const { title = 'Fight Video Playlists', playlists, class: className = '' } = Astro.props as Props;
+---
+
+<section class:list={['video-playlists', 'not-prose', className]}>
+  {title && <h2 class="vp-heading">{title}</h2>}
+
+  <ul class="vp-grid">
+    {playlists.map((playlist) => (
+      <li>
+        <a
+          class="vp-card"
+          href={playlist.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="vp-thumb">
+            {(playlist.poster || playlist.thumbnailId) && (
+              <img
+                src={playlist.poster || `https://i.ytimg.com/vi/${playlist.thumbnailId}/maxresdefault.jpg`}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                width="1280"
+                height="720"
+                data-fallback={
+                  playlist.poster
+                    ? undefined
+                    : `https://i.ytimg.com/vi/${playlist.thumbnailId}/hqdefault.jpg`
+                }
+              />
+            )}
+
+            <span class="vp-play" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+            </span>
+
+            {playlist.count && (
+              <span class="vp-count" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 6h11v2H4zm0 4h11v2H4zm0 4h7v2H4zm13-4v8l6-4z" />
+                </svg>
+                {playlist.count}
+              </span>
+            )}
+          </span>
+
+          <span class="vp-body">
+            <span class="vp-name">{playlist.name}</span>
+            {playlist.date && <span class="vp-date">{playlist.date}</span>}
+
+            {(playlist.placement !== undefined || playlist.record) && (
+              <span class="vp-meta">
+                {playlist.placement !== undefined && (
+                  <span class={`badge badge-sm ${placementBadgeClass(playlist.placement)}`}>
+                    {formatPlacement(playlist.placement)}
+                  </span>
+                )}
+                {playlist.record && (
+                  <span class="badge badge-sm badge-outline">{playlist.record}</span>
+                )}
+              </span>
+            )}
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<script>
+  /**
+   * maxresdefault gives a true 1280x720 cover, but YouTube never generated it
+   * for some older uploads. Fall back to hqdefault, which always exists — it is
+   * 4:3 with letterboxing, which the card's object-fit: cover crops back off.
+   */
+  document.querySelectorAll<HTMLImageElement>('.vp-thumb img[data-fallback]').forEach((img) => {
+    img.addEventListener(
+      'error',
+      () => {
+        const fallback = img.dataset.fallback;
+        if (fallback && img.src !== fallback) img.src = fallback;
+      },
+      { once: true }
+    );
+  });
+</script>

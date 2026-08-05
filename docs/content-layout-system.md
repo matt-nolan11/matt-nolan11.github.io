@@ -15,6 +15,11 @@ Use `ModularSection` to compose pages from columns. Layout logic is generic; the
 - Provide `width` as percentage on each column (numbers sum to ~100), or a `layout` string like `60%|40%`.
 - If omitted, columns split evenly.
 
+## Content columns
+A `title` renders as an unstyled `<h3>`, so it picks up the same prose styling
+as a `###` written in MDX or inside the `content` string itself. Use `###` in
+the content for sub-headings beneath it.
+
 ## Stack columns
 A column holds one block. To put several blocks in the same column, use
 `type: 'stack'` with an `items` array — each item is an ordinary column
@@ -54,9 +59,17 @@ Pass `gallery` (array of { src, alt?, caption? }) and optional `galleryOptions`:
 - `autoplay` (boolean), `autoplayInterval` (ms)
 - `showThumbnails` (boolean)
 - `loop` (boolean)
+- `aspectRatio` — `"16:9"`, `"4:3"`, or a number (width / height)
+
+Without `aspectRatio` the shape is derived from the **widest** image in the set,
+so one unusually wide photo reshapes the whole gallery and can leave it visibly
+out of step with other galleries on the page. Set it explicitly to keep several
+galleries consistent.
 
 ## Model columns
 Pass `modelSrc`, optional `modelAlt`, and `modelOptions` forwarded to `ModelViewer`.
+`modelSrc` must be an **imported** `.glb`/`.gltf`, not a string path — the same
+rule as images. A raw path is not bundled and 404s in the built site.
 
 ## Examples
 ```mdx

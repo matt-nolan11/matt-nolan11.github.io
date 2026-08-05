@@ -17,8 +17,13 @@ import hero from '../assets/landing-hero.svg';
           I'm fascinated with the intersection between mechanical, electrical, and software, and I enjoy sharing my knowledge and experiences with the community. Explore my projects, insights, and engineering journey.
         </p>
         <div class="mt-8 flex flex-wrap gap-4 justify-center lg:justify-start">  
-          <a href="/projects" class="btn btn-primary btn-lg px-8">View Projects</a>  
-          <a href="/posts" class="btn btn-outline btn-lg px-8">Read Posts</a>  
+          <!-- No px-* override: btn-lg already sets --btn-p: 1.25rem, and the
+               previous px-8 forced 2rem, which was the bulk of the extra width.
+               min-w-44 is the shared floor that keeps both the same width —
+               "View Projects" is three characters longer than "Read Posts", so
+               without it they size differently to their labels. -->
+          <a href="/projects" class="btn btn-primary btn-lg min-w-44">View Projects</a>
+          <a href="/posts" class="btn btn-outline btn-lg min-w-44">Read Posts</a>
         </div>  
       </div>  
     

@@ -42,7 +42,9 @@ const params = new URLSearchParams({
   rel: '0',
   modestbranding: '1',
   playsinline: '1',
-  enablejsapi: '0',
+  // Required so the player accepts postMessage commands — without it there is
+  // no way to pause a video whose version tab has been switched away from.
+  enablejsapi: '1',
   // booleans as 1/0
   autoplay: autoplay ? '1' : '0',
   mute: muted ? '1' : '0',
@@ -50,6 +52,13 @@ const params = new URLSearchParams({
 });
 
 if (start && start > 0) params.set('start', String(start));
+
+// Deliberately no way to request a starting quality. Tried and measured: the
+// undocumented `vq` parameter (e.g. vq=hd1080) is ignored by the embed, and the
+// official setPlaybackQuality() API is deprecated and documented as ignorable.
+// Quality is chosen by adaptive bitrate, which ramps up from a low tier while
+// it measures bandwidth — hence a video opening at 360p and climbing. The
+// viewer's own quality menu is the only thing that overrides it.
 
 const src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
 
@@ -62,6 +71,11 @@ const clickSrc = `https://www.youtube-nocookie.com/embed/${id}?${clickParams.toS
 // hqdefault always exists for every video; maxresdefault 404s on older ones.
 // It is 4:3 with letterboxing, which object-fit: cover crops back off.
 const posterSrc = poster || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+
+// Only overlay a title the author actually supplied — the "YouTube video"
+// default is placeholder text for the iframe's accessible name, not a caption.
+// aria-hidden on the overlay, since the button's aria-label already says it.
+const hasTitle = Boolean(Astro.props.title);
 ---
 <style>
   /* Eliminate stray whitespace around iframes similar to gallery spacing fix */
@@ -96,6 +110,26 @@ const posterSrc = poster || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+
+  /* Mirrors YouTube's own preview chrome: title over a top scrim. */
+  .yt-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 0.7rem 0.9rem 1.6rem;
+    text-align: left;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.72), transparent);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .yt-play {
@@ -159,6 +193,7 @@ const posterSrc = poster || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
           width="480"
           height="360"
         />
+        {hasTitle && <span class="yt-title" aria-hidden="true">{title}</span>}
         <span class="yt-play" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
         </span>
@@ -232,4 +267,44 @@ const posterSrc = poster || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
       { passive: true }
     );
   }
+
+  /**
+   * Pause a player whose version tab has been switched away from.
+   *
+   * Hidden tabs are display:none, so an embed keeps playing — audible with no
+   * visible video. Watching for the element collapsing to zero size catches
+   * exactly that, and deliberately not the case where the video is merely
+   * scrolled out of view: an IntersectionObserver would pause that too, which
+   * would interrupt anyone listening while they read further down the page.
+   *
+   * Never auto-resumes. Returning to the tab leaves the video paused where it
+   * was, for the reader to restart.
+   */
+  function pausePlayersIn(frame: Element) {
+    for (const iframe of frame.querySelectorAll('iframe')) {
+      iframe.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+        'https://www.youtube-nocookie.com'
+      );
+    }
+  }
+
+  function watchForHiding(frame: HTMLElement) {
+    if (frame.dataset.ytWatched) return;
+    frame.dataset.ytWatched = 'true';
+
+    new ResizeObserver(() => {
+      const { width, height } = frame.getBoundingClientRect();
+      if (width === 0 && height === 0) pausePlayersIn(frame);
+    }).observe(frame);
+  }
+
+  function watchAllFrames() {
+    document
+      .querySelectorAll<HTMLElement>('.yt-frame')
+      .forEach(watchForHiding);
+  }
+
+  watchAllFrames();
+  document.addEventListener('astro:page-load', watchAllFrames);
 </script>

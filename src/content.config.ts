@@ -96,7 +96,7 @@ export const collections = {
           summaryDescription: z.string().optional(),
           startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
           endDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
-          status: z.enum(["completed", "in-progress", "active", "planned"]).optional(),
+          status: z.enum(["completed", "in-progress", "active", "paused", "planned"]).optional(),
           headerTitleSize: z.enum(["sm", "md", "lg", "xl", "2xl", "3xl", "4xl"]).optional(),
           metrics: z
             .object({
@@ -189,7 +189,7 @@ export const collections = {
         draft: z.boolean().optional(),
         featured: z.boolean().optional().default(false), // Manual control for featuring on homepage
         featuredOrder: z.number().optional(), // Manual order for featured projects (lower = higher priority)
-        status: z.enum(["completed", "in-progress", "active", "planned"]).default("completed"),
+        status: z.enum(["completed", "in-progress", "active", "paused", "planned"]).default("completed"),
         githubUrl: z.string().url().optional(),
         liveUrl: z.string().url().optional(),
 

@@ -38,7 +38,7 @@ const extraCount = data.tags.length - visibleTags.length;
 const dateLabel =
   data.status === 'completed' && data.endDate
     ? `Completed: ${formatProjectDate(data.endDate ?? new Date())}`
-    : data.status === 'in-progress' || data.status === 'active'
+    : data.status === 'in-progress' || data.status === 'active' || data.status === 'paused'
       ? `Started: ${formatProjectDate(data.startDate ?? new Date())}`
       : `Planned: ${formatProjectDate(data.startDate ?? new Date())}`;
 
@@ -46,12 +46,14 @@ const statusClass =
   data.status === 'completed' ? 'badge-success'
   : data.status === 'in-progress' ? 'badge-warning'
   : data.status === 'active' ? 'badge-accent'
+  : data.status === 'paused' ? 'badge-neutral'
   : 'badge-info';
 
 const statusLabel =
   data.status === 'completed' ? 'Completed'
   : data.status === 'in-progress' ? 'In Progress'
   : data.status === 'active' ? 'Active'
+  : data.status === 'paused' ? 'Paused'
   : 'Planned';
 
 const Heading = headingLevel;
@@ -87,6 +89,7 @@ const Heading = headingLevel;
       data.status === 'completed' ? 'This project is finished, and no new development is currently planned'
       : data.status === 'in-progress' ? 'This project is under active development'
       : data.status === 'active' ? 'This project is being maintained, but no new development is currently planned'
+      : data.status === 'paused' ? 'Development on this project is paused, and may resume in the future'
       : 'This project is in the planning stage, and has not started active development yet'
     }>
       <div class={`badge status-badge ${statusClass}`}>{statusLabel}</div>

@@ -3,40 +3,91 @@ tabTitle: "v2.0"
 ---
 
 import ModularSection from '../../../components/ModularSection.astro';
-import UnderConstruction from '../../../components/UnderConstruction.astro';
-import v2CleatsImage from './images/v2/v2Cleats.jpg';
+
+import CADImage from './images/v2_0/CAD.png';
+import fullyAssembledImage from './images/v2_0/fullyAssembled.jpg';
+import nylonUprightsImage from './images/v2_0/nylonUprights.jpg';
+import testFrameImage from './images/v2_0/testFrame.jpg';
 
 <ModularSection 
   columns={[
     {
-      type: "summary",
-      width: 53,
-      summaryTitle: "Version 2.0 - spinny boii's makeover",
-      summaryDescription: "Complete redesign, converting to a 2WD drum spinner",
-      startDate: "2020-11",
-      endDate: "2022-01",
-      status: "completed",
-      headerTitleSize: "lg",
-      metrics: {
-        sectionTitle: "Quick Facts",
-        customFields: [
-          { label: "Weapon Type", value: "Egg-beater drum" },
-          { label: "Weapon Material", value: "AR500 steel" },
-          { label: "Weapon Diameter", value: "3.0 inches" },
-          { label: "Frame Setup", value: "3D-printed nylon" },
-          { label: "Drive Motors", value: "Rectified Brushless 22mm" },
-          { label: "Weapon Motor", value: "Propdrive 2836 1000kv" }
-        ]
-      }
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "summary",
+          summaryTitle: "Version 2.0 - spinny boii's makeover",
+          summaryDescription: "Complete redesign, converting to a 2WD drum spinner",
+          startDate: "2020-11",
+          endDate: "2022-01",
+          status: "completed",
+          headerTitleSize: "lg",
+          metrics: {
+            sectionTitle: "Quick Facts",
+            customFields: [
+              { label: "Weapon Type", value: "Laser-cut beater bar drum" },
+              { label: "Weapon Material", value: "AR500 steel" },
+              { label: "Weapon Diameter", value: "3.0 inches" },
+              { label: "Frame Setup", value: "3D-printed nylon" },
+              { label: "Drive Motors", value: "Rectified Brushless 22mm" },
+              { label: "Weapon Motor", value: "DYS 3548" }
+            ]
+          }
+        },
+        {
+          type: "content",
+          title: "Summary",
+          content: `
+          V2 was a complete redesign of the bot, converting spinny boii from a 4WD vertical spinner to a 2WD drum spinner. We decided to try and make the robot as simple and repairable as possible, and the best way to do that seemed to be to use a wide weapon so that the same set of frame rails could mount both the weapon and the drive motors. We ended up with 2 large, direct-driven foam wheels and a multi-piece 3D printed nylon frame. Each piece was relatively small, and could be replaced individually if it was damaged.
+          
+          The weapon was a 3-inch diameter laser-cut AR500 beater bar, and it was mounted to two large lawnmower bearings housed in the front aluminum forks. This approach effectively used the weapon itself as a live shaft, and required that the bearing mounts be sturdily attached to the rest of the frame (this would prove challenging, to say the least). We also upgraded to brushless drive motors for more power and speed.
+          `
+        },
+
+      ]
     },
     {
-      type: "image",
-      width: 47,
-      image: v2CleatsImage,
-      imageAlt: "Version 2.0 with carbon fiber frame and shock-mounted weapon system",
-      imageCaption: "Version 2.0 with carbon fiber frame and shock-mounted weapon system"
+      type: "gallery",
+      width: 50,
+      gallery: [
+        { src: fullyAssembledImage, alt: "Version 2.0, converted to a 2WD drum spinner with a nylon frame and laser-cut steel beater bar", caption: "Version 2.0, converted to a 2WD drum spinner with a nylon frame, aluminum forks housing the weapon bearings, and laser-cut steel beater bar" },
+        { src: CADImage, alt: "CAD model of the version 2.0 design", caption: "CAD model of the version 2.0 design" },
+        { src: testFrameImage, alt: "Test frame for version 2.0", caption: "Testing the frame layout for version 2.0" },
+        { src: nylonUprightsImage, alt: "V2.0 with 3D-printed nylon uprights", caption: "V2.0 with 3D-printed nylon uprights as a bandaid solution to the fork grinding issue" }
+      ],
+      galleryOptions: {
+        autoplay: true,
+        autoplayInterval: 5000,
+        showThumbnails: true
+      }
     }
   ]} 
 />
 
-<UnderConstruction message="The full write-up for this version is still being written — check back soon." />
+<ModularSection
+  columns={[
+    {
+      type: "content",
+      title: "Issues",
+      width: 50,
+      content: `
+      This version was a substantial improvement over V1, but it still had several issues:
+      - The weapon motor was much larger and slower than it needed to be
+      - The aluminum forks that held the weapon bearings were too sharp, and tended to wear down while driving on the floor, which risked causing the weapon to hit the floor
+        - We temporarily "fixed" this immediately before the competition by switching to 3D-printed nylon forks with flat bottoms, but this proved far too weak
+      - The foam wheels and overall robot geometry gave us poor traction, so the bot was difficult to drive precisely
+      - The weapon containment relied on the strength of the bearing mounts, which were not strong enough on their own to survive direct hits without buckling. This could lead to the weapon ejecting from the bot
+
+      That last point was especially prominent during spinny boii v2.0's second and last match against Caleb Hecht's robot "Crescendo."
+      `
+    },
+    {
+      type: "video",
+      width: 50,
+      videoId: "QD5PCxTDOIs",
+      videoTitle: "spinny boii v2 gets WRECKED by Crescendo v1",
+      videoEager: true
+    }
+  ]}
+/>

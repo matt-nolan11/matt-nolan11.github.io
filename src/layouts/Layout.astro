@@ -126,13 +126,13 @@ const getPageStyles = (type: string) => {
   </head>
 
   <body
-    class="bg-base-100 text-base-content min-h-screen overflow-x-hidden"
+    class="bg-base-100 text-base-content min-h-dvh overflow-x-hidden"
     style={`${Object.entries(getPageStyles(pageType)).map(([key, value]) => `${key}: ${value}`).join('; ')}`}
     data-pagetype={pageType}
   >
   <div class="drawer">
     <input id="nav-drawer" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content flex flex-col min-h-screen">
+    <div class="drawer-content flex flex-col min-h-dvh">
       <Navbar />
 
       <!-- Main page content -->
@@ -147,7 +147,9 @@ const getPageStyles = (type: string) => {
     </div>
     <div class="drawer-side lg:hidden">
       <label for="nav-drawer" class="drawer-overlay"></label>
-      <ul class="menu p-4 w-80 bg-base-100 min-h-full">
+      <!-- w-80 (20rem) is nearly the full width of a narrow phone, so cap it
+           at half the viewport. Effective width is min(20rem, 50vw). -->
+      <ul class="menu p-4 w-80 max-w-[50vw] bg-base-100 min-h-full">
         {navLinks.map(link => (
           <li><a href={link.href} class="normal-case font-bold text-xl">{link.label}</a></li>
         ))}
@@ -160,13 +162,34 @@ const getPageStyles = (type: string) => {
     .drawer-side {
       z-index: 1000;
     }
+
+    /* While the drawer is open, neither the page behind it nor pull-to-refresh
+       responds to a vertical drag. That is the behaviour we want, but the cause
+       is only partly understood: daisyUI's `overscroll-behavior: contain` on
+       .drawer-side is one contributor, yet overriding it to `auto` changed
+       neither behaviour, so something further up the scroll chain is also
+       swallowing the gesture and has not been pinned down. Worth re-measuring
+       from scratch rather than trusting this note if it ever needs to change. */
+
+    /* Deliberately no `body { overflow: hidden }` scroll lock while the drawer
+       is open. It removes the root scroller, which also removes pull-to-refresh
+       on mobile. It is unnecessary anyway: daisyUI gives .drawer-side
+       `overscroll-behavior: contain`, so a drag on the drawer cannot chain
+       through to the document, and the panel itself now fits its container
+       exactly (see the 100dvh note below) so it has nothing of its own to
+       scroll. */
     
     .drawer-overlay {
       z-index: 999;
     }
     
     .drawer-side .menu {
-      min-height: 100vh;
+      /* dvh, not vh. daisyUI sizes .drawer-side as height:100dvh with
+         overflow-y:auto, and on mobile 100vh is taller than 100dvh because vh
+         ignores the retractable browser chrome. Forcing the menu to 100vh made
+         it overflow its own scroll container by exactly the URL-bar height, so
+         the drawer scrolled even with only a handful of links in it. */
+      min-height: 100dvh;
       position: relative;
       z-index: 1001;
     }

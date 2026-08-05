@@ -3,7 +3,7 @@ title: "spinny boiii - 3lb Combat Robot"
 slug: "spinny-boiii"
 description: "A competitive beetleweight combat robot with a beater bar drum weapon and a powerful magnet-assisted drive system"
 startDate: "2020-02"
-status: "active"
+status: "paused"
 tags: ["spinny boiii", "combat robotics", "cnc machining", "heat treating", "3d printing", "rc electronics", "collaborative"]
 cover: ./images/v3/v3IsoView.jpg
 ---
@@ -16,18 +16,20 @@ import insidesImage from './images/v3/insides.jpg';
 import vsZ3phyr2Image from './images/v3/vsZ3phyr2.jpg';
 import damaged1Image from './images/v3/damaged1.jpg';
 import vsActionSurgeImage from './images/v3/vsActionSurge.jpg';
+import teamImage from './images/team.jpg';
 
 <ModularSection 
   columns={[
   {
     type: "gallery",
-    width: 55,
+    width: 50,
     gallery: [
       { src: v3IsoView, caption: "Latest iteration of spinny boiii, with a custom CNC-machined weapon and bulky TPU armor" },
       { src: insidesImage, caption: "Internal electronics layout with motors, motor controllers, RC receiver, battery, and power distribution" },
       { src: vsZ3phyr2Image, caption: "Winning the face-to-face engagement with a shower of sparks!" },
       { src: damaged1Image, caption: "Took some heavy damage but still eeked out the win" },
-      { src: vsActionSurgeImage, caption: "Powerful hit launches opponent \"Action Surge\" airborne at ARC Roborumble 2024" }
+      { src: vsActionSurgeImage, caption: "Powerful hit launches opponent \"Action Surge\" airborne at ARC Roborumble 2024" },
+      { src: teamImage, caption: "Myself (right) and Benji Miller (left) at ARC: Roborumble 2024" }
     ],
     galleryOptions: {
       autoplay: true,
@@ -37,19 +39,21 @@ import vsActionSurgeImage from './images/v3/vsActionSurge.jpg';
   },
   {
     type: "summary",
-    width: 45,
+    width: 50,
     summaryTitle: "spinny boiii - 3lb Combat Robot",
     summaryDescription: "A competitive beetleweight combat robot with an egg-beater drum weapon and a powerful magnet-assisted drive system",
     startDate: "2020-02",
-    status: "active",
+    status: "paused",
     headerTitleSize: "2xl",
     metrics: {
       sectionTitle: "Quick Facts",
       customFields: [
-        { label: "Weapon Diameter", value: "2.87 in" },
+        { label: "Weapon Diameter", value: "2.875 in" },
         { label: "Weapon Type", value: "Beater bar drum" },
+        { label: "Armor", value: "Thick TPU" },
         { label: "Major Versions", value: 3 },
-        { label: "Podium Finishes", value: 3 }
+        { label: "Podium Finishes", value: 3 },
+        { label: "Career Knockouts", value: 17 }
       ]
     },
     competitions: [
@@ -88,11 +92,11 @@ import vsActionSurgeImage from './images/v3/vsActionSurge.jpg';
   }
 ]} />
 
-"spinny boiii" is my first competitive beetleweight (3-pound) combat robot. The design we settled on is a compact 2-wheel-drive (2WD) chassis with a wide beater bar drum spanning the front of the bot. I started building this robot in 2020 with my teammate, Benji Miller, while I was creating ASU's student combat robotics program. Read more about each version of the robot below.
+"spinny boiii" is my first competitive beetleweight (3-pound) combat robot. I started building this robot in 2020 with my teammate, Benji Miller, while I was creating ASU's student combat robotics program. The design we settled on is a compact 2-wheel-drive (2WD) chassis with a wide beater bar drum spanning the front of the bot. It evolved dramatically from its initial design, and became one of the highest-performing beetleweights in Arizona. We're quite happy with the capabilities of version 3.0, and are taking a break from competing with it while we plan next steps. Version 4.0 will focus on reducing the weapon failure rate (currently once every 6-ish fights) and whittling away a few edge-case failures that we've encountered. Read more about each version of the robot below.
 
 <ProjectVersionsSection 
   sectionTitle="Design Iterations"
-  titleDepth={2}
+  titleDepth={1}
   tabStyle="bordered"
   tabWidth="100px"
   tabHeight="24px"

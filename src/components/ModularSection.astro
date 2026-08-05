@@ -28,6 +28,30 @@ if (!columns || columns.length === 0) {
 // `width` still drives SSR/no-JS/mobile; the client just refines it from there.
 const canBalance = autoBalance !== false && columns.length === 2;
 const [balanceMin, balanceMax] = balanceRange;
+
+/**
+ * Strip the common leading indentation from a `content` string.
+ *
+ * Content is authored as a template literal inside the columns array, so every
+ * line carries the indentation of the surrounding JS. Markdown treats any line
+ * indented four or more spaces as a code block, so that prose rendered as one
+ * big <pre> instead of formatted text. Nesting inside a `stack` makes it worse,
+ * since the indentation is deeper still.
+ *
+ * Removing the shallowest indent preserves relative indentation, so nested
+ * lists and intentional code blocks inside the content still work.
+ */
+function dedent(text: unknown): string {
+  if (!text) return '';
+
+  const lines = String(text).replace(/\t/g, '  ').split('\n');
+  const indents = lines
+    .filter((line) => line.trim())
+    .map((line) => line.match(/^ */)?.[0].length ?? 0);
+  const shallowest = indents.length ? Math.min(...indents) : 0;
+
+  return lines.map((line) => line.slice(shallowest)).join('\n').trim();
+}
 ---
 
 <style>
@@ -62,6 +86,21 @@ const [balanceMin, balanceMax] = balanceRange;
     margin: 0;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Gives the model island a real block box so its height is measurable. */
+  .model-col {
+    width: 100%;
+    display: block;
+  }
+
+  /* <astro-island> is an unknown element and so inline by default, which
+     collapses its box. :global is required — Astro passes the scope to the
+     island as a prop, it does not stamp it on the <astro-island> element, so a
+     scoped selector here would never match. */
+  .model-col > :global(astro-island) {
+    display: block;
+    width: 100%;
   }
 
   .info-col .summary-content {
@@ -603,15 +642,38 @@ const [balanceMin, balanceMax] = balanceRange;
     const galleryInterval = (gOpts.autoplayInterval ?? block?.autoplayInterval ?? 5000);
     const galleryThumbs = (gOpts.showThumbnails ?? block?.showThumbnails ?? (block?.gallery?.length > 2));
     const galleryLoop = (gOpts.loop ?? block?.loop ?? true);
+    const galleryAspect = (gOpts.aspectRatio ?? block?.aspectRatio);
+
+    // ModelViewer renders at height:auto and derives its box from aspectRatio,
+    // so a model column with neither aspectRatio nor an explicit height
+    // collapses to nothing — the canvas draws at zero height while the 300px
+    // min-height holds an empty container open. Default one in rather than
+    // leaving that trap for the next author.
+    const mOpts = block?.modelOptions || {};
+    const modelOptions =
+      mOpts.aspectRatio || mOpts.mobileAspectRatio || mOpts.height
+        ? mOpts
+        : { aspectRatio: '4:3', ...mOpts };
 
     return (
       <>
         {block.type === 'content' && (
           <div class="prose prose-lg max-w-none">
-            {block.title && (
-              <h2 class="text-2xl font-bold mb-4">{block.title}</h2>
-            )}
-            <div set:html={marked(block.content || '')} />
+            {/* Unstyled on purpose: prose supplies the heading styling, so a
+                column title renders identically to a `###` written in MDX or
+                inside a content string. It was previously an <h2> carrying
+                text-2xl/font-bold/mb-4, which rendered at h3's size while
+                claiming h2's level — the utilities beat the prose rules on
+                source order, since :where() gives those zero specificity. h3
+                is also the truer level: these title sections rather than
+                heading them. */}
+            {block.title && <h3>{block.title}</h3>}
+            {/* Fragment, not a <div>: a wrapper element would make the rendered
+                markdown a grandchild of .prose, and Tailwind's
+                `.prose > :first-child { margin-top: 0 }` only matches direct
+                children. The leading <p> kept its 1.25em top margin, which
+                looked like space reserved for an absent title. */}
+            <Fragment set:html={marked(dedent(block.content))} />
           </div>
         )}
 
@@ -638,6 +700,7 @@ const [balanceMin, balanceMax] = balanceRange;
               autoplayInterval={galleryInterval}
               showThumbnails={galleryThumbs}
               loop={galleryLoop}
+              aspectRatio={galleryAspect}
               client:load
             />
           </div>
@@ -663,12 +726,20 @@ const [balanceMin, balanceMax] = balanceRange;
         )}
 
         {block.type === 'model' && block.modelSrc && (
-          <ModelViewer
-            src={block.modelSrc}
-            alt={block.modelAlt || 'Interactive 3D model'}
-            {...(block.modelOptions || {})}
-            client:load
-          />
+          /* The wrapper is load-bearing, not cosmetic. A client:load island
+             renders as <astro-island>, an unknown element that defaults to
+             display:inline, so its bounding rect ignores the block content
+             inside it. The balancer measures a column's children, so a bare
+             island reported height 0 and the solver balanced against an empty
+             column. Every other column type already has a block wrapper. */
+          <div class="model-col">
+            <ModelViewer
+              src={block.modelSrc}
+              alt={block.modelAlt || 'Interactive 3D model'}
+              {...modelOptions}
+              client:load
+            />
+          </div>
         )}
 
         {block.type === 'video' && block.videoId && (
@@ -681,6 +752,8 @@ const [balanceMin, balanceMax] = balanceRange;
             muted={block.videoMuted}
             controls={block.videoControls}
             caption={block.videoCaption}
+            poster={block.videoPoster}
+            eager={block.videoEager}
           />
         )}
       </>

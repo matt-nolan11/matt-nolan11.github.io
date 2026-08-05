@@ -495,11 +495,16 @@ export default function ModelViewer({
     mobileAspectRatio?: string,
     windowWidth?: number
   ): string | undefined => {
-    if (!windowWidth) return undefined;
-    
     // Define breakpoint
     const mobileBreakpoint = 768;
-    const isMobile = windowWidth <= mobileBreakpoint;
+    // windowWidth is 0 during SSR and on the first client render. Returning
+    // undefined there left the element with no aspect-ratio, so it collapsed
+    // to the placeholder height and then jumped to full size once mounted —
+    // a visible two-step resize, and a stale height for anything measuring the
+    // column (the ModularSection balancer solves long before this settles).
+    // Assume desktop until we know better; that is also the only case where
+    // side-by-side columns exist.
+    const isMobile = windowWidth ? windowWidth <= mobileBreakpoint : false;
     
     // Select appropriate aspect ratio
     const activeAspectRatio = isMobile && mobileAspectRatio ? mobileAspectRatio : desktopAspectRatio;
@@ -522,7 +527,16 @@ export default function ModelViewer({
 
   // Calculate responsive aspect ratio for CSS
   const responsiveAspectRatio = getResponsiveAspectRatio(aspectRatio, mobileAspectRatio, windowWidth);
-  
+
+  // The loading and error placeholders must occupy exactly the box the loaded
+  // viewer will, otherwise the column resizes when the model arrives — visible
+  // as a jump, and enough to invalidate the balancer's height measurement.
+  // Falls back to a fixed height only when no aspect ratio is configured.
+  const placeholderStyle: React.CSSProperties = responsiveAspectRatio
+    ? { aspectRatio: responsiveAspectRatio }
+    : { height: height ?? '16rem' };
+
+
   const modelStyle: React.CSSProperties = {
     width: width || '100%',
     height: height || 'auto', // Use auto height when aspect ratio is set
@@ -545,7 +559,10 @@ export default function ModelViewer({
   if (hasError) {
     return (
       <div className={`model-viewer-container ${className}`}>
-        <div className="flex items-center justify-center h-64 bg-base-200 rounded-xl border-2 border-dashed border-base-300">
+        <div
+          className="flex items-center justify-center w-full bg-base-200 rounded-xl border-2 border-dashed border-base-300"
+          style={placeholderStyle}
+        >
           <div className="text-center">
             <svg className="w-12 h-12 mx-auto text-base-content/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -564,7 +581,10 @@ export default function ModelViewer({
   if (!isModelViewerLoaded) {
     return (
       <div className={`model-viewer-container ${className}`}>
-        <div className="flex items-center justify-center h-64 bg-base-200 rounded-xl">
+        <div
+          className="flex items-center justify-center w-full bg-base-200 rounded-xl"
+          style={placeholderStyle}
+        >
           <div className="text-center">
             <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
             <p className="text-base-content/60">Loading 3D viewer...</p>

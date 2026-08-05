@@ -183,11 +183,31 @@ Behavior
 Authoring tip: Keep aspect ratios similar for more stable heights. Captions render as a subtle bottom overlay.
 
 ## ModelViewer (3D/AR)
-Usage in MDX via `ModularSection` column `{ type: 'model', modelSrc: './3Dmodels/file.glb' }`.
+Import the `.glb` and pass the imported value, exactly like an image — a bare
+string path is not processed by the bundler and 404s in the built site.
 
+```mdx
+import botModel from './3Dmodels/bot.glb'
+
+<ModularSection columns={[
+  {
+    type: 'model',
+    width: 50,
+    modelSrc: botModel,
+    modelAlt: 'Interactive 3D model of the robot',
+    modelOptions: { cameraControls: true, autoRotate: true, ar: true },
+  },
+  { type: 'content', width: 50, content: `...` },
+]} />
+```
+
+- `astro.config.mjs` lists `.glb`/`.gltf` in `vite.assetsInclude`, so the import
+  resolves to a fingerprinted URL in `dist/_astro/`.
 - Hydration: `client:load` for early readiness.
 - Internals: dynamically imports `@google/model-viewer` on mount.
-- AR requires HTTPS and compatible devices. For quick checks, open `public/ar-test.html` over HTTPS.
+- The model file itself is `loading: 'lazy'` by default, so a large `.glb` is
+  not fetched until it approaches the viewport.
+- AR requires HTTPS and compatible devices.
 
 Recommended options (in column `modelOptions`)
 - `cameraControls: true`, `autoRotate: false`

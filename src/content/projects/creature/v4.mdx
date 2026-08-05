@@ -5,4 +5,128 @@ tabTitle: "v4"
 import ModularSection from '../../../components/ModularSection.astro';
 import UnderConstruction from '../../../components/UnderConstruction.astro';
 
+import horizV4Model from './3DModels/horizV4.glb';
+import vertV4Model from './3DModels/vertV4.glb';
+
+import doubleLiftImage from './images/v4/v4DoubleLift.jpg';
+import fourGearsImage from './images/v4/4Gears.jpg';
+import gearSoftJawsImage from './images/v4/gearSoftJaws.jpg';
+import v4VertHorizImage from './images/v4/v4VertHoriz.jpg';
+import withSlamPlanImage from './images/v4/withSlamPlan.jpg';
+
+<ModularSection 
+  columns={[
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+            type: "summary",
+            summaryTitle: "Version 4 - Creature gets competitive",
+            summaryDescription: "Major redesign with an overhauled weapon system and updated materials",
+            startDate: "2024-02",
+            endDate: "2025-10",
+            status: "completed",
+            headerTitleSize: "lg",
+            metrics: {
+                sectionTitle: "Quick Facts",
+                customFields: [
+                { label: "Fight Record", value: "9-4" },
+                { label: "Wedge Options", value: "Anti-Vert, Anti-Horizontal" },
+                { label: "Hinged Attachments", value: "Long Forks, Mini-Wedge" },
+                { label: "Arm Options", value: "Short, Long" },
+                { label: "Drive Motors", value: "BA2814-1300kv" },
+                { label: "Drive Speed", value: "17.5 ft/s" }
+                ]
+            },
+            competitions: [
+            {
+                name: "SCAR Maker Faire Orange County 2025",
+                date: "September 13-14, 2025",
+                placement: 2,
+                record: "3-2"
+            },
+            {
+                name: "RCL National Championship 2025",
+                date: "May 3-4, 2025",
+                placement: 1,
+                record: "5-0",
+                url: "/posts/creature-event-recap-rcl-nationals-2025/",
+                hoverText: "Read more about Creature's performance at this event"
+            },
+            {
+                name: "NHRL World Championships 2024",
+                date: "December 7, 2024",
+                placement: "N/A",
+                record: "1-2",
+            }
+            ],
+            competitionsOptions: {
+                sectionTitle: "Tournament History",
+                maxDisplay: 0
+            }
+        },
+        {
+            type: "content",
+            title: "Summary",
+            content: `
+            Creature V4 represents the culmination of 2.5 years of competition and iteration. It is very similar to V3, but with a number of optimizations and improvements to make the bot more compact and durable.
+            `
+        }
+      ]
+    },
+    {
+      type: "gallery",
+      width: 50,
+      gallery: [
+        { src: v4VertHorizImage, caption: "Two copies of Creature V4, set up with the vertical config (left) and the horizontal config (right)" },
+        { src: doubleLiftImage, caption: "Creature and Full Court lifting one another and generally causing chaos at RCL Nationals 2025" },
+        { src: fourGearsImage, caption: "The lifter's output gears were bought on eBay and had custom internal features machined" },
+        { src: gearSoftJawsImage, caption: "A lifter output gear just after machining, held in a pair of aluminum soft jaws in a mill vice" },
+        { src: withSlamPlanImage, caption: "Creature shows almost no damage after its fight with Slam Plan at NHRL World Championships 2024" }
+      ],
+    }
+  ]} 
+/>
+
+<ModularSection 
+  columns={[
+    {
+        type: "model",
+        width: 50,
+        modelSrc: vertV4Model,
+        modelAlt: "Interactive 3D model of anti-vert version 4.0",
+        modelOptions: {
+            aspectRatio: "4:3",
+            mobileAspectRatio: "1:1",
+            // "theta phi radius" — theta spins the camera around the vertical
+            // axis, so 45deg presents a three-quarter view rather than head-on.
+            // cameraOrbit: "45deg 75deg auto",
+            cameraControls: true,
+            autoRotate: true,
+            ar: true,
+            interactionPrompt: "auto"
+        }
+    },
+    {
+        type: "model",
+        width: 50,
+        modelSrc: horizV4Model,
+        modelAlt: "Interactive 3D model of anti-horizontal version 4.0",
+        modelOptions: {
+
+            aspectRatio: "1:1",
+            mobileAspectRatio: "1:1",
+            // "theta phi radius" — theta spins the camera around the vertical
+            // axis, so 45deg presents a three-quarter view rather than head-on.
+            // cameraOrbit: "45deg 75deg auto",
+            cameraControls: true,
+            autoRotate: true,
+            ar: true,
+            interactionPrompt: "auto"
+        }
+    }
+  ]} 
+/>
+
 <UnderConstruction message="This version writeup is still being written — check back soon." />

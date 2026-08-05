@@ -9,7 +9,14 @@ export const prerender = true;
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts");
-  return posts.map((post) => ({
+  // Drafts are already filtered out of every listing, but without this they
+  // still get a page built and picked up by the sitemap — reachable by URL and
+  // indexable. Only enforced in production so drafts stay previewable in dev.
+  const published = posts.filter(
+    (post) => !(import.meta.env.PROD && post.data.draft)
+  );
+
+  return published.map((post) => ({
     params: { slug: getEntrySlug(post) },
     props: { entryId: post.id },
   }));
