@@ -21,57 +21,57 @@ import withSlamPlanImage from './images/v4/withSlamPlan.jpg';
       width: 50,
       items: [
         {
-            type: "summary",
-            summaryTitle: "Version 4 - Creature gets competitive",
-            summaryDescription: "Major redesign with an overhauled weapon system and updated materials",
-            startDate: "2024-02",
-            endDate: "2025-10",
-            status: "completed",
-            headerTitleSize: "lg",
-            metrics: {
-                sectionTitle: "Quick Facts",
-                customFields: [
-                { label: "Fight Record", value: "9-4" },
-                { label: "Wedge Options", value: "Anti-Vert, Anti-Horizontal" },
-                { label: "Hinged Attachments", value: "Long Forks, Mini-Wedge" },
-                { label: "Arm Options", value: "Short, Long" },
-                { label: "Drive Motors", value: "BA2814-1300kv" },
-                { label: "Drive Speed", value: "17.5 ft/s" }
-                ]
-            },
-            competitions: [
-            {
-                name: "SCAR Maker Faire Orange County 2025",
-                date: "September 13-14, 2025",
-                placement: 2,
-                record: "3-2"
-            },
-            {
-                name: "RCL National Championship 2025",
-                date: "May 3-4, 2025",
-                placement: 1,
-                record: "5-0",
-                url: "/posts/creature-event-recap-rcl-nationals-2025/",
-                hoverText: "Read more about Creature's performance at this event"
-            },
-            {
-                name: "NHRL World Championships 2024",
-                date: "December 7, 2024",
-                placement: "N/A",
-                record: "1-2",
-            }
-            ],
-            competitionsOptions: {
-                sectionTitle: "Tournament History",
-                maxDisplay: 0
-            }
+          type: "summary",
+          summaryTitle: "Version 4 - Creature gets competitive",
+          summaryDescription: "Major redesign with an overhauled weapon system and updated materials",
+          startDate: "2024-02",
+          endDate: "2025-10",
+          status: "completed",
+          headerTitleSize: "lg",
+          metrics: {
+            sectionTitle: "Quick Facts",
+            customFields: [
+            { label: "Fight Record", value: "9-4" },
+            { label: "Wedge Options", value: "Anti-Vert, Anti-Horizontal" },
+            { label: "Hinged Attachments", value: "Long Forks, Mini-Wedge" },
+            { label: "Arm Options", value: "Short, Long" },
+            { label: "Drive Motors", value: "BA2814-1300kv" },
+            { label: "Drive Speed", value: "17.5 ft/s" }
+            ]
+          },
+          competitions: [
+          {
+            name: "SCAR Maker Faire Orange County 2025",
+            date: "September 13-14, 2025",
+            placement: 2,
+            record: "3-2"
+          },
+          {
+            name: "RCL National Championship 2025",
+            date: "May 3-4, 2025",
+            placement: 1,
+            record: "5-0",
+            url: "/posts/creature-event-recap-rcl-nationals-2025/",
+            hoverText: "Read more about Creature's performance at this event"
+          },
+          {
+            name: "NHRL World Championships 2024",
+            date: "December 7, 2024",
+            placement: "N/A",
+            record: "1-2",
+          }
+          ],
+          competitionsOptions: {
+            sectionTitle: "Tournament History",
+            maxDisplay: 0
+          }
         },
         {
-            type: "content",
-            title: "Summary",
-            content: `
-            Creature V4 represents the culmination of 2.5 years of competition and iteration. It is very similar to V3, but with a number of optimizations and improvements to make the bot more compact and durable.
-            `
+          type: "content",
+          title: "Summary",
+          content: `
+          Creature V4 represents the culmination of 2.5 years of competition and iteration. It is very similar to V3, but with a number of optimizations and improvements to make the bot more compact and durable.
+          `
         }
       ]
     },
@@ -92,41 +92,91 @@ import withSlamPlanImage from './images/v4/withSlamPlan.jpg';
 <ModularSection 
   columns={[
     {
-        type: "model",
-        width: 50,
-        modelSrc: vertV4Model,
-        modelAlt: "Interactive 3D model of anti-vert version 4.0",
-        modelOptions: {
-            aspectRatio: "4:3",
-            mobileAspectRatio: "1:1",
-            // "theta phi radius" — theta spins the camera around the vertical
-            // axis, so 45deg presents a three-quarter view rather than head-on.
-            // cameraOrbit: "45deg 75deg auto",
-            cameraControls: true,
-            autoRotate: true,
-            ar: true,
-            interactionPrompt: "auto"
-        }
+      type: "model",
+      width: 50,
+      modelSrc: vertV4Model,
+      modelAlt: "Interactive 3D model of anti-vert version 4.0",
+      modelCaption: "Anti-vertical configuration, with a flat 4130 wedge, thick TPU side armor and pontoons, and long AR500 steel forks",
+      modelOptions: {
+        aspectRatio: "4:3",
+        mobileAspectRatio: "1:1",
+        // "theta phi radius" — theta spins the camera around the vertical
+        // axis, so 45deg presents a three-quarter view rather than head-on.
+        // cameraOrbit: "45deg 75deg auto",
+        cameraControls: true,
+        autoRotate: true,
+        ar: true,
+        interactionPrompt: "auto"
+      }
     },
     {
-        type: "model",
-        width: 50,
-        modelSrc: horizV4Model,
-        modelAlt: "Interactive 3D model of anti-horizontal version 4.0",
-        modelOptions: {
-
-            aspectRatio: "1:1",
-            mobileAspectRatio: "1:1",
-            // "theta phi radius" — theta spins the camera around the vertical
-            // axis, so 45deg presents a three-quarter view rather than head-on.
-            // cameraOrbit: "45deg 75deg auto",
-            cameraControls: true,
-            autoRotate: true,
-            ar: true,
-            interactionPrompt: "auto"
-        }
+      type: "model",
+      width: 50,
+      modelSrc: horizV4Model,
+      modelAlt: "Interactive 3D model of anti-horizontal version 4.0",
+      modelCaption: "Anti-horizontal configuration, with a wraparound 4130 wedge and a shallow hinged sub-wedge",
+      modelOptions: {
+        aspectRatio: "1:1",
+        mobileAspectRatio: "1:1",
+        // "theta phi radius" — theta spins the camera around the vertical
+        // axis, so 45deg presents a three-quarter view rather than head-on.
+        // cameraOrbit: "45deg 75deg auto",
+        cameraControls: true,
+        autoRotate: true,
+        ar: true,
+        interactionPrompt: "auto"
+      }
     }
   ]} 
 />
 
-<UnderConstruction message="This version writeup is still being written — check back soon." />
+#
+ 
+<ModularSection 
+  columns={[
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "content",
+          title: "Major Improvements",
+          content: `
+          - Adjusted overall proportions to reduce the robot's footprint, allowing more weight for different armor configs
+          - Replaced UHMW arm plates with fully dense TPU 3D prints, which don't deform elastically
+          - Added thick TPU top armor and outrigger forks to vert config, for better protection and corralling ability
+          - Redesigned lifter mechanism with a revised reduction ordering, fewer components, and a more compact layout
+            - 20:1 planetary -> 15:9 chain -> 60:18 spur, for a ~111:1 reduction
+          - Chassis rails include backup threaded mounting holes and revised side-support mounting for better repairability
+
+          | Problem Encountered | Solutions |
+          |---------|----------|
+          | Electrical issues, including noise on the signal lines, and voltage spike damaging the receiver / BEC | Swapped to higher current ESC's, added large capacitors to each ESC, and re-did the wiring to better separate signal and power lines |
+          | Single central magnet caused ground clearance issues | Replaced with 4 smaller magnets, 1 near each wheel, to avoid high-centering |
+          | Driving too hard into arena side rails could wedge the long anti-vert forks under the rail, getting the bot stuck | Added welded caps to the long forks, increasing the height and angle of the fork tips |
+          `
+        }
+      ]
+    },
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "video",
+          videoId: "dTFp-n3oubA",
+          videoTitle: "Creature vs Whomper at RCL Nationals 2025",
+          videoEager: true,
+          videoCaption: "Creature fights Whomper at RCL Nationals 2025, usping its anti-horizontal configuration to wear down the opponent's weapon"
+        },
+        {
+          type: "video",
+          videoId: "TkpWn9e4QWY",
+          videoTitle: "Creature vs Slam Plan at NHRL World Championships 2024",
+          videoEager: false,
+          videoCaption: "Creature V4 fights Slam Plan at NHRL World Championships 2024, using an improvised configuration with the wraparound wedge, long forks, and a single inverted arm fork to better grab the sides of Slam Plan's wheels"
+        }
+        ]
+    }
+  ]}
+/>

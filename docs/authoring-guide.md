@@ -195,6 +195,8 @@ import botModel from './3Dmodels/bot.glb'
     width: 50,
     modelSrc: botModel,
     modelAlt: 'Interactive 3D model of the robot',
+    modelTitle: 'Drivetrain assembly',
+    modelCaption: 'Drag to rotate • scroll to zoom',
     modelOptions: { cameraControls: true, autoRotate: true, ar: true },
   },
   { type: 'content', width: 50, content: `...` },
@@ -209,7 +211,17 @@ import botModel from './3Dmodels/bot.glb'
   not fetched until it approaches the viewport.
 - AR requires HTTPS and compatible devices.
 
+- `modelTitle` (falls back to the column's `title`) renders a heading above the
+  viewer. It uses the prose typography, so it matches a `###` or a content
+  column's title beside it.
+- `modelCaption` (falls back to the column's `caption`) renders small centered
+  text below the viewer, same treatment as an image or gallery caption.
+- Both appear in the loading and error states too, so the column does not shift
+  when the model arrives.
+
 Recommended options (in column `modelOptions`)
+- `title` / `caption`: the same two, when using `ModelViewer` directly rather
+  than through a column
 - `cameraControls: true`, `autoRotate: false`
 - `poster`: pre-rendered screenshot for perceived speed
 - `interactionPrompt: 'auto' | 'when-focused' | 'none'`

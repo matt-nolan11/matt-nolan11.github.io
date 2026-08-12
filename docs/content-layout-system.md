@@ -71,6 +71,11 @@ Pass `modelSrc`, optional `modelAlt`, and `modelOptions` forwarded to `ModelView
 `modelSrc` must be an **imported** `.glb`/`.gltf`, not a string path — the same
 rule as images. A raw path is not bundled and 404s in the built site.
 
+`modelTitle` (or the column's `title`) renders a heading above the viewer, styled
+like a `###` so it lines up with a content column's title in the same row.
+`modelCaption` (or the column's `caption`) renders small centered text below it,
+matching image and gallery captions.
+
 ## Examples
 ```mdx
 <ModularSection columns={[

@@ -731,11 +731,17 @@ function dedent(text: unknown): string {
              display:inline, so its bounding rect ignores the block content
              inside it. The balancer measures a column's children, so a bare
              island reported height 0 and the solver balanced against an empty
-             column. Every other column type already has a block wrapper. */
+             column. Every other column type already has a block wrapper.
+
+             modelOptions is spread last so a title/caption already living in
+             there keeps winning — the column-level props below are a shorthand,
+             not a replacement. */
           <div class="model-col">
             <ModelViewer
               src={block.modelSrc}
               alt={block.modelAlt || 'Interactive 3D model'}
+              title={block.modelTitle || block.title}
+              caption={block.modelCaption || block.caption}
               {...modelOptions}
               client:load
             />

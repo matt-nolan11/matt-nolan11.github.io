@@ -27,6 +27,8 @@
 - CSS lives under `.project-gallery` in `src/styles/global.css`.
 
 ## ModelViewer
+- `modelTitle` = heading above; `modelCaption` = small centered text below.
+  Both fall back to the column's `title` / `caption`.
 - Hydrates on `client:load`; dynamic import on mount.
 - Use `.glb` models; test AR via `public/ar-test.html` over HTTPS.
 

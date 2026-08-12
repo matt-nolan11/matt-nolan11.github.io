@@ -67,6 +67,8 @@ interface ModelViewerProps {
   toneMapping?: 'aces' | 'commerce' | 'neutral';
   neutralColorSpace?: 'srgb' | 'rec2020';
   // Additional options
+  /** Heading rendered above the viewer, styled to match a `###` in MDX */
+  title?: string;
   caption?: string;
   variant?: string;
   scale?: string;
@@ -110,6 +112,7 @@ interface ModelViewerProps {
  * <ModelViewer
  *   src="/path/to/model.glb"
  *   alt="3D Model Description"
+ *   title="Drivetrain assembly"
  *   cameraOrbit="0deg 75deg 0.5m"
  *   mobileCameraOrbit="0deg 75deg 0.65m"
  *   aspectRatio="3:2"
@@ -168,6 +171,7 @@ export default function ModelViewer({
   xrEnvironment = false,
   toneMapping = 'neutral',
   neutralColorSpace = 'srgb',
+  title,
   caption,
   variant,
   scale,
@@ -418,6 +422,54 @@ export default function ModelViewer({
     return () => clearTimeout(optimizationTimer);
   }, [isModelViewerLoaded, isLoaded, autoRotate]);
 
+  // Stop a stray keypress from lighting up the viewer's edge.
+  //
+  // model-viewer's shadow root holds `<div class="userInput" tabindex="0">`,
+  // styled `outline-offset: -1px`, so its focus ring draws *inside* the box and
+  // reads as the whole border igniting rather than as a normal focus outline.
+  // Chrome re-arms :focus-visible on any keydown, including bare modifiers, so
+  // once a mouse drag has left that div focused, pressing Shift makes the ring
+  // appear with nothing having been navigated.
+  //
+  // Blanket `outline: none` is the wrong fix: the viewer is genuinely keyboard
+  // operable (arrows orbit the camera), so that would strip the only focus
+  // indicator it has. Track input modality instead — pointer focus suppresses
+  // the ring, Tab restores it. The rule has to be injected into the shadow root
+  // because `.userInput` is unreachable from page CSS and is not exposed as a
+  // ::part.
+  useEffect(() => {
+    const modelViewer = modelViewerRef.current;
+    if (!modelViewer || !isModelViewerLoaded) return;
+
+    const shadowRoot = modelViewer.shadowRoot;
+    if (!shadowRoot) return;
+
+    const style = document.createElement('style');
+    style.textContent =
+      ':host([data-pointer-focus]) .userInput:focus-visible { outline: none; }';
+    shadowRoot.appendChild(style);
+
+    const handlePointerDown = () => {
+      modelViewer.setAttribute('data-pointer-focus', '');
+    };
+
+    // Tab is pressed while focus is still on the *previous* element, so this
+    // has to listen at the document in the capture phase to clear the flag
+    // before focus lands on the viewer.
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Tab') modelViewer.removeAttribute('data-pointer-focus');
+    };
+
+    modelViewer.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown, true);
+
+    return () => {
+      style.remove();
+      modelViewer.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [isModelViewerLoaded]);
+
   // Build model-viewer attributes with performance optimizations
   const buildAttributes = () => {
     const attrs: Record<string, any> = {
@@ -430,8 +482,6 @@ export default function ModelViewer({
       'shadow-intensity': shadowIntensity,
       'shadow-softness': shadowSoftness,
       'interpolation-decay': interpolationDecay,
-      // Hide progress bar to prevent flash
-      'data-js-focus-visible': '',
     };
 
     if (poster) attrs.poster = poster;
@@ -536,6 +586,18 @@ export default function ModelViewer({
     ? { aspectRatio: responsiveAspectRatio }
     : { height: height ?? '16rem' };
 
+  // Borrows the prose typography rather than hand-picking a size, so a model's
+  // title matches a `###` written in MDX or a content column's title sitting
+  // beside it. `.prose > :first-child { margin-top: 0 }` cancels the h3's top
+  // margin, so it needs to stay the direct first child of the wrapper.
+  // Rendered in every branch — loading, error, loaded — so the title does not
+  // pop in and shift the column once the model arrives.
+  const titleNode = title ? (
+    <div className="prose prose-lg max-w-none">
+      <h3>{title}</h3>
+    </div>
+  ) : null;
+
 
   const modelStyle: React.CSSProperties = {
     width: width || '100%',
@@ -559,6 +621,7 @@ export default function ModelViewer({
   if (hasError) {
     return (
       <div className={`model-viewer-container ${className}`}>
+        {titleNode}
         <div
           className="flex items-center justify-center w-full bg-base-200 rounded-xl border-2 border-dashed border-base-300"
           style={placeholderStyle}
@@ -581,6 +644,7 @@ export default function ModelViewer({
   if (!isModelViewerLoaded) {
     return (
       <div className={`model-viewer-container ${className}`}>
+        {titleNode}
         <div
           className="flex items-center justify-center w-full bg-base-200 rounded-xl"
           style={placeholderStyle}
@@ -600,15 +664,19 @@ export default function ModelViewer({
   return (
     <div 
       className={`model-viewer-container ${className}`} 
-      style={{ 
+      style={{
         minHeight: '400px',
         position: 'relative',
         zIndex: 15
       }}
-      role="img" 
-      aria-label={alt}
     >
-      <div className="relative">
+      {titleNode}
+
+      {/* role="img" scoped to the canvas rather than the whole container: an
+          img role is a leaf, so anything inside it is dropped from the
+          accessibility tree. On the container it was swallowing the title,
+          caption and controls text along with the model. */}
+      <div className="relative" role="img" aria-label={alt}>
         {/* Loading indicator */}
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-base-200 rounded-xl z-10">
