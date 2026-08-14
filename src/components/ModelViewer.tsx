@@ -76,6 +76,113 @@ interface ModelViewerProps {
 }
 
 /**
+ * Camera-control hints, pinned inside the viewer's top-right corner.
+ *
+ * These used to live in a `<details>` below the viewer, which cost a line of
+ * dead space under every model and, on open, pushed the rest of the page down —
+ * a jarring reflow for a purely informational disclosure. Absolutely positioning
+ * both the trigger and the panel takes them out of flow entirely: the hint stays
+ * discoverable, but nothing above or below the viewer ever moves.
+ *
+ * The panel is anchored to the right edge and capped to the container width so
+ * it cannot spill past the viewer in a narrow column.
+ */
+function ViewerControlsHint({
+  canZoom,
+  canPan,
+  notes,
+}: {
+  canZoom: boolean;
+  canPan: boolean;
+  notes: { text: string; className: string }[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelId = React.useId();
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) setIsOpen(false);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setIsOpen(false);
+      buttonRef.current?.focus();
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  // Only advertise the gestures this viewer actually accepts.
+  const join = (...parts: (string | false)[]) => parts.filter(Boolean).join(' • ');
+  const mouseHint = join('Drag to rotate', canZoom && 'Scroll to zoom', canPan && 'Right-drag to pan');
+  const touchHint = join('Drag to rotate', canZoom && 'Pinch to zoom', canPan && 'Two-finger drag to pan');
+
+  return (
+    // The wrapper spans the viewer's width so the panel's `max-w-full` resolves
+    // against the viewer rather than the button, keeping it over the model in a
+    // narrow column. It is click-through so the strip it covers still orbits it;
+    // only the button and panel themselves take pointer events.
+    <div
+      ref={containerRef}
+      className="pointer-events-none absolute inset-x-2 top-2 z-30 flex flex-col items-end"
+    >
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        aria-label="3D controls"
+        title="3D controls"
+        className={`pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border border-base-content/10 bg-base-100/70 shadow-sm backdrop-blur-sm transition-colors hover:bg-base-100 hover:text-base-content focus-visible:ring-2 focus-visible:ring-primary/60 ${
+          isOpen ? 'bg-base-100 text-base-content' : 'text-base-content/60'
+        }`}
+      >
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9a3.001 3.001 0 015.83 1c0 2-3 3-3 3m.058 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div
+          id={panelId}
+          className="pointer-events-auto mt-2 w-64 max-w-full rounded-lg border border-base-content/10 bg-base-100/95 p-3 text-xs shadow-lg backdrop-blur-sm"
+        >
+          <dl className="m-0 space-y-2">
+            <div className="hidden sm:block">
+              <dt className="font-medium text-base-content/80">Mouse</dt>
+              {/* p-0 as well as m-0: a global rule indents `dd` with padding. */}
+              <dd className="m-0 p-0 text-base-content/60">{mouseHint}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-base-content/80">Touch</dt>
+              {/* p-0 as well as m-0: a global rule indents `dd` with padding. */}
+              <dd className="m-0 p-0 text-base-content/60">{touchHint}</dd>
+            </div>
+          </dl>
+          {notes.map((note) => (
+            <p key={note.text} className={`m-0 mt-2 ${note.className}`}>
+              {note.text}
+            </p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
  * Advanced 3D model viewer component using Google's model-viewer web component.
  * Provides interactive 3D model display with camera controls, animations, and AR support.
  * 
@@ -578,12 +685,21 @@ export default function ModelViewer({
   // Calculate responsive aspect ratio for CSS
   const responsiveAspectRatio = getResponsiveAspectRatio(aspectRatio, mobileAspectRatio, windowWidth);
 
-  // The loading and error placeholders must occupy exactly the box the loaded
-  // viewer will, otherwise the column resizes when the model arrives — visible
-  // as a jump, and enough to invalidate the balancer's height measurement.
-  // Falls back to a fixed height only when no aspect ratio is configured.
-  const placeholderStyle: React.CSSProperties = responsiveAspectRatio
-    ? { aspectRatio: responsiveAspectRatio }
+  // One box for every state. The loading and error placeholders must occupy
+  // exactly the box the loaded viewer will, otherwise the column resizes when
+  // the model arrives — visible as a jump, and enough to invalidate the
+  // balancer's height measurement.
+  //
+  // The `16rem` branch is what makes the box self-supporting. model-viewer's
+  // own `:host` height is overridden by the inline height below, so an
+  // aspect-ratio-less viewer laid out at `auto` collapses to zero and draws
+  // nothing. That used to be papered over by a 400px min-height on the
+  // container, which held an empty box open — dead space under every viewer
+  // whose real content came in shorter than 400px, which is most of them in a
+  // narrow column. Sizing the element itself means the container can just wrap
+  // its content.
+  const boxStyle: React.CSSProperties = responsiveAspectRatio
+    ? { aspectRatio: responsiveAspectRatio, height: height ?? 'auto' }
     : { height: height ?? '16rem' };
 
   // Borrows the prose typography rather than hand-picking a size, so a model's
@@ -601,8 +717,7 @@ export default function ModelViewer({
 
   const modelStyle: React.CSSProperties = {
     width: width || '100%',
-    height: height || 'auto', // Use auto height when aspect ratio is set
-    aspectRatio: responsiveAspectRatio, // Use CSS aspect-ratio for proper responsive sizing
+    ...boxStyle,
     // Performance optimizations for smoother rendering
     transform: 'translateZ(0)', // Force hardware acceleration
     backfaceVisibility: 'hidden',
@@ -624,7 +739,7 @@ export default function ModelViewer({
         {titleNode}
         <div
           className="flex items-center justify-center w-full bg-base-200 rounded-xl border-2 border-dashed border-base-300"
-          style={placeholderStyle}
+          style={boxStyle}
         >
           <div className="text-center">
             <svg className="w-12 h-12 mx-auto text-base-content/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -647,7 +762,7 @@ export default function ModelViewer({
         {titleNode}
         <div
           className="flex items-center justify-center w-full bg-base-200 rounded-xl"
-          style={placeholderStyle}
+          style={boxStyle}
         >
           <div className="text-center">
             <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
@@ -663,66 +778,86 @@ export default function ModelViewer({
 
   return (
     <div 
-      className={`model-viewer-container ${className}`} 
+      className={`model-viewer-container ${className}`}
       style={{
-        minHeight: '400px',
         position: 'relative',
         zIndex: 15
       }}
     >
       {titleNode}
 
-      {/* role="img" scoped to the canvas rather than the whole container: an
-          img role is a leaf, so anything inside it is dropped from the
-          accessibility tree. On the container it was swallowing the title,
-          caption and controls text along with the model. */}
-      <div className="relative" role="img" aria-label={alt}>
-        {/* Loading indicator */}
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-base-200 rounded-xl z-10">
-            <div className="text-center">
-              <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
-              <p className="text-base-content/60">Loading 3D model...</p>
+      <div className="relative">
+        {/* role="img" scoped to the canvas rather than the whole container: an
+            img role is a leaf, so anything inside it is dropped from the
+            accessibility tree. On the container it was swallowing the title,
+            caption and controls text along with the model — which is also why
+            the overlay controls below sit outside this element rather than in
+            it, despite being painted over the same box. */}
+        <div className="relative" role="img" aria-label={alt}>
+          {/* Loading indicator */}
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-base-200 rounded-xl z-10">
+              <div className="text-center">
+                <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
+                <p className="text-base-content/60">Loading 3D model...</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Model viewer */}
-        {React.createElement('model-viewer', {
-          ref: modelViewerRef,
-          style: {
-            ...modelStyle,
-            '--poster-color': 'transparent', // Prevent poster background flash
-            '--progress-bar-color': 'transparent', // Hide progress bar completely
-            '--progress-bar-height': '0px', // Remove progress bar height
-            '--progress-mask-base': 'transparent', // Hide progress mask
+          {/* Model viewer */}
+          {React.createElement('model-viewer', {
+            ref: modelViewerRef,
+            style: {
+              ...modelStyle,
+              '--poster-color': 'transparent', // Prevent poster background flash
+              '--progress-bar-color': 'transparent', // Hide progress bar completely
+              '--progress-bar-height': '0px', // Remove progress bar height
+              '--progress-mask-base': 'transparent', // Hide progress mask
+            },
+            className: "rounded-xl bg-base-100", // Remove w-full to respect parent container constraints
+            // Explicitly set AR attributes
+            ...(ar ? { 'ar': '', 'ar-modes': arModes, 'ar-scale': arScale, 'ar-placement': arPlacement } : {}),
+            ...attributes
           },
-          className: "rounded-xl bg-base-100", // Remove w-full to respect parent container constraints
-          // Explicitly set AR attributes
-          ...(ar ? { 'ar': '', 'ar-modes': arModes, 'ar-scale': arScale, 'ar-placement': arPlacement } : {}),
-          ...attributes
-        }, 
-        // AR button as child with slot attribute
-        ar ? React.createElement('button', {
-          slot: 'ar-button',
-          className: "btn btn-primary btn-sm absolute bottom-4 right-4 z-20",
-          'aria-label': "View in AR",
-          style: { 
-            display: canActivateAR ? 'flex' : 'none',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }
-        }, [
-          React.createElement('svg', {
-            key: 'ar-icon',
-            className: "w-4 h-4",
-            fill: "currentColor",
-            viewBox: "0 0 24 24"
-          }, React.createElement('path', {
-            d: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-          })),
-          React.createElement('span', { key: 'ar-text' }, 'View in AR')
-        ]) : null)}
+          // AR button as child with slot attribute
+          ar ? React.createElement('button', {
+            slot: 'ar-button',
+            className: "btn btn-primary btn-sm absolute bottom-4 right-4 z-20",
+            'aria-label': "View in AR",
+            style: {
+              display: canActivateAR ? 'flex' : 'none',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }
+          }, [
+            React.createElement('svg', {
+              key: 'ar-icon',
+              className: "w-4 h-4",
+              fill: "currentColor",
+              viewBox: "0 0 24 24"
+            }, React.createElement('path', {
+              d: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+            })),
+            React.createElement('span', { key: 'ar-text' }, 'View in AR')
+          ]) : null)}
+        </div>
+
+        {/* Camera-control hints, overlaid in the corner. Suppressed while the
+            model is still loading so it never sits on top of the spinner. */}
+        {cameraControls && !isLoading && (
+          <ViewerControlsHint
+            canZoom={!disableZoom}
+            canPan={!disablePan}
+            notes={[
+              ...(ar && canActivateAR
+                ? [{ text: 'Tap the AR button for an augmented reality view', className: 'text-primary' }]
+                : []),
+              ...(ar && !canActivateAR && isLoaded
+                ? [{ text: 'AR requires a mobile device with ARCore (Android) or ARKit (iOS)', className: 'text-warning' }]
+                : []),
+            ]}
+          />
+        )}
 
         {/* Fallback AR button for when AR is not available */}
         {ar && !canActivateAR && isLoaded && (
@@ -763,21 +898,6 @@ export default function ModelViewer({
       {caption && (
         <p className="text-sm text-base-content/60 mt-2 text-center">{caption}</p>
       )}
-
-      {/* Controls info - 3-line layout with previous text styling */}
-      <details className="mt-1 inline-block">
-        <summary className="text-xs text-base-content/50 cursor-pointer hover:text-base-content/70">
-          3D controls
-        </summary>
-        <div className="text-xs text-base-content/60 mt-1 space-y-1">
-          <p className="hidden sm:block m-0">Mouse: Click and drag to rotate • Scroll to zoom • Right-click and drag to pan</p>
-          <p className="m-0">Touch: Drag to rotate • Pinch to zoom • Two-finger drag to pan</p>
-          {ar && canActivateAR && <p className="text-primary m-0">Tap AR button for augmented reality view</p>}
-          {ar && !canActivateAR && isLoaded && (
-            <p className="text-warning m-0">AR requires mobile device with ARCore (Android) or ARKit (iOS)</p>
-          )}
-        </div>
-      </details>
     </div>
   );
 }

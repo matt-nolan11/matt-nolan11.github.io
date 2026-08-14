@@ -25,6 +25,9 @@ const project = await getEntry('projects', entryId);
 if (!project) throw new Error(`Project entry "${entryId}" not found`);
 const { Content } = await render(project);
 const relatedContent = await getRelatedContent(project.data.tags, getEntrySlug(project), 3);
+
+// Make frontmatter tags available to all components via Astro.locals
+Astro.locals.frontmatterTags = project.data.tags || [];
 ---
 
 <Layout title={project.data.title} description={project.data.description} pageType="project">

@@ -595,6 +595,34 @@ article {
   color: var(--color-base-content);
 }
 
+/* Stat tile values are parsed as inline markdown, so they can contain links.
+   Styled to match the competition-name links in Summary; the prose link styles
+   do not reach here because stat tiles render outside .prose. */
+.stat-tile-value a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.stat-tile-value a:hover {
+  color: #1c4e7f; /* Dark mode primary */
+}
+
+[data-theme="corporate"] .stat-tile-value a:hover {
+  color: #0082ce; /* Light mode primary */
+}
+
+/* Inline code in a stat tile: the value is already bold and tight, so this
+   only needs to read as monospace without changing the tile's height. */
+.stat-tile-value code {
+  font-size: 0.9em;
+  padding: 0.05rem 0.25rem;
+  border-radius: 0.25rem;
+  background: color-mix(in oklch, var(--color-base-content) 10%, transparent);
+}
+
 /* UnderConstruction banner.
    Global rather than scoped inside the component: version files are rendered
    by ProjectVersionsSection through a dynamic `render()` + <Content />, and

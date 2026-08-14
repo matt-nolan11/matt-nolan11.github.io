@@ -19,6 +19,8 @@ interface Props {
   tabHeight?: string;
   tabPadding?: string;
   fontSize?: string;
+  // Default tab selection: can be a version name (string like "v2") or index (number)
+  defaultTab?: string | number;
 }
 
 const { 
@@ -34,7 +36,8 @@ const {
   tabWidth,
   tabHeight,
   tabPadding,
-  fontSize
+  fontSize,
+  defaultTab = 0
 } = Astro.props;
 
 // Auto-detect project slug from file path if not provided
@@ -104,6 +107,48 @@ try {
 } catch (error) {
   console.error('ProjectVersionsSection: Error:', error);
 }
+
+// Determine which tab should be selected by default
+let activeTabIndex = 0; // fallback to first tab
+if (defaultTab !== undefined) {
+  if (typeof defaultTab === 'number') {
+    // Direct index provided
+    activeTabIndex = Math.max(0, Math.min(defaultTab, versions.length - 1));
+  } else if (typeof defaultTab === 'string') {
+    // Version name provided - find matching tab
+    const found = versions.findIndex(v => 
+      v.tabTitle.toLowerCase() === defaultTab.toLowerCase() ||
+      v.tabTitle.toLowerCase().includes(defaultTab.toLowerCase())
+    );
+    activeTabIndex = found >= 0 ? found : 0;
+  }
+}
+
+// Pairing radio N with tab button N and pane N takes one selector per version,
+// so those rules are generated instead of hand-written. The hand-written block
+// this replaces stopped at :nth-of-type(5), so a sixth version rendered a tab
+// that never highlighted and a pane that never appeared, with nothing to say why.
+//
+// Everything here is keyed to a per-instance id. `is:inline` keeps Astro from
+// hoisting and scoping the tag (it cannot scope markup it never parses), so the
+// id is what stops these rules from leaking to other tab groups on the page.
+const tabsId = `version-tabs-${projectSlug.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+
+const pairRules = (themePrefix: string, container: string, child: string) =>
+  versions
+    .map(
+      (_, i) =>
+        `${themePrefix}#${tabsId} input[type="radio"]:nth-of-type(${i + 1}):checked ~ ${container} ${child}:nth-of-type(${i + 1})`,
+    )
+    .join(',');
+
+// The dark rules carry an extra attribute selector, so they outrank the light
+// ones on specificity alone — no !important needed to make the theme swap take.
+const tabStateCss = versions.length === 0 ? '' : [
+  `${pairRules('', '.tab-buttons', '.tab-button')}{background-color:#0082ce;color:#fff;border:2px solid #0082ce;font-weight:600}`,
+  `${pairRules('[data-theme="business"] ', '.tab-buttons', '.tab-button')}{background-color:#1c4e7f;color:#fff;border:2px solid #1c4e7f}`,
+  `${pairRules('', '.tab-contents', '.tab-content')}{display:block}`,
+].join('\n');
 
 // Title formatting functions matching ModularSection approach
 const getHeadingLevel = (depth: number) => {
@@ -313,38 +358,10 @@ function compareSemverDesc(a: number[], b: number[]): number {
     }
   }
 
-  /* Active tab styling using radio button state */
-  .version-tabs input[type="radio"]:nth-of-type(1):checked ~ .tab-buttons .tab-button:nth-of-type(1),
-  .version-tabs input[type="radio"]:nth-of-type(2):checked ~ .tab-buttons .tab-button:nth-of-type(2),
-  .version-tabs input[type="radio"]:nth-of-type(3):checked ~ .tab-buttons .tab-button:nth-of-type(3),
-  .version-tabs input[type="radio"]:nth-of-type(4):checked ~ .tab-buttons .tab-button:nth-of-type(4),
-  .version-tabs input[type="radio"]:nth-of-type(5):checked ~ .tab-buttons .tab-button:nth-of-type(5) {
-    background-color: #0082ce; /* Light mode primary */
-    color: white;
-    border: 2px solid #0082ce;
-    font-weight: 600;
-  }
-
-  /* Dark mode active tabs - try multiple selectors */
-  [data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(1):checked ~ .tab-buttons .tab-button:nth-of-type(1),
-  [data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(2):checked ~ .tab-buttons .tab-button:nth-of-type(2),
-  [data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(3):checked ~ .tab-buttons .tab-button:nth-of-type(3),
-  [data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(4):checked ~ .tab-buttons .tab-button:nth-of-type(4),
-  [data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(5):checked ~ .tab-buttons .tab-button:nth-of-type(5),
-  html[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(1):checked ~ .tab-buttons .tab-button:nth-of-type(1),
-  html[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(2):checked ~ .tab-buttons .tab-button:nth-of-type(2),
-  html[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(3):checked ~ .tab-buttons .tab-button:nth-of-type(3),
-  html[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(4):checked ~ .tab-buttons .tab-button:nth-of-type(4),
-  html[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(5):checked ~ .tab-buttons .tab-button:nth-of-type(5),
-  :root[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(1):checked ~ .tab-buttons .tab-button:nth-of-type(1),
-  :root[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(2):checked ~ .tab-buttons .tab-button:nth-of-type(2),
-  :root[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(3):checked ~ .tab-buttons .tab-button:nth-of-type(3),
-  :root[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(4):checked ~ .tab-buttons .tab-button:nth-of-type(4),
-  :root[data-theme="business"] .version-tabs input[type="radio"]:nth-of-type(5):checked ~ .tab-buttons .tab-button:nth-of-type(5) {
-    background-color: #1c4e7f !important; /* Dark mode primary */
-    color: white !important;
-    border: 2px solid #1c4e7f !important;
-  }
+  /* Active tab and active pane styling is generated per version — see the
+     tabStateCss block in the frontmatter. It cannot live here because each
+     version needs its own :nth-of-type pair and the count is not known until
+     the versions are loaded. */
 
   /* Hover effects */
   .version-tabs .tab-buttons .tab-button:hover {
@@ -369,15 +386,6 @@ function compareSemverDesc(a: number[], b: number[]): number {
     animation: fadeIn 0.3s ease-in-out;
   }
 
-  /* Show content based on radio state */
-  .version-tabs input[type="radio"]:nth-of-type(1):checked ~ .tab-contents .tab-content:nth-of-type(1),
-  .version-tabs input[type="radio"]:nth-of-type(2):checked ~ .tab-contents .tab-content:nth-of-type(2),
-  .version-tabs input[type="radio"]:nth-of-type(3):checked ~ .tab-contents .tab-content:nth-of-type(3),
-  .version-tabs input[type="radio"]:nth-of-type(4):checked ~ .tab-contents .tab-content:nth-of-type(4),
-  .version-tabs input[type="radio"]:nth-of-type(5):checked ~ .tab-contents .tab-content:nth-of-type(5) {
-    display: block;
-  }
-
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -387,7 +395,9 @@ function compareSemverDesc(a: number[], b: number[]): number {
 
 {versions.length > 0 && (
   <section class={`project-versions ${className}`}>
-    <div 
+    <style is:inline set:html={tabStateCss}></style>
+    <div
+      id={tabsId}
       class={`version-tabs size-${tabSize} style-${tabStyle} ${(tabWidth || tabHeight || tabPadding || fontSize) ? 'custom-dimensions' : ''}`}
       style={{
         ...(tabWidth && { '--tab-width': tabWidth }),
@@ -410,19 +420,19 @@ function compareSemverDesc(a: number[], b: number[]): number {
 
       <!-- Radio inputs for state management -->
       {versions.map((version, index) => (
-        <input 
-          type="radio" 
-          name="version_tabs" 
-          id={`tab-${index}`}
-          checked={index === 0}
+        <input
+          type="radio"
+          name={tabsId}
+          id={`${tabsId}-tab-${index}`}
+          checked={index === activeTabIndex}
         />
       ))}
 
       <!-- Tab buttons -->
       <div class="tab-buttons">
         {versions.map((version, index) => (
-          <label 
-            for={`tab-${index}`}
+          <label
+            for={`${tabsId}-tab-${index}`}
             class="tab-button"
           >
             <span class="font-semibold">{version.tabTitle}</span>

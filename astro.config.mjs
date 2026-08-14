@@ -10,6 +10,7 @@ import pagefind from 'astro-pagefind';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeExternalLinks from 'rehype-external-links';
 import remarkUnderConstruction from './src/plugins/remark-under-construction.mjs';
 import mdx from '@astrojs/mdx';
 import { unified } from '@astrojs/markdown-remark';
@@ -51,7 +52,13 @@ export default defineConfig({
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath, remarkUnderConstruction],
-      rehypePlugins: [rehypeKatex],
+      rehypePlugins: [
+        rehypeKatex,
+        // Open external links in a new tab. `rel` must be set explicitly —
+        // the plugin defaults to ['nofollow'], and `noopener` is what keeps
+        // the new tab from getting a window.opener handle on this page.
+        [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
+      ],
     }),
   },
   integrations: [sitemap(), react(), pagefind(), expressiveCode, mdx()]

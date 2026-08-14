@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import { marked } from 'marked';
+import { markdown } from '../utils/markdown';
 import ProjectGallery from './ProjectGallery';
 import ModelViewer from './ModelViewer';
 import Summary from './Summary.astro';
@@ -18,7 +18,11 @@ const {
   // sections against opposite ends. Now that Summary is tall-and-narrow by
   // construction, the height curves actually cross inside this range.
   balanceRange = [30, 72],
+  frontmatterTags,
 } = Astro.props;
+
+// Use provided frontmatterTags, or read from Astro.locals if available
+const resolvedFrontmatterTags = frontmatterTags ?? (Astro.locals?.frontmatterTags || undefined);
 
 if (!columns || columns.length === 0) {
   throw new Error('ModularSection requires a columns prop with at least one column');
@@ -55,6 +59,32 @@ function dedent(text: unknown): string {
 ---
 
 <style>
+  /* A note on what can and cannot be styled from here.
+     ------------------------------------------------------------------
+     These styles are scoped, so Astro rewrites every selector to require
+     `[data-astro-cid-pvnfhpq6]` on *each* compound — `.column .project-gallery`
+     compiles to `.column[…cid] .project-gallery[…cid]`. That attribute is only
+     stamped on elements this component's template emits, plus the root element
+     of any .astro child. It never reaches:
+
+       - anything inside a client island (ProjectGallery, ModelViewer), which
+         React renders in the browser with no knowledge of the scope,
+       - <astro-island> itself (the scope is passed to the island as a prop),
+       - descendants inside a child .astro component (only its root is stamped).
+
+     So a rule aimed at `.project-gallery`, `model-viewer`,
+     `.model-viewer-container` or `.summary-content` matches nothing, no matter
+     how many !importants it carries. Several such rules used to live here; they
+     were removed after checking in the browser that every one matched zero
+     elements, and that force-applying them (via :global) made things worse
+     rather than better — the gallery reset inflated thumbnails from 64px to
+     109px, and the model-viewer-container reset added 18px to a model column.
+     The islands size themselves correctly on their own.
+
+     Style the wrappers below instead — `.gallery-col`, `.info-col`,
+     `.model-col` are emitted here and are stamped — or use `:global()`
+     deliberately, as the astro-island rule does. */
+
   /* Generic wrappers for column types */
   .gallery-col {
     width: 100%;
@@ -62,20 +92,8 @@ function dedent(text: unknown): string {
     margin: 0;
     display: block;
     position: relative;
-  }
-
-  /* Tidy ProjectGallery spacing within a gallery column */
-  .gallery-col .project-gallery {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    font-size: initial !important;
-    line-height: initial !important;
-  }
-
-  .gallery-col > :first-child {
-    margin-top: 0 !important;
-  }
-  .gallery-col {
+    /* Collapses the whitespace between the gallery's inline children. Each
+       piece of real text inside sets its own size via a utility class. */
     line-height: 0;
     font-size: 0;
   }
@@ -103,15 +121,6 @@ function dedent(text: unknown): string {
     width: 100%;
   }
 
-  .info-col .summary-content {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-  }
-
-  .info-col > :first-child {
-    margin-top: 0 !important;
-  }
-  
   /* Ensure regular columns have proper styling for components */
   .column {
     display: block;
@@ -147,27 +156,10 @@ function dedent(text: unknown): string {
     min-width: 0; /* Important for grid items to allow shrinking */
   }
 
-  /* Model viewer specific constraints */
-  .responsive-columns .column .model-viewer-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-    display: block !important;
-  }
-  
-  /* Ensure the actual model-viewer element respects constraints */
-  .responsive-columns .column model-viewer {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    min-width: 0 !important;
-    height: auto !important;
-  }
-  
-  /* Ensure other components also respect constraints */
-  .responsive-columns .column .project-gallery,
+  /* Keeps a template-rendered image from overflowing a narrow column. Applies
+     to `type: 'image'` blocks, whose <figure>/<Image> this component emits
+     itself — unlike the island-rendered components above, these are stamped
+     with the scope and so are genuinely reachable from here. */
   .responsive-columns .column figure,
   .responsive-columns .column img {
     width: 100% !important;
@@ -175,30 +167,6 @@ function dedent(text: unknown): string {
     box-sizing: border-box !important;
   }
 
-  /* Additional constraint for direct model-viewer elements */
-  .responsive-columns .column > model-viewer {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-  }
-  
-  /* Ensure ModelViewer components render cleanly within columns */
-  .column model-viewer {
-    line-height: initial !important;
-    font-size: initial !important;
-    display: block !important;
-    min-height: 300px !important;
-  }
-  
-  /* Ensure ModelViewer containers maintain proper dimensions */
-  .column .model-viewer-container {
-    line-height: initial !important;
-    font-size: initial !important;
-    display: block !important;
-    width: 100% !important;
-    min-height: 300px !important;
-  }
-  
   /* Ensure figure/image spacing is predictable */
   .column figure {
     margin: 0;
@@ -644,11 +612,10 @@ function dedent(text: unknown): string {
     const galleryLoop = (gOpts.loop ?? block?.loop ?? true);
     const galleryAspect = (gOpts.aspectRatio ?? block?.aspectRatio);
 
-    // ModelViewer renders at height:auto and derives its box from aspectRatio,
-    // so a model column with neither aspectRatio nor an explicit height
-    // collapses to nothing — the canvas draws at zero height while the 300px
-    // min-height holds an empty container open. Default one in rather than
-    // leaving that trap for the next author.
+    // ModelViewer derives its box from aspectRatio, so a model column with
+    // neither aspectRatio nor an explicit height falls back to the component's
+    // fixed 16rem — which is rarely the framing an author wanted. Default a
+    // ratio in rather than leaving that to chance.
     const mOpts = block?.modelOptions || {};
     const modelOptions =
       mOpts.aspectRatio || mOpts.mobileAspectRatio || mOpts.height
@@ -673,7 +640,7 @@ function dedent(text: unknown): string {
                 `.prose > :first-child { margin-top: 0 }` only matches direct
                 children. The leading <p> kept its 1.25em top margin, which
                 looked like space reserved for an absent title. */}
-            <Fragment set:html={marked(dedent(block.content))} />
+            <Fragment set:html={markdown.parse(dedent(block.content))} />
           </div>
         )}
 
@@ -718,6 +685,8 @@ function dedent(text: unknown): string {
               metrics={block.metrics}
               competitions={block.competitions}
               competitionsOptions={block.competitionsOptions}
+              frontmatterTags={resolvedFrontmatterTags}
+              showTags={block.showTags}
               tags={block.tags || []}
               githubUrl={block.githubUrl}
               liveUrl={block.liveUrl}

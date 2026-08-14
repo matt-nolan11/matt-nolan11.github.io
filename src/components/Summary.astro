@@ -1,6 +1,7 @@
 ---
 import { formatProjectDate, calculateDuration } from '../utils/dateUtils';
 import { placementBadgeClass, formatPlacement } from '../utils/placement';
+import { markdown } from '../utils/markdown';
 
 interface CompetitionEntry {
   name: string;
@@ -39,7 +40,9 @@ interface Props {
   metrics?: Metrics;
   competitions?: CompetitionEntry[];
   competitionsOptions?: CompetitionsOptions;
-  tags?: string[];
+  tags?: string[]; // Legacy: tags in block config (deprecated in favor of frontmatterTags)
+  frontmatterTags?: string[]; // Tags from page frontmatter (source of truth)
+  showTags?: boolean; // Whether to display tags section (default: true if tags are available)
   githubUrl?: string;
   liveUrl?: string;
 }
@@ -55,9 +58,17 @@ const {
   competitions = [],
   competitionsOptions,
   tags = [],
+  frontmatterTags,
+  showTags,
   githubUrl,
   liveUrl
 } = Astro.props;
+
+// Use frontmatter tags (source of truth) if available, otherwise fall back to block tags
+const tagsToDisplay = frontmatterTags ?? tags;
+
+// Determine if tags should be shown: must be explicitly set to true AND tags are available
+const shouldShowTags = showTags === true && (frontmatterTags?.length || tags?.length);
 
 const titleSizeClass = 
   headerTitleSize === 'sm' ? 'text-lg' :
@@ -68,6 +79,18 @@ const titleSizeClass =
   headerTitleSize === '3xl' ? 'text-5xl' :
   headerTitleSize === '4xl' ? 'text-6xl' :
   'text-4xl';
+
+// Stat tile values go through the shared inline markdown parser, so a value can
+// carry a link (or emphasis, or code) — `[ACS72981](https://…)` in a customField
+// renders as a real anchor. parseInline rather than parse: the block parser
+// would wrap every value in a <p> and break the tile's layout. Value and unit
+// are joined first so the unit is not orphaned outside the parsed output.
+const metricFields = (metrics?.customFields ?? []).map((field) => ({
+  ...field,
+  valueHtml: markdown.parseInline(
+    `${field.value}${field.unit ? ` ${field.unit}` : ''}`,
+  ) as string,
+}));
 
 // Calculate competitions to show
 const maxDisplay = competitionsOptions?.maxDisplay ?? 3;
@@ -149,7 +172,7 @@ const hasRecords = competitions.some(comp => comp.record);
   
   <!-- Project Metrics -->
   {metrics?.customFields && metrics.customFields.length > 0 && (
-    <div class="mb-6">
+    <div class={(competitions?.length || shouldShowTags || githubUrl || liveUrl) ? "mb-6" : "mb-0"}>
       <h3 class="text-sm font-semibold mb-2 text-base-content">
         {metrics.sectionTitle || "Project Stats"}
       </h3>
@@ -158,14 +181,15 @@ const hasRecords = competitions.some(comp => comp.record);
           for the width where the two columns' heights meet, and it can only do
           that if height actually responds to width. */}
       <div class="grid grid-cols-1 @xs:grid-cols-2 @2xl:grid-cols-3 gap-2">
-        {metrics.customFields.map((field) => (
+        {metricFields.map((field) => (
           <div class="stat-tile">
             <div class="stat-tile-label">{field.label}</div>
-            <div class={`stat-tile-value ${
-              field.highlight && field.color ? `text-${field.color}` : ''
-            }`}>
-              {field.value}{field.unit ? ` ${field.unit}` : ''}
-            </div>
+            <div
+              class={`stat-tile-value ${
+                field.highlight && field.color ? `text-${field.color}` : ''
+              }`}
+              set:html={field.valueHtml}
+            />
           </div>
         ))}
       </div>
@@ -174,7 +198,7 @@ const hasRecords = competitions.some(comp => comp.record);
   
   <!-- Competition History -->
   {competitions && competitions.length > 0 && (
-    <div class="mb-6">
+    <div class={(shouldShowTags || githubUrl || liveUrl) ? "mb-6" : "mb-0"}>
       {/* One layout that reflows rather than two swapped ones. Narrow: name
           stacked over date, two lines per row. Wide: they sit side by side,
           one line per row — half the height. That swing is what gives the
@@ -237,11 +261,11 @@ const hasRecords = competitions.some(comp => comp.record);
   )}
   
   <!-- Tags -->
-  {tags && tags.length > 0 && (
-    <div class="mb-6">
+  {shouldShowTags && (
+    <div class={(githubUrl || liveUrl) ? "mb-6" : "mb-0"}>
       <h3 class="text-sm font-semibold mb-2 text-base-content">Tags</h3>
       <div class="flex flex-wrap gap-2">
-        {tags.map(tag => (
+        {tagsToDisplay.map(tag => (
           <a href={`/tags/${tag}/`} class="badge badge-outline tag-hover-light-blue transition-colors text-base-content no-underline font-normal">
             {tag}
           </a>

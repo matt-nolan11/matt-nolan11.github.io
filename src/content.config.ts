@@ -14,6 +14,12 @@ import { defineCollection, z } from "astro:content";
  *   - custom string: shows your custom title
  *   - empty string "": hides the header completely
  *
+ * Tags and Summary:
+ * - Tags are defined in the page frontmatter (source of truth for categorization)
+ * - To display tags in Summary elements, pass frontmatterTags prop to ModularSection
+ * - Example: <ModularSection frontmatterTags={["tag1", "tag2"]} columns={[...]} />
+ * - The showTags prop on summary blocks controls tag visibility (default: true if tags available)
+ *
  * Version header support:
  * - Optional header information for each version in the same format as main project header
  * - headerTitle: separate title for version header (defaults to title)
@@ -84,7 +90,8 @@ export const collections = {
             .optional(),
           // For summary columns (project info display)
           summaryTitle: z.string().optional(),
-          // For video columns (YouTube embed)
+          summaryDescription: z.string().optional(),
+          showTags: z.boolean().optional(), // Whether to display tags in summary (default: true if tags available). Tags come from page frontmatter or block.tags
           videoId: z.string().optional(),
           videoTitle: z.string().optional(),
           videoAspect: z.string().optional(),
@@ -131,7 +138,7 @@ export const collections = {
               maxDisplay: z.number().optional(),
             })
             .optional(),
-          tags: z.array(z.string()).optional(),
+          tags: z.array(z.string()).optional(), // DEPRECATED: Use page frontmatter tags instead. This is kept for backward compatibility only.
           githubUrl: z.string().url().optional(),
           liveUrl: z.string().url().optional(),
           // For nested sections

@@ -1,10 +1,89 @@
 ---
 title: "Smart RC Power Meter"
-# Hides this project from every listing and stops its page being built.
-# Remove once there is real content here.
-draft: true
+description: "An RC power meter that measures voltage and current, and uses DSHOT to pull ESC telemetry, with motor control, live-plotting, and data logging using a web app"
+startDate: "2025-06"
+status: "in-progress"
+# draft: true
+tags: ["electronics", "embedded systems", "RP2040", "telemetry", "gui", "prototype"]
+cover: ./images/liveData.png
+liveUrl: https://matt-nolan11.github.io/Power-Meter-Web-App/
 ---
 
 import UnderConstruction from '../../../components/UnderConstruction.astro';
+import ModularSection from '../../../components/ModularSection.astro';
+import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
 
-<UnderConstruction message="This project page is still being written — check back soon." />
+import withCaseImage from './images/withCase.jpg';
+import withoutCaseImage from './images/withoutCase.jpg';
+import escConfigImage from './images/escConfig.png';
+import liveDataImage from './images/liveData.png';
+
+<ModularSection
+  columns={[
+    {
+      type: "gallery",
+      width: 50,
+      gallery: [
+        { src: liveDataImage, caption: "The web app allows the user to add data cards and live plots for a wide range of telemetry items" },
+        { src: escConfigImage, caption: "The web app also allows for configuring the ESC and control settings" },
+        { src: withCaseImage, caption: "The Smart RC Power Meter prototype in a 3D printed case" },
+      ],
+      galleryOptions: {
+        autoplay: true,
+        autoplayInterval: 5000,
+        showThumbnails: true
+      }
+    },
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "summary",
+            summaryTitle: "Smart RC Power Meter",
+            summaryDescription: "An RC power meter that measures voltage and current, and uses DSHOT to pull ESC telemetry, with motor control, live-plotting, and data logging using a web app",
+            startDate: "2025-06",
+            status: "in-progress",
+            headerTitleSize: "2xl",
+            showTags: true,
+            metrics: {
+              sectionTitle: "Quick Facts",
+              customFields: [
+                { label: "Voltage Range", value: "6-60V" },
+                { label: "Current Range", value: "0-150A" },
+                { label: "ESC Control Protocols", value: "PWM, DSHOT" },
+                { label: "Microcontroller", value: "RP2040" },
+                { label: "Web App", value: "React + Typescript + Vite" },
+                { label: "Data Rate", value: "100Hz" }
+              ]
+            },
+            githubUrl: "https://github.com/matt-nolan11/Smart-RC-Power-Meter",
+            liveUrl: "https://matt-nolan11.github.io/Power-Meter-Web-App/"
+        },
+        {
+          type: "content",
+          content: `
+          ## Overview
+          This Smart RC Power Meter is designed to provide real-time telemetry and control for bench-testing RC vehicles. It measures voltage and current directly, and can control RC devices using PWM or DSHOT protocols. When using DSHOT with supported ESCs, it can pull telemetry data from supported ESCs, providing access to further information such as motor RPM, ESC temperature, and more. The device uses Bluetooth to communicate with a web app, providing ESC configuration, throttle control, live data plotting, and data logging.
+          `
+        }
+      ]
+    }
+  ]}  
+/>
+
+This project arose from my experience using [cheap RC power meters](https://a.co/d/0e0ee2rX) that measure voltage and current. These meters are inexpensive and simple, but they have no data logging, no plotting, and no way to control the ESC throttle. Most modern ESC's also have internally tracked telemetry for voltage, current, temperature, and RPM estimation based on back-EMF (this RPM estimation is actually the basis for most sensorless motor control strategies, and the ESC relies on it to commutate correctly). I wanted a smarter solution that could provide real-time telemetry and data logging.
+
+<ProjectVersionsSection 
+  sectionTitle="Development"
+  titleDepth={1}
+  tabStyle="bordered"
+  tabWidth="100px"
+  tabHeight="24px"
+  fontSize="1rem"
+  className="mt-12" 
+  defaultTab="Prototype 1"
+/>
+
+
+

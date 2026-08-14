@@ -87,9 +87,8 @@ import spinnyV3Model from './3Dmodels/spinny_boiii_v3.glb';
       modelAlt: "Interactive 3D model of spinny boiii version 3.0",
       modelCaption: "spinny boiii version 3.0 with its CNC-machined S7 tool steel beater bar weapon and thick TPU armor",
       modelOptions: {
-        // Required for the viewer to have any height: it renders at
-        // height:auto, so without an aspectRatio (or an explicit height) the
-        // element collapses and only the 300px min-height holds the box open.
+        // Sets the viewer's box. Without an aspectRatio (or an explicit
+        // height) it falls back to a fixed 16rem, which crops the framing.
         aspectRatio: "4:3",
         mobileAspectRatio: "1:1",
         // "theta phi radius" — theta spins the camera around the vertical
