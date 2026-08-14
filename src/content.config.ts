@@ -1,5 +1,9 @@
 import { glob } from "astro/loaders";
 import { defineCollection, z } from "astro:content";
+// `astro:content` re-exports `z` as a value only, so `z.ZodType` is not usable
+// as a type annotation. The underlying zod build is reachable at astro/zod,
+// which is where the type has to come from.
+import type { ZodType } from "astro/zod";
 
 /**
  * Content collections schema for the portfolio site.
@@ -39,7 +43,9 @@ export const collections = {
     }),
     schema: ({ image }) => {
       // Create typed column schema for posts
-      const typedColumnSchema: z.ZodType<any> = z.lazy(() =>
+      // The annotation is load-bearing, not decoration: `sections` nests this
+      // same schema inside itself, and TypeScript cannot infer a recursive type.
+      const typedColumnSchema: ZodType<any> = z.lazy(() =>
         z.object({
           type: z.enum(["content", "gallery", "image", "model", "summary", "video"]),
           title: z.string().optional(),
@@ -100,7 +106,6 @@ export const collections = {
           videoMuted: z.boolean().optional(),
           videoControls: z.boolean().optional(),
           videoCaption: z.string().optional(),
-          summaryDescription: z.string().optional(),
           startDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
           endDate: z.union([z.date(), z.string().regex(/^\d{4}-\d{2}$/)]).optional(),
           status: z.enum(["completed", "in-progress", "active", "paused", "planned"]).optional(),

@@ -97,18 +97,29 @@ export async function getRelatedContent(
   // Filter to only include main project files (index.mdx), not version files
   const mainProjects = projects.filter(isMainEntry);
 
+  // `sortDate` is resolved here, inside each collection's own map, rather than
+  // in the sort below. Once the two lists concatenate, `type` and `data` become
+  // independent properties of one widened object type — checking `type ===
+  // 'project'` no longer tells TypeScript anything about the shape of `data`,
+  // so reading `data.endDate` off the merged list does not compile. Each branch
+  // still knows its concrete collection at this point.
   const allContent = [
     ...mainProjects.map((p) => ({
       id: p.id,
       type: 'project' as const,
       slug: getEntrySlug(p),
       data: p.data,
+      // Projects sort by when work last happened; the epoch fallback keeps a
+      // project with neither date from crashing the comparator.
+      sortDate: p.data.endDate ?? p.data.startDate ?? new Date(0),
     })),
     ...posts.map((p) => ({
       id: p.id,
       type: 'post' as const,
       slug: getEntrySlug(p),
       data: p.data,
+      // Posts sort by publish date, which the schema requires.
+      sortDate: p.data.date,
     }))
   ];
 
@@ -126,6 +137,7 @@ export async function getRelatedContent(
         type: content.type,
         slug: content.slug,
         data: content.data,
+        sortDate: content.sortDate,
         relevanceScore,
         sharedTags,
       };
@@ -135,14 +147,7 @@ export async function getRelatedContent(
       if (b.relevanceScore !== a.relevanceScore) {
         return b.relevanceScore - a.relevanceScore;
       }
-      // Handle different date structures for projects vs posts
-      const aDate = a.type === 'project' 
-        ? (a.data.endDate || a.data.startDate)
-        : a.data.date;
-      const bDate = b.type === 'project' 
-        ? (b.data.endDate || b.data.startDate) 
-        : b.data.date;
-      return getSortableDate(bDate).getTime() - getSortableDate(aDate).getTime();
+      return getSortableDate(b.sortDate).getTime() - getSortableDate(a.sortDate).getTime();
     })
     .slice(0, limit);
 
