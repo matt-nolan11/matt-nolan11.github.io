@@ -90,12 +90,10 @@ import printerModel from './3DModels/3DPrinter.glb';
           title: "Features",
           content: `
           - Linear rails on all axes for maximal rigidity and precision
-          - CoreXY kinematics and NEMA 17 stepper motors for fast and precise movement
           - Direct drive extruder for better filament control, especially with flexible filaments
           - Auto-bed-leveling using a BLTouch sensor
-          - Heated build plate with a 750W AC heater, for fast, even heating to minimize warping
-          - Removable glass build plate
-          - Magnetic sheet for use with PEI spring steel flex build plates
+          - Filament run-out sensor
+          - 750W AC heated bed, with glass and flex PEI build platform options
 
           `
         }
@@ -107,35 +105,29 @@ import printerModel from './3DModels/3DPrinter.glb';
 <ModularSection
   columns={[
     {
-      type: "content",
-      title: "Background",
-      width: 50,
-      content: `
-      The 3D model of the printer is available for viewing below. It was created in Fusion 360, and is a complete representation of the printer, including all mechanical and electrical components.
-      `
+      type: "model",
+      modelSrc: printerModel,
+      modelAspect: "9:16",
+      modelAlt: "3D model of the custom 3D printer",
+      modelCaption: "The printer was fully modeled in a Solidworks assembly of 200+ parts. The motor brackets were revised from the initial version shown in other pictures",
+      modelOptions: {
+        aspectRatio: "1:1",
+        mobileAspectRatio: "1:1"
+      }
     },
     {
-      type: "stack",
+      type: "gallery",
       width: 50,
-      items: [
-        {
-          type: "model",
-          modelSrc: printerModel,
-          modelAlt: "3D model of the custom 3D printer"
-        },
-        {
-          type: "gallery",
-          gallery: [
-            { src: frameImage, caption: "The printer frame is made from 20x20mm aluminum extrusion, with custom machined aluminum brackets for the corners" },
-            { src: buildPlateImage, caption: "The build plate is heated using a 750W AC heater, and is removable for easy part removal" },
-            { src: zBeltImage, caption: "The Z-axis uses a belt-driven system for fast and precise movement" },
-            { src: axesStartImage, caption: "The printer uses CoreXY kinematics for fast and precise movement" },
-            { src: headWiringInProgressImage, caption: "The print head wiring is in progress, with the hotend and extruder mounted on the carriage" },
-            { src: headDoneImage, caption: "The completed print head assembly, with the hotend, extruder, and part cooling duct" },
-            { src: electronicsImage, caption: "The electronics are mounted on a custom 3D printed enclosure, with a Raspberry Pi running OctoPrint" },
-            { src: electronics2Image, caption: "The electronics enclosure houses the mainboard, power supply, and Raspberry Pi" }
-          ]
-        }
+      gallery: [
+        { src: frameImage, caption: "The build began with the frame, which is made from 2020 aluminum extrusion and COTS brackets" },
+        { src: zBeltImage, caption: "Initial assembly of the Z-axis belt-driven leadscrew mechanism. The printed brackets can be positioned on the extrusion to set the belt tension" },
+        { src: axesStartImage, caption: "Getting the linear rails, coreXY pullies, and motor brackets mounted" },
+        { src: buildPlateImage, caption: "The glass build platform rests on an aluminum plate with a 750W silicone heater pad on the bottom. This plate mounts to the sub-frame with stiff yellow springs in each corner, so the bed can be coarsely leveled" },
+        { src: printHeadStartImage, caption: "Starting the print head assembly with a bracket to mount the extruder / nozzle, the touch probe, and a cooling fan"},
+        { src: headDoneImage, caption: "The completed print head assembly (pre-wiring), with the hotend, extruder, and part cooling duct" },
+        { src: electronicsImage, caption: "The electronics are mounted to laser-cut acrylic enclosures, and are separated into mains and non-mains boxes" },
+        { src: electronics2Image, caption: "The rear electronics enclosure mounts the mains-voltage components, including the power input jack (with button and fuse), the 24V switching power supply, and the solid-state relay responsible for switching the AC-powered bed heater" },
+        { src: done2Image, caption: "The completed 3D printer build"}
       ]
     }
   ]}
@@ -146,15 +138,21 @@ import printerModel from './3DModels/3DPrinter.glb';
   columns={[
     {
       type: "content",
-      title: "Challenges",
       width: 80,
       content: `
-      The main challenges in building this printer were in the mechanical design and assembly. The CoreXY kinematics required precise alignment of the belts and pulleys, and the linear rails required careful mounting to ensure smooth movement. The heated bed also required careful wiring and insulation to prevent electrical hazards. Overall, the project was a great learning experience in mechanical design, electronics, and 3D printing.
-      - test
-      - test
-      - test
-      - test
-      - test
+      ### Background
+      In January of 2019, I started working at the Fulton 3D Print and Laser Cutter Lab at ASU, where I fell in love with 3D printing. I had free access to use the lab's printers, but our customers' print jobs always took priority over personal projects, and we were quite busy. I decided to buy my own printer, but after spending months researching the consumer market, I couldn't find any options that fit both my desired features and my limited budget.
+
+      During my search, I came across a custom build by Australian Youtuber Tech2C called the [Hypercube](https://www.thingiverse.com/thing:1752766). This machine boasted great performance and features for its cost. Inspired, I began to design my own 3d printer. After applying some vendor coupons, I got the cost down to ~$600. By June 2020, I had finished most of the calibration and the printer was fully up and running. The quality and speed of the resulting prints vastly out-performed the $2k Makerbot Replicator+ machines that we were using in the ASU print lab, and it competed with our Ultimaker S5 and Prusa machines as well. This machine became my primary project manufacturing tool over the next 4 years, producing parts for my other projects such as my combat robots, capstone, MS applied project, and more. 
+
+      ### Key Design Decisions
+
+      | Feature | Decision | Rationale |
+      | --- | --- | --- |
+      | Extruder Type | Direct Drive | Much better filament control, especially on flexible materials. Relatively high moving mass is compensated for with stiff linear rails |
+      | XY Kinematics | coreXY | This parallel mechanism is more complex than some alternatives, but it minimizes the moving mass, and allow the X and Y motors to work together on a majority of the movements |
+      | Linear Motion Components | Linear Rails | High cost compared to cylindrical linear bearings on rods, but each one constrains more DOFs, making the design and assembly easier. Still within budget |
+
       `
     },
     {
@@ -165,5 +163,3 @@ import printerModel from './3DModels/3DPrinter.glb';
     }
   ]}
 />
-
-<UnderConstruction message="This project page is still being written — check back soon." />
