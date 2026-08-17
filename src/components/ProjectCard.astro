@@ -6,12 +6,14 @@
  *   project      – A projects collection entry
  *   activeTag    – If set, this tag gets `badge-primary` styling (used on tag pages)
  *   maxTags      – Max tags to show before "+N more" (default: 3, use Infinity to show all)
- *   showActions  – Show GitHub / Live Demo buttons (default: false)
+ *   showActions  – Show the GitHub button and the project's `links` (default: false)
  *   headingLevel – 'h2' | 'h3' for the title element (default: 'h2')
  */
 import { Image } from 'astro:assets';
 import { formatProjectDate } from '../utils/dateUtils';
 import { getEntrySlug } from '../utils/contentUtils';
+import { resolveLinks } from '../utils/linkButtons';
+import LinkButtonIcon from './LinkButtonIcon.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -57,6 +59,10 @@ const statusLabel =
   : 'Planned';
 
 const Heading = headingLevel;
+
+// Same resolution the project page's Summary uses, so a link's label, colour
+// and glyph match in the grid and on the page — only the sizing differs.
+const actionLinks = resolveLinks(data.links);
 ---
 
 <article
@@ -84,7 +90,10 @@ const Heading = headingLevel;
     )}
   </figure>
 
-  <div class="absolute top-2 right-2 z-50">
+  {/* z-20 to clear the full-card overlay link (z-10), and no higher: at z-50
+      this tied with the sticky navbar and, being later in the DOM, painted
+      over it while scrolling. */}
+  <div class="absolute top-2 right-2 z-20">
       <div class="tooltip tooltip-bottom tooltip-bottom-end" data-tip={
       data.status === 'completed' ? 'This project is finished, and no new development is currently planned'
       : data.status === 'in-progress' ? 'This project is under active development'
@@ -123,28 +132,20 @@ const Heading = headingLevel;
     <div class="flex justify-between items-center">
       <span class="text-sm text-base-content/60">{dateLabel}</span>
 
+      {/* Wraps: a project can carry more links than fit on one card row. */}
       {showActions && (
-        <div class="flex gap-2">
-          {data.githubUrl && (
+        <div class="flex flex-wrap justify-end gap-2">
+          {actionLinks.map(link => (
             <a
-              href={data.githubUrl}
-              class="btn btn-sm btn-outline relative z-20"
+              href={link.url}
+              class={`btn btn-sm ${link.colorClass} relative z-20`}
               target="_blank"
               rel="noopener noreferrer"
             >
-              GitHub
+              {link.iconDef && <LinkButtonIcon icon={link.iconDef} class="w-3.5 h-3.5" />}
+              {link.label}
             </a>
-          )}
-          {data.liveUrl && (
-            <a
-              href={data.liveUrl}
-              class="btn btn-sm btn-outline relative z-20"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Live Demo
-            </a>
-          )}
+          ))}
         </div>
       )}
     </div>

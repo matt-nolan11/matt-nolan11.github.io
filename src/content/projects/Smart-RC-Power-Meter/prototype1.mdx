@@ -60,25 +60,44 @@ import withoutCase2Image from './images/withoutCase2.jpg';
   ]}
 />
 
-### Initial Feedback
-Early feedback from the combat robotics community has been positive, and builders expressed that they generally want more insight into what their electronics are doing. The device can be used to measure the voltage sag that occurs when spinning up a large weapon, or monitor current draw near full throttle to estimate how large the bot's battery should be. It can also be used to approximate the real tip speed of a weapon using the DSHOT RPM telemetry. These were all appealing use-cases.
+<ModularSection
+  columnGap="10rem"
+  columns={[
+    {
+      type: "content",
+      title: "Initial Feedback",
+      width: 50,
+      content: `
+      Early feedback from the combat robotics community has been positive, and builders expressed that they generally want more insight into what their electronics are doing. The device can be used to measure the voltage sag that occurs when spinning up a large weapon, or monitor current draw near full throttle to estimate how large the bot's battery should be. It can also be used to approximate the real tip speed of a weapon using the DSHOT RPM telemetry. These were all appealing use-cases.
 
-However, builders were also concerned about the size of the device, which effectively requires any testing to be done on a bench, with the robot's electronics exposed. If not secured properly, this could cause safety issues when operating a heavy or large weapon. It also can't be used to measure events in-situ, like what happens during large weapon impacts, etc. Some builders proposed more of a small "black box" design that could be installed inside the robot and log data during actual matches. Possible alternative designs:
+      However, builders were also concerned about the size of the device, which effectively requires any testing to be done on a bench, with the robot's electronics exposed. If not secured properly, this could cause safety issues when operating a heavy or large weapon. It also can't be used to measure events in-situ, like what happens during large weapon impacts, etc. Some builders proposed more of a small "black box" design that could be installed inside the robot and log data during actual matches. Possible alternative designs:
 
-- Smaller device that records to an SD card or local flash memory, and can be downloaded after the match like a black box
-  - Would have to sit between the RC radio receiver and the ESCs
-- Same as above, but streams live data to a phone or laptop via Bluetooth
-- Custom RC radio receiver that adds on the above functionality (either black-box or live-streaming)
+      - Smaller device that records to an SD card or local flash memory, and can be downloaded after the match like a black box
+      - Would have to sit between the RC radio receiver and the ESCs
+      - Same as above, but streams live data to a phone or laptop via Bluetooth
+      - Custom RC radio receiver that adds on the above functionality (either black-box or live-streaming)
 
-The above ideas would require a very different direction, enough to be considered its own project. This project, therefore, will continue to focus on refining the current bench power meter concept.
+      The above ideas would require a very different direction, enough to be considered its own project. This project, therefore, will continue to focus on refining the current bench power meter concept.
+      `
+    },
+    {
+      type: "content",
+      title: "Next Steps",
+      width: 50,
+      content: `
+      - More robust DSHOT implementation
+      - Some ESC's handle arming and telemetry differently, so the code needs to be more robust to handle these differences
+      - Use logic analyzer to decode the signal and verify the timing
+      - Increase number of motor control outputs
+      - Decide between keeping the hall effect current sensor or switching to a shunt resistor
+      - Design a custom PCB to replace the dev boards, and make the device smaller and more robust
+      `
+    }
+  ]}
+/>
 
-### Next Steps
-- More robust DSHOT implementation
-  - Some ESC's handle arming and telemetry differently, so the code needs to be more robust to handle these differences
-  - Use logic analyzer to decode the signal and verify the timing
-- Increase number of motor control outputs
-- Decide between keeping the hall effect current sensor or switching to a shunt resistor
-- Design a custom PCB to replace the dev boards, and make the device smaller and more robust
+
+
 
 
   

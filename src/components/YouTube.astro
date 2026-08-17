@@ -29,14 +29,21 @@ const {
 
 // Parse aspect ratio into CSS aspect-ratio value (w/h)
 let aspectStyle = '16 / 9';
+let aspectRatio = 16 / 9;
 try {
   if (typeof aspect === 'string' && aspect.includes(':')) {
     const [w, h] = aspect.split(':').map((n) => parseFloat(n));
     if (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) {
       aspectStyle = `${w} / ${h}`;
+      aspectRatio = w / h;
     }
   }
 } catch {}
+
+// Shorts, and any other vertical phone footage. These need different handling
+// from landscape in two places — the width cap in the styles below, and the
+// poster — so the ratio decides it once rather than each author remembering.
+const isPortrait = aspectRatio < 1;
 
 const params = new URLSearchParams({
   rel: '0',
@@ -70,7 +77,20 @@ const clickSrc = `https://www.youtube-nocookie.com/embed/${id}?${clickParams.toS
 
 // hqdefault always exists for every video; maxresdefault 404s on older ones.
 // It is 4:3 with letterboxing, which object-fit: cover crops back off.
-const posterSrc = poster || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+//
+// Vertical videos ask for oardefault ("original aspect ratio") instead, which
+// is the full 1080x1920 frame. Their hqdefault is the vertical frame shrunk
+// into the middle of the 4:3 box with a blurred zoom filling the sides; the
+// cover crop lands on the frame exactly (360 * 9/16 = 202.5px of the 480px
+// width, centred) but upscales that 202px-wide region across the whole embed,
+// which is visibly soft. oardefault is not generated for landscape uploads,
+// so it stays a portrait-only path — and not every vertical upload has one
+// either, hence the fallback wired up in the script below.
+const posterSrc =
+  poster ||
+  `https://i.ytimg.com/vi/${id}/${isPortrait ? 'oardefault' : 'hqdefault'}.jpg`;
+const posterFallback =
+  !poster && isPortrait ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : undefined;
 
 // Only overlay a title the author actually supplied — the "YouTube video"
 // default is placeholder text for the iframe's accessible name, not a caption.
@@ -91,6 +111,29 @@ const hasTitle = Boolean(Astro.props.title);
     height: 100%;
     border: 0;
     display: block;
+  }
+
+  /* Portrait embeds cap their width against the viewport *height* rather than
+     running full-bleed. Columns collapse to one below 1024px, and 9:16 across a
+     stacked tablet column is ~1600px tall — several screenfuls.
+
+     Capping width rather than height is deliberate: max-height would win over
+     aspect-ratio and leave a too-wide box with the video letterboxed inside it,
+     whereas shrinking the width keeps the ratio exact and just makes the whole
+     embed smaller.
+
+     svh, not dvh or vh: dvh reflows the embed every time the mobile URL bar
+     hides, and vh on iOS Safari is the tall-bar height, so the video overflows
+     on first paint. The vh line is the fallback for browsers without svh.
+
+     Selector is `.yt-embed > .yt-portrait`, not `.yt-portrait`: the whitespace
+     reset above sets `margin: 0` on `.yt-embed > div`, which at (0,1,1) beats a
+     lone class and left-aligns the embed with every pixel of slack piled on its
+     right. Matching that specificity is what actually centres it. */
+  .yt-embed > .yt-portrait {
+    max-width: min(100%, calc(80vh * var(--yt-ar)));
+    max-width: min(100%, calc(80svh * var(--yt-ar)));
+    margin-inline: auto;
   }
 
   .yt-facade {
@@ -163,8 +206,11 @@ const hasTitle = Boolean(Astro.props.title);
 
 <figure class={`yt-embed w-full ${className}`}>
   <div
-    style={`aspect-ratio: ${aspectStyle};`}
-    class="yt-frame w-full rounded-lg overflow-hidden bg-base-200"
+    style={`aspect-ratio: ${aspectStyle};${isPortrait ? ` --yt-ar: ${aspectRatio};` : ''}`}
+    class:list={[
+      'yt-frame w-full rounded-lg overflow-hidden bg-base-200',
+      isPortrait && 'yt-portrait',
+    ]}
   >
     {eager ? (
       <iframe
@@ -186,12 +232,13 @@ const hasTitle = Boolean(Astro.props.title);
       >
         <img
           src={posterSrc}
+          data-yt-poster-fallback={posterFallback}
           alt=""
           loading="lazy"
           decoding="async"
           class="yt-poster"
-          width="480"
-          height="360"
+          width={isPortrait ? 1080 : 480}
+          height={isPortrait ? 1920 : 360}
         />
         {hasTitle && <span class="yt-title" aria-hidden="true">{title}</span>}
         <span class="yt-play" aria-hidden="true">
@@ -238,6 +285,63 @@ const hasTitle = Boolean(Astro.props.title);
     );
     if (facade) injectPlayer(facade);
   });
+
+  /**
+   * Vertical videos request oardefault.jpg, which only exists when the upload
+   * really is vertical. Fall back to hqdefault when it is not there — the case
+   * an author hits by giving a landscape video a portrait `aspect`.
+   *
+   * Detected on load, by size, rather than on error. A missing oardefault
+   * answers HTTP 404 *with* a decodable 1097-byte body: YouTube's 120x90 grey
+   * placeholder. <img> ignores the status code and decodes the body, so `error`
+   * never fires and only the dimensions give it away. A genuine original-aspect
+   * thumbnail is an order of magnitude larger (1080x1920 for the Short here).
+   *
+   * Capture phase, because load does not bubble. The attribute is cleared
+   * before the swap so a second load event cannot loop.
+   */
+  const PLACEHOLDER_MAX_WIDTH = 120;
+
+  function resolvePoster(img: HTMLImageElement, failed: boolean) {
+    const fallback = img.dataset.ytPosterFallback;
+    if (!fallback) return;
+    if (!failed && img.naturalWidth > PLACEHOLDER_MAX_WIDTH) {
+      delete img.dataset.ytPosterFallback; // real thumbnail, nothing to do
+      return;
+    }
+    delete img.dataset.ytPosterFallback;
+    img.src = fallback;
+  }
+
+  for (const [type, failed] of [
+    ['load', false],
+    ['error', true],
+  ] as const) {
+    document.addEventListener(
+      type,
+      (event) => {
+        const img = event.target;
+        if (img instanceof HTMLImageElement) resolvePoster(img, failed);
+      },
+      true
+    );
+  }
+
+  /**
+   * Posters that finished loading before this script ran never fired an event
+   * we could hear, so check them directly. A cached thumbnail on a warm reload
+   * lands well before module execution.
+   */
+  function sweepLoadedPosters() {
+    document
+      .querySelectorAll<HTMLImageElement>('img[data-yt-poster-fallback]')
+      .forEach((img) => {
+        if (img.complete) resolvePoster(img, img.naturalWidth === 0);
+      });
+  }
+
+  sweepLoadedPosters();
+  document.addEventListener('astro:page-load', sweepLoadedPosters);
 
   // Warm up the connection on intent, so the click itself feels immediate.
   let warmed = false;

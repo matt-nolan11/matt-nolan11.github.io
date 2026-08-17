@@ -36,8 +36,11 @@ const formattedUpdated = data.updated
 const Heading = headingLevel;
 ---
 
+{/* `isolate` keeps the overlay link (z-10) and tag badges (z-20) inside this
+    card's own stacking context, rather than letting them resolve against the
+    root alongside the navbar. See .project-card in global.css. */}
 <article
-  class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative"
+  class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-xl overflow-hidden border border-base-300 h-full relative isolate"
 >
   <a
     href={`/posts/${slug}/`}

@@ -10,6 +10,11 @@ const {
   columns,
   class: className,
   style: styleProp,
+  // Spacing between columns, as any CSS length. The vertical counterpart is a
+  // column's own `stackGap`. Applies at every column count, and below the
+  // 1024px breakpoint — where the grid collapses to one column — it becomes
+  // the spacing between the stacked columns instead.
+  columnGap = '1.5rem',
   autoBalance = true,
   // Wide enough that the solver settles on shape rather than on a clamp.
   //
@@ -18,6 +23,11 @@ const {
   // sections against opposite ends. Now that Summary is tall-and-narrow by
   // construction, the height curves actually cross inside this range.
   balanceRange = [30, 72],
+  // Order the columns take once the layout collapses below 1024px. Either
+  // 'reverse', or an array of 1-based column numbers listed top-to-bottom —
+  // `[2, 1]` stacks the second column above the first. Omitted, columns stack
+  // in authored order.
+  stackOrder,
   frontmatterTags,
 } = Astro.props;
 
@@ -32,6 +42,62 @@ if (!columns || columns.length === 0) {
 // `width` still drives SSR/no-JS/mobile; the client just refines it from there.
 const canBalance = autoBalance !== false && columns.length === 2;
 const [balanceMin, balanceMax] = balanceRange;
+
+/**
+ * Turn the authored `stackOrder` into one CSS `order` value per column.
+ *
+ * The prop is written the way an author thinks about the stack — "column 2,
+ * then column 1", i.e. a list of column numbers in the order they should
+ * appear — while CSS wants the inverse mapping, a position for each column in
+ * its authored place. Returns null when the columns should stack as authored.
+ *
+ * Nothing here reorders the DOM: the reordering is CSS-only and scoped to the
+ * narrow breakpoint (see `.stack-ordered` below). That keeps the desktop
+ * arrangement, the reading order for screen readers and the height balancer —
+ * which indexes `cols[0]`/`cols[1]` by DOM position — all untouched.
+ */
+function resolveStackOrder(spec: unknown, count: number): number[] | null {
+  if (spec === undefined || spec === null || spec === false) return null;
+
+  if (spec === 'reverse') {
+    return Array.from({ length: count }, (_, i) => count - i);
+  }
+
+  if (!Array.isArray(spec)) {
+    throw new Error(
+      `ModularSection: stackOrder must be 'reverse' or an array of column ` +
+        `numbers, got ${JSON.stringify(spec)}`
+    );
+  }
+
+  if (spec.length !== count) {
+    throw new Error(
+      `ModularSection: stackOrder lists ${spec.length} column(s) but the ` +
+        `section has ${count} — every column must appear exactly once`
+    );
+  }
+
+  const positions = new Array<number>(count);
+  spec.forEach((column, index) => {
+    const n = Number(column);
+    if (!Number.isInteger(n) || n < 1 || n > count) {
+      throw new Error(
+        `ModularSection: stackOrder entry ${JSON.stringify(column)} is not a ` +
+          `column number between 1 and ${count}`
+      );
+    }
+    if (positions[n - 1] !== undefined) {
+      throw new Error(
+        `ModularSection: stackOrder lists column ${n} more than once`
+      );
+    }
+    positions[n - 1] = index + 1;
+  });
+
+  return positions;
+}
+
+const stackOrders = resolveStackOrder(stackOrder, columns.length);
 
 /**
  * Strip the common leading indentation from a `content` string.
@@ -129,11 +195,19 @@ function dedent(text: unknown): string {
     min-width: 0; /* Prevent overflow */
   }
 
+  /* The one place column spacing is declared, for every column count — the
+     two-column grid below, the 3/4-column grids, and the single-column flex
+     row. The fallback matches the `columnGap` prop's default; the prop feeds
+     --column-gap as an inline custom property. An inline `style="gap: …"` on
+     the section still overrides this, since the shorthand beats a class rule. */
+  .modular-section {
+    gap: var(--column-gap, 1.5rem);
+  }
+
   /* Responsive columns using CSS Grid with dynamic custom properties */
   .responsive-columns {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
   }
   
   @media (min-width: 1024px) {
@@ -181,6 +255,21 @@ function dedent(text: unknown): string {
   .column {
     word-wrap: break-word;
     overflow-wrap: break-word;
+  }
+
+  /* `stackOrder` re-sequences the columns once the layout leaves its full
+     side-by-side arrangement, which every column count does at 1024px — the
+     2-column grid collapses to `1fr`, the 1-column flex row to `flex-col`, and
+     the 3/4-column grids drop to the `md` two-across (or single) grid. Above
+     that the property is unset, so desktop keeps the authored order.
+
+     `order` works the same on grid items and flex items, so this one rule
+     covers all of those layouts. The custom property is set inline per column;
+     the fallback keeps a column in place if one were ever missed. */
+  @media (max-width: 1023.98px) {
+    .stack-ordered {
+      order: var(--stack-order, 0);
+    }
   }
 
 </style>
@@ -592,10 +681,12 @@ function dedent(text: unknown): string {
   };
 
   const col1Width = getCol1Width(columns);
-  const gridStyleStr = columns.length === 2
-    ? `--col1-width: ${col1Width}fr; --col2-width: ${100 - col1Width}fr`
-    : '';
-  const finalStyle = styleProp ? `${gridStyleStr}; ${styleProp}` : gridStyleStr;
+  // styleProp goes last so an author's inline style still wins over both.
+  const finalStyle = [
+    columns.length === 2 ? `--col1-width: ${col1Width}fr; --col2-width: ${100 - col1Width}fr` : '',
+    `--column-gap: ${columnGap}`,
+    styleProp,
+  ].filter(Boolean).join('; ');
 
   // Renders a single content block (video, gallery, image, content, summary, model).
   // Used both for a column's own type and for each item inside a "stack" column.
@@ -688,8 +779,7 @@ function dedent(text: unknown): string {
               frontmatterTags={resolvedFrontmatterTags}
               showTags={block.showTags}
               tags={block.tags || []}
-              githubUrl={block.githubUrl}
-              liveUrl={block.liveUrl}
+              links={block.links}
             />
           </div>
         )}
@@ -717,10 +807,15 @@ function dedent(text: unknown): string {
           </div>
         )}
 
+        {/* `title` has no 'Video' default on purpose: YouTube.astro overlays
+            the title on the facade, so supplying one here meant every untitled
+            embed showed the literal word "Video". Left undefined, the component
+            falls back to its own placeholder for the iframe's accessible name
+            and draws no overlay. */}
         {block.type === 'video' && block.videoId && (
           <YouTube
             id={block.videoId}
-            title={block.videoTitle || block.title || 'Video'}
+            title={block.videoTitle || block.title}
             aspect={block.videoAspect || '16:9'}
             start={block.videoStart}
             autoplay={block.videoAutoplay}
@@ -742,7 +837,7 @@ function dedent(text: unknown): string {
       columns.length === 3 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
       columns.length === 4 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4' :
       'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' // Fallback for 5+ columns
-    ), 'gap-6', 'modular-section', className]} style={finalStyle}
+    ), 'modular-section', className]} style={finalStyle}
       data-auto-balance={canBalance ? 'true' : undefined}
       data-balance-pending={canBalance ? 'true' : undefined}
       data-balance-seed={canBalance ? String(col1Width) : undefined}
@@ -760,9 +855,12 @@ function dedent(text: unknown): string {
         } else {
           columnClass = 'min-w-0'; // Grid handles sizing for 3+ columns
         }
-        
+
         return (
-          <div class={columnClass}>
+          <div
+            class:list={[columnClass, stackOrders && 'stack-ordered']}
+            style={stackOrders ? `--stack-order: ${stackOrders[columnIndex]}` : undefined}
+          >
             {column.type === 'stack' && Array.isArray(column.items) ? (
               <div class="flex flex-col" style={`gap: ${column.stackGap || '1.5rem'}`}>
                 {column.items.map((item: any, itemIndex: number) => (

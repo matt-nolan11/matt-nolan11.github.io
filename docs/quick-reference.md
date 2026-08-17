@@ -11,6 +11,8 @@
   column. Items take the same props they would as columns. `stackGap` optional.
 - Heights auto-balance at runtime for 2-column sections (>=1024px). `width` is
   the seed; `autoBalance={false}` opts out, `balanceRange` clamps the search.
+- `stackOrder` re-orders the columns below 1024px only: `"reverse"`, or 1-based
+  column numbers top to bottom, e.g. `stackOrder={[2, 1]}`. CSS-only.
 
 ## UnderConstruction
 - `<UnderConstruction />` truncates the file: everything below it is dropped at
@@ -31,6 +33,8 @@
   Both fall back to the column's `title` / `caption`.
 - Hydrates on `client:load`; dynamic import on mount.
 - Use `.glb` models; test AR via `public/ar-test.html` over HTTPS.
+- Draco-compress every model before committing — raw exports are 10-20x larger
+  and ship to visitors in full. See `docs/3d-model-compression.md`.
 
 ## Theming
 - `business` (dark) / `corporate` (light). Managed by `src/scripts/themeController.ts`.

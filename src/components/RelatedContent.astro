@@ -59,8 +59,10 @@ const { items } = Astro.props;
               <h3 class="card-title text-base">{item.data.title || item.slug.replace(/-/g, ' ')}</h3>
             </div>
           </a>
+          {/* z-20, not z-50 — see ProjectCard: z-50 ties with the sticky
+              navbar and wins on DOM order, so the badge covers it. */}
           {item.type === 'project' && item.data.status && (
-            <div class="absolute top-2 right-2 z-50">
+            <div class="absolute top-2 right-2 z-20">
               <div class="tooltip tooltip-bottom tooltip-bottom-end" data-tip={
                 item.data.status === 'completed' ? 'This project is finished, and no new development is currently planned'
                 : item.data.status === 'in-progress' ? 'This project is under active development'

@@ -504,7 +504,50 @@
   font-weight: bold !important;
 }
 
-/* Project card: raise stacking context on hover so tooltip escapes neighboring cards. */
+/* Orange action button, for the `orange` link colour preset.
+   The other presets (blue/green/red/yellow) ride on DaisyUI semantics, but
+   there is no semantic that is orange in BOTH themes — `accent` is teal in
+   corporate and orange in business — so orange carries its own colour.
+
+   Declared the way DaisyUI declares its own variants: set --btn-color and
+   --btn-fg, and the border, hover, active and shadow treatments all derive
+   from them, so this button behaves exactly like btn-warning next to it.
+   Lightness and chroma are matched to each theme's warning tone so it reads
+   as part of the same palette rather than a foreign accent. */
+.btn-orange {
+  --btn-color: oklch(75% 0.165 58);
+  --btn-fg: oklch(0% 0 0);
+}
+
+[data-theme="business"] .btn-orange {
+  --btn-color: oklch(68% 0.145 58);
+  --btn-fg: oklch(15% 0.029 58);
+}
+
+/* Project card stacking.
+   ---------------------------------------------------------------------------
+   `isolation` makes the card a stacking context unconditionally, which keeps
+   its internal levels (overlay link 10, badges/tags/buttons 20) private. They
+   are otherwise resolved against the ROOT — a card is position:relative with
+   no z-index, and neither <main> nor anything between forms a context — so an
+   internal number competes directly with the navbar's z-50. That is how the
+   status badge came to paint over the header.
+
+   Note the card already became a context on :hover below, via z-index. So the
+   internals were private while hovered and leaked while not, which is why that
+   bug only showed half the time. Isolating removes the inconsistency; it costs
+   nothing at layout or paint time.
+
+   The hover rule stays, and is now the card's ONLY external level: it lifts a
+   hovered card above its siblings so a status tooltip can spill over the
+   neighbouring card. Tooltips are ::before/::after at z-index 9999, but that
+   number is inside the card's context now — it orders the tooltip within the
+   card, while the card as a whole still sits below the navbar. Which is what
+   we want. */
+.project-card {
+  isolation: isolate;
+}
+
 .project-card:hover {
   z-index: 10;
 }

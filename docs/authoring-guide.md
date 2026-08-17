@@ -73,6 +73,72 @@ Notes
 - Layouts are unified. Two-column widths can be driven by `galleryOptions.layout` or `layout` strings like `60%` or `3:2`, else equal split.
 - Image columns accept either `src/alt/caption` (preferred) or legacy `image/imageAlt/imageCaption`.
 - Two-column sections auto-balance their heights per visitor; `width` acts as the seed. See `docs/content-layout-system.md`.
+- `columnGap` sets the spacing between columns, default `1.5rem`, e.g.
+  `<ModularSection columnGap="3rem" columns={[...]} />`. Any CSS length works.
+  Below 1024px the grid collapses to one column and it becomes the vertical
+  spacing between them. The per-column `stackGap` is the equivalent inside a
+  `type: 'stack'` column. Changing the gap does not disturb the auto-balancer,
+  which solves in `fr` units after the gap is subtracted.
+- `stackOrder` changes the order the columns stack in below 1024px. See below.
+
+### Stack order on narrow screens
+Below 1024px every layout leaves its side-by-side arrangement, and columns
+stack in the order they were authored. `stackOrder` overrides that order
+without touching the desktop layout:
+
+```mdx
+{/* wide: gallery left, summary right — narrow: summary on top */}
+<ModularSection stackOrder="reverse" columns={[
+  { type: 'gallery', gallery: [...] },
+  { type: 'summary', summaryTitle: 'Project X' },
+]} />
+```
+
+- `stackOrder="reverse"` stacks the columns back to front.
+- `stackOrder={[2, 1]}` lists **1-based column numbers top to bottom**, so this
+  puts column 2 above column 1. Three and four column sections work the same
+  way: `stackOrder={[3, 1, 2]}`.
+- Every column must appear exactly once, or the build fails with a message
+  naming the problem.
+- It is CSS-only (`order`), so nothing else moves: the desktop arrangement, the
+  source order screen readers and search indexing read, and the two-column
+  height balancer are all unaffected.
+- For 3- and 4-column sections the new order also applies to the two-across
+  `md` grid (768–1023px), since that is already a partial stack.
+- Ordering *inside* a `type: 'stack'` column is just the order of `items` —
+  those never reflow, so there is nothing to flip.
+
+### Action buttons
+A summary block ends with a row of buttons, one per entry in `links`. The same
+array is valid in **project frontmatter**, where it drives the buttons on
+project cards — so a link written once looks the same in the grid and on the
+page (cards just draw it smaller).
+
+```mdx
+{
+  type: 'summary',
+  summaryTitle: 'Project X',
+  links: [
+    { url: 'https://github.com/you/project-x', label: 'GitHub', color: 'neutral' },
+    { url: 'https://you.github.io/project-x/', label: 'Live Demo' },
+    { url: 'https://.../bom.csv', label: 'Bill of Materials', color: 'green', icon: 'download' },
+    { url: 'https://youtu.be/xxxx', label: 'Build Video', color: 'red' },
+  ],
+}
+```
+
+- `label` is required; `color` and `icon` are optional.
+- `color`: `blue` (default), `green`, `orange`, `red`, `yellow`, `neutral`
+  (outlined — what the GitHub button has always used).
+- `icon`: `external`, `download`, `document`, `link`, `code`, `cube`, `cart`,
+  `play`, `github`, `youtube`, `none`.
+- **Omit `icon` and it is guessed from the URL**: `github.com` links get the
+  GitHub logo, YouTube links the play button, everything else the external-link
+  arrow. Name one only to override that. (`*.github.io` is a Pages site, not
+  GitHub, so it gets the arrow.)
+- Buttons render in authored order. There are no dedicated fields for repo or
+  demo links — `githubUrl` and `liveUrl` were removed, so a GitHub button is
+  just a `links` entry like any other (and picks up its logo automatically).
 
 ### Stacking blocks in one column
 A column renders a single block. Use `type: 'stack'` to put several in the same
@@ -102,14 +168,37 @@ all work unchanged). `stackGap` sets the spacing, default `1.5rem`.
 Use a `video` column to embed a privacy-enhanced YouTube `<iframe>` via the `YouTube.astro` component.
 
 Props on the column
-- `videoId` (required): YouTube video ID (the part after `v=`)
-- `videoTitle`: accessible `<title>` for the iframe
+- `videoId` (required): YouTube video ID (the part after `v=`, or after
+  `/shorts/` — see below)
+- `videoTitle`: accessible `<title>` for the iframe, **and** the caption drawn
+  over the thumbnail. Omit it and no overlay is drawn.
 - `videoAspect`: aspect ratio string like `16:9`, `4:3`, or `1:1` (default `16:9`)
 - `videoStart`: start time in seconds
 - `videoAutoplay`: boolean
 - `videoMuted`: boolean (often required by browsers for autoplay)
 - `videoControls`: show/hide player controls
 - `videoCaption`: small caption below the video
+
+Every one of these is prefixed `video`. A bare `aspect:` (or `title:`, `id:`) on
+the column is not an error — it is silently ignored and you get the default.
+
+#### Shorts and other vertical video
+Shorts embed like any other video: take the ID out of the
+`youtube.com/shorts/<id>` URL and set the aspect.
+
+```mdx
+{ type: 'video', width: 40, videoId: 'UaFP-7mlcT0', videoAspect: '9:16' }
+```
+
+Anything taller than it is wide gets handled automatically from there — the
+embed caps its width so it can never exceed ~80% of viewport height, and centres
+itself in the column, so a stacked phone or tablet layout does not hand over
+several screenfuls to one video. It also switches to YouTube's original-aspect
+thumbnail, which is sharp, instead of the 4:3 one with the blurred side fill.
+
+Match `videoAspect` to the real frame rather than assuming `9:16`. Shorts are
+commonly 9:16 but not always; if you see black bars down the sides, the source
+is narrower and the ratio needs to say so.
 
 Example:
 

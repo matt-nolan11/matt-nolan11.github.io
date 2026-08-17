@@ -1,0 +1,39 @@
+---
+/**
+ * The glyph inside an action-link button.
+ *
+ * Outline glyphs are stroked and brand marks are filled, which needs different
+ * SVG attributes on each — hence one component rather than duplicated markup
+ * in Summary and ProjectCard.
+ */
+import type { IconDef } from '../utils/linkButtons';
+
+interface Props {
+  icon: IconDef;
+  /** Sizing classes; cards run smaller than the project page. */
+  class?: string;
+}
+
+const { icon, class: className = 'w-4 h-4' } = Astro.props;
+const stroked = icon.mode === 'stroke';
+---
+
+<svg
+  class={className}
+  viewBox={icon.viewBox}
+  xmlns="http://www.w3.org/2000/svg"
+  fill={stroked ? 'none' : 'currentColor'}
+  stroke={stroked ? 'currentColor' : undefined}
+  aria-hidden="true"
+>
+  {icon.paths.map(d => (
+    <path
+      d={d}
+      fill-rule={icon.evenOdd ? 'evenodd' : undefined}
+      clip-rule={icon.evenOdd ? 'evenodd' : undefined}
+      stroke-linecap={stroked ? 'round' : undefined}
+      stroke-linejoin={stroked ? 'round' : undefined}
+      stroke-width={stroked ? 2 : undefined}
+    />
+  ))}
+</svg>

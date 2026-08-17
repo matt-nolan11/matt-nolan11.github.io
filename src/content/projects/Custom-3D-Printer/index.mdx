@@ -1,10 +1,169 @@
 ---
 title: "Custom 3D Printer"
-# Hides this project from every listing and stops its page being built.
-# Remove once there is real content here.
-draft: true
+description: "A custom-built 3D printer featuring coreXY kinematics, auto-bed-leveling,a direct drive extruder, an AC-heated build plate, and linear rails on all axes"
+startDate: "2019-12"
+endDate: "2020-06"
+status: "completed"
+tags: ["3d printing", "manufacturing", "mechanisms", "platformio", "electronics", "machining"]
+cover: ./images/done1.jpg
+links:
+  - url: https://docs.google.com/spreadsheets/d/1kWtRXiSi6R09XHtIvildCbx0KIhnKzknQ7LHSoOzIRw/edit?usp=sharing
+    label: BOM
+    color: blue
+    icon: cart
 ---
 
 import UnderConstruction from '../../../components/UnderConstruction.astro';
+import ModularSection from '../../../components/ModularSection.astro';
+
+import axesStartImage from './images/axesStart.jpg';
+import buildPlateImage from './images/buildPlate.jpg';
+import buildPlate2Image from './images/buildPlate2.jpg';
+import done1Image from './images/done1.jpg';
+import done2Image from './images/done2.jpg';
+import electronicsImage from './images/electronics.jpg';
+import electronics2Image from './images/electronics2.jpg';
+import frameImage from './images/frame.jpg';
+import headDoneImage from './images/headDone.jpg';
+import headWiringInProgressImage from './images/headWiringInProgress.jpg';
+import latticeImage from './images/lattice.jpg';
+import nozzleImage from './images/nozzle.jpg';
+import printHeadStartImage from './images/printHeadStart.jpg';
+import roverImage from './images/rover.jpg';
+import zBeltImage from './images/zBelt.jpg';
+
+import printerModel from './3DModels/3DPrinter.glb';
+
+
+<ModularSection
+  columns={[
+    {
+      type: "gallery",
+      width: 50,
+      gallery: [
+        { src: done1Image, caption: "Completed custom 3D printer build" },
+        { src: buildPlate2Image, caption: "The printer sports linear rails on all axes, and a removable glass build plate. The platform is heated using a 750W AC heater" },
+        { src: nozzleImage, caption: "Hotend and nozzle of the print head, with the custom part cooling duct blowing air from either side" },
+        { src: roverImage, caption: "This Perseverance rover model was one of the first that I made on the custom printer. All the small white pieces used for the various joints and linkages were printed in a single job" },
+        { src: latticeImage, caption: "This lattice torture test print was used to evaluate overhang, stringing, and retraction performance. This result is almost perfect, with only a few small strings and surface artifacts"}
+      ],
+      galleryOptions: {
+        autoplay: true,
+        autoplayInterval: 5000,
+        showThumbnails: true
+      }
+    },
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "summary",
+            summaryTitle: "Custom 3D Printer",
+            summaryDescription: "A custom-built 3D printer featuring coreXY kinematics, auto-bed-leveling, a direct drive extruder, an AC-heated build plate, and linear rails on all axes",
+            startDate: "2019-12",
+            endDate: "2020-06",
+            status: "completed",
+            headerTitleSize: "2xl",
+            showTags: true,
+            metrics: {
+              sectionTitle: "Specifications",
+              customFields: [
+                { label: "Build Volume", value: "310x310x330mm" },
+                { label: "Kinematics", value: "CoreXY" },
+                { label: "Hotend", value: "E3D V6 clone" },
+                { label: "Extruder", value: "Direct Drive (Bondtech clone)" },
+                { label: "Heated Bed", value: "750W AC" },
+                { label: "Build Platforms", value: "Glass, PEI on spring steel" },
+                { label: "Max Print Speed", value: "120mm/s" },
+                { label: "Max Temps", value: "300°C nozzle, 120°C bed" },
+                { label: "Compatible Materials", value: "PLA, ABS/ASA, PETG, TPU, Nylon, fiber blends" }
+
+              ]
+            },
+            links: [
+              { url: "https://docs.google.com/spreadsheets/d/1kWtRXiSi6R09XHtIvildCbx0KIhnKzknQ7LHSoOzIRw/edit?usp=sharing", label: "BOM", color: "blue",  icon: "cart"}
+            ]
+        },
+        {
+          type: "content",
+          title: "Features",
+          content: `
+          - Linear rails on all axes for maximal rigidity and precision
+          - CoreXY kinematics and NEMA 17 stepper motors for fast and precise movement
+          - Direct drive extruder for better filament control, especially with flexible filaments
+          - Auto-bed-leveling using a BLTouch sensor
+          - Heated build plate with a 750W AC heater, for fast, even heating to minimize warping
+          - Removable glass build plate
+          - Magnetic sheet for use with PEI spring steel flex build plates
+
+          `
+        }
+      ]
+    }
+  ]}  
+/>
+
+<ModularSection
+  columns={[
+    {
+      type: "content",
+      title: "Background",
+      width: 50,
+      content: `
+      The 3D model of the printer is available for viewing below. It was created in Fusion 360, and is a complete representation of the printer, including all mechanical and electrical components.
+      `
+    },
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "model",
+          modelSrc: printerModel,
+          modelAlt: "3D model of the custom 3D printer"
+        },
+        {
+          type: "gallery",
+          gallery: [
+            { src: frameImage, caption: "The printer frame is made from 20x20mm aluminum extrusion, with custom machined aluminum brackets for the corners" },
+            { src: buildPlateImage, caption: "The build plate is heated using a 750W AC heater, and is removable for easy part removal" },
+            { src: zBeltImage, caption: "The Z-axis uses a belt-driven system for fast and precise movement" },
+            { src: axesStartImage, caption: "The printer uses CoreXY kinematics for fast and precise movement" },
+            { src: headWiringInProgressImage, caption: "The print head wiring is in progress, with the hotend and extruder mounted on the carriage" },
+            { src: headDoneImage, caption: "The completed print head assembly, with the hotend, extruder, and part cooling duct" },
+            { src: electronicsImage, caption: "The electronics are mounted on a custom 3D printed enclosure, with a Raspberry Pi running OctoPrint" },
+            { src: electronics2Image, caption: "The electronics enclosure houses the mainboard, power supply, and Raspberry Pi" }
+          ]
+        }
+      ]
+    }
+  ]}
+/>
+
+<ModularSection
+  autoBalance={false}
+  columns={[
+    {
+      type: "content",
+      title: "Challenges",
+      width: 80,
+      content: `
+      The main challenges in building this printer were in the mechanical design and assembly. The CoreXY kinematics required precise alignment of the belts and pulleys, and the linear rails required careful mounting to ensure smooth movement. The heated bed also required careful wiring and insulation to prevent electrical hazards. Overall, the project was a great learning experience in mechanical design, electronics, and 3D printing.
+      - test
+      - test
+      - test
+      - test
+      - test
+      `
+    },
+    {
+      type: "video",
+      width: 20,
+      videoAspect: "914:1920",
+      videoId: "UaFP-7mlcT0"
+    }
+  ]}
+/>
 
 <UnderConstruction message="This project page is still being written — check back soon." />

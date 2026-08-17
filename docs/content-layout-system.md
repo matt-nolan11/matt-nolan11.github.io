@@ -39,6 +39,29 @@ Optional `stackGap` (CSS length, default `1.5rem`) sets the spacing between item
 }
 ```
 
+## Stack order on narrow screens
+Below 1024px every column count collapses out of its side-by-side arrangement
+and the columns stack in authored order. `stackOrder` on the section changes
+that order:
+
+- `stackOrder="reverse"` — back to front.
+- `stackOrder={[2, 1]}` — 1-based column numbers listed top to bottom, so
+  column 2 stacks above column 1. Each column must appear exactly once;
+  anything else throws at build time.
+
+```mdx
+<ModularSection stackOrder={[2, 1]} columns={[
+  { type: 'gallery', width: 60, gallery },
+  { type: 'summary', width: 40, summaryTitle: 'Project X' },
+]} />
+```
+
+Implemented as CSS `order` inside a `max-width: 1023.98px` media query, so the
+DOM is untouched: desktop layout, source/reading order, and the height balancer
+(which indexes columns by DOM position) all behave exactly as before. For 3- and
+4-column sections the order also applies to the two-across `md` grid, which is
+itself a partial stack.
+
 ## Automatic height balancing
 Two-column sections balance their own heights at runtime: the client sweeps
 candidate splits, measures both columns, and applies the one where the heights

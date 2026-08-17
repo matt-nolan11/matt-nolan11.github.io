@@ -3,10 +3,15 @@ title: "Smart RC Power Meter"
 description: "An RC power meter that measures voltage and current, and uses DSHOT to pull ESC telemetry, with motor control, live-plotting, and data logging using a web app"
 startDate: "2025-06"
 status: "in-progress"
-# draft: true
-tags: ["electronics", "embedded systems", "RP2040", "telemetry", "gui", "prototype"]
+tags: ["electronics", "embedded systems", "RP2040", "platformio", "telemetry", "gui", "prototype"]
 cover: ./images/liveData.png
-liveUrl: https://matt-nolan11.github.io/Power-Meter-Web-App/
+links:
+  - url: https://github.com/matt-nolan11/Smart-RC-Power-Meter
+    label: GitHub
+    color: neutral
+  - url: https://matt-nolan11.github.io/Power-Meter-Web-App/
+    label: Web App
+    color: blue
 ---
 
 import UnderConstruction from '../../../components/UnderConstruction.astro';
@@ -57,8 +62,10 @@ import liveDataImage from './images/liveData.png';
                 { label: "Data Rate", value: "100Hz" }
               ]
             },
-            githubUrl: "https://github.com/matt-nolan11/Smart-RC-Power-Meter",
-            liveUrl: "https://matt-nolan11.github.io/Power-Meter-Web-App/"
+            links: [
+              { url: "https://github.com/matt-nolan11/Smart-RC-Power-Meter", label: "GitHub", color: "neutral" },
+              { url: "https://matt-nolan11.github.io/Power-Meter-Web-App/", label: "Web App", color: "blue", icon: "external" }
+            ]
         },
         {
           type: "content",

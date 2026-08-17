@@ -4,13 +4,14 @@ import { defineCollection, z } from "astro:content";
 // as a type annotation. The underlying zod build is reachable at astro/zod,
 // which is where the type has to come from.
 import type { ZodType } from "astro/zod";
+import { LINK_COLORS, LINK_ICONS } from "./utils/linkButtons";
 
 /**
  * Content collections schema for the portfolio site.
  *
  * Projects support flexible versioned development:
  * - Core fields: version, title, description, startDate, status
- * - Optional enhancements: content (markdown), achievements, learnings, githubUrl
+ * - Optional enhancements: content (markdown), achievements, learnings, links
  * - Supports minimal versions (just basic info) or rich documentation
  * - Markdown content is rendered with prose styling when provided
  * - versionsTitle: customize or hide the versions section header
@@ -34,6 +35,22 @@ import type { ZodType } from "astro/zod";
  * - If any header fields are present, shows full header layout
  * - If no header fields, shows compact legacy layout
  */
+
+/**
+ * An action-link button rendered by Summary and ProjectCard.
+ *
+ * The colour and icon presets come straight from utils/linkButtons.ts, so the
+ * schema and the renderer cannot disagree about what is valid. Both are
+ * optional: colour defaults to blue, and the icon is guessed from the host
+ * (GitHub and YouTube links get their logos, everything else an external-link
+ * arrow) unless one is named.
+ */
+const projectLinkSchema = z.object({
+  url: z.string().url(),
+  label: z.string(),
+  color: z.enum(LINK_COLORS).optional(),
+  icon: z.enum(LINK_ICONS).optional(),
+});
 
 export const collections = {
   posts: defineCollection({
@@ -144,8 +161,7 @@ export const collections = {
             })
             .optional(),
           tags: z.array(z.string()).optional(), // DEPRECATED: Use page frontmatter tags instead. This is kept for backward compatibility only.
-          githubUrl: z.string().url().optional(),
-          liveUrl: z.string().url().optional(),
+          links: z.array(projectLinkSchema).optional(),
           // For nested sections
           sections: z
             .array(
@@ -202,8 +218,7 @@ export const collections = {
         featured: z.boolean().optional().default(false), // Manual control for featuring on homepage
         featuredOrder: z.number().optional(), // Manual order for featured projects (lower = higher priority)
         status: z.enum(["completed", "in-progress", "active", "paused", "planned"]).default("completed"),
-        githubUrl: z.string().url().optional(),
-        liveUrl: z.string().url().optional(),
+        links: z.array(projectLinkSchema).optional(),
 
         // Version header fields (for standalone version files like v2.mdx)
         headerTitle: z.string().optional(), // Separate title for version headers

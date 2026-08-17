@@ -567,13 +567,47 @@ export default function ModelViewer({
       if (event.key === 'Tab') modelViewer.removeAttribute('data-pointer-focus');
     };
 
-    modelViewer.addEventListener('pointerdown', handlePointerDown);
+    // Capture phase, to stay symmetrical with the middle-click blocker below:
+    // that one stops propagation at the host, which would otherwise cancel a
+    // bubble-phase listener here and leave a middle click focusing the viewer
+    // without the flag that suppresses the ring.
+    modelViewer.addEventListener('pointerdown', handlePointerDown, true);
     document.addEventListener('keydown', handleKeyDown, true);
 
     return () => {
       style.remove();
-      modelViewer.removeEventListener('pointerdown', handlePointerDown);
+      modelViewer.removeEventListener('pointerdown', handlePointerDown, true);
       document.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [isModelViewerLoaded]);
+
+  // Leave the middle mouse button to the browser.
+  //
+  // model-viewer's SmoothControls starts an orbit drag on *any* pointerdown —
+  // it inspects `event.button` only to choose between orbiting and panning,
+  // never to ignore a button. So a middle-click lands on the model as a
+  // rotation and, because the handler also takes pointer capture, it blocks
+  // the browser's own middle-click autoscroll: the user aims to scroll the
+  // page and spins the model instead.
+  //
+  // The controls listen on `.userInput` inside the shadow root, which page CSS
+  // and page-level listeners cannot reach directly. Listening on the host in
+  // the capture phase gets us in ahead of them: stopping propagation there
+  // means the event never enters the shadow tree, so no orbit and no pointer
+  // capture. Deliberately no preventDefault — the default action *is* the
+  // autoscroll we want back.
+  useEffect(() => {
+    const modelViewer = modelViewerRef.current;
+    if (!modelViewer || !isModelViewerLoaded) return;
+
+    const blockMiddleButton = (event: PointerEvent) => {
+      if (event.button === 1) event.stopPropagation();
+    };
+
+    modelViewer.addEventListener('pointerdown', blockMiddleButton, true);
+
+    return () => {
+      modelViewer.removeEventListener('pointerdown', blockMiddleButton, true);
     };
   }, [isModelViewerLoaded]);
 
