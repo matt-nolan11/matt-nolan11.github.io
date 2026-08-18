@@ -13,8 +13,27 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 
+/**
+ * A gallery image, already resolved by ModularSection.
+ *
+ * The `src` object is the output of Astro's `getImage()`, not a raw
+ * `ImageMetadata`: this component is a React island and cannot reach the image
+ * pipeline itself, so every URL here is built at build time against assets the
+ * build actually emits. A plain string is passed through untouched.
+ */
+interface ResolvedImage {
+  src: string;
+  srcSet?: string;
+  sizes?: string;
+  /** Pre-sized thumbnail; falls back to the full slide if absent. */
+  thumbSrc?: string;
+  /** Source dimensions, kept for aspect-ratio derivation. */
+  width?: number;
+  height?: number;
+}
+
 interface GalleryImage {
-  src: string | { src: string; width?: number; height?: number; format?: string };
+  src: string | ResolvedImage;
   alt?: string; // Made optional - will fallback to caption if not provided
   caption?: string;
 }
@@ -351,45 +370,22 @@ export default function ProjectGallery({
     restoreAutoplayIfNeeded(wasAutoplayActive);
   }, [loaded, isPlaying, autoplay, clearFocus, restoreAutoplayIfNeeded]);
 
-  // Enhanced image optimization with realistic fallback support
-  const createOptimizedImage = (src: string | { src: string; width?: number; height?: number; format?: string }, width: number, quality: number = 80): { 
-    src: string; 
-    srcSet?: string; 
-    sizes?: string; 
-  } => {
-    // Handle Astro raw image objects (from content collections)
-    if (typeof src === 'object' && src.src) {
-      const astroSrc = src.src;
-      
-      // If it's a raw Astro object, we need to optimize it manually by creating an optimized URL
-      if (astroSrc.includes('/@fs/') && astroSrc.includes('?orig')) {
-        // Extract the base path and create an optimized version
-        const baseUrl = astroSrc.split('?')[0];
-        const optimizedUrl = `/_image?href=${encodeURIComponent(astroSrc)}&w=${width}&h=${Math.round((width * (src.height || 600)) / (src.width || 800))}&q=${quality}&f=webp`;
-        return { src: optimizedUrl };
-      }
-      
-      // Already optimized Astro URL
-      return { src: src.src };
-    }
-    
-    const baseSrc = typeof src === 'string' ? src : src.src;
-    
-    // Check if the image is already optimized (contains _image in path or is webp)
-    if (baseSrc.includes('/_image') || baseSrc.includes('.webp')) {
-      return { src: baseSrc };
-    }
-    
-    // For regular images, provide responsive sizing hints
-    const sizes = width <= 400 ? '(max-width: 768px) 100vw, 400px' : 
-                 width <= 800 ? '(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px' :
-                 '(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px';
-    
-    return {
-      src: baseSrc,
-      sizes
-    };
-  };
+  /**
+   * Unwrap a resolved image into `<img>` attributes.
+   *
+   * Deliberately does no URL building. ModularSection resolves every gallery
+   * image through `getImage()` at build time, so there is nothing left to
+   * optimise here — an earlier version of this function reconstructed
+   * `/_image?…` URLs from the raw metadata, which only matched the dev server's
+   * URL shape and silently served full-size originals in production.
+   */
+  const slideAttrs = (src: GalleryImage['src']) =>
+    typeof src === 'string'
+      ? { src }
+      : { src: src.src, srcSet: src.srcSet, sizes: src.sizes };
+
+  const thumbAttrs = (src: GalleryImage['src']) =>
+    typeof src === 'string' ? { src } : { src: src.thumbSrc ?? src.src };
 
   if (!images || images.length === 0) {
     return (
@@ -423,16 +419,14 @@ export default function ProjectGallery({
           }}
         >
           {images.map((image, idx) => {
-            const optimizedImage = createOptimizedImage(image.src, 800, 80);
+            const optimizedImage = slideAttrs(image.src);
             return (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className="keen-slider__slide relative"
             >
               <img
-                src={optimizedImage.src}
-                srcSet={optimizedImage.srcSet}
-                sizes={optimizedImage.sizes}
+                {...optimizedImage}
                 alt={image.alt || image.caption || `Gallery image ${idx + 1}`}
                 className="w-full h-full object-cover block"
                 loading={idx === 0 ? "eager" : "lazy"}
@@ -513,17 +507,12 @@ export default function ProjectGallery({
                 role="button"
                 aria-label={`Go to image ${idx + 1}`}
               >
-                {(() => {
-                  const optimizedThumbnail = createOptimizedImage(image.src, 120, 70);
-                  return (
-                    <img
-                      src={optimizedThumbnail.src}
-                      alt={`Thumbnail: ${image.alt || image.caption || `Image ${idx + 1}`}`}
-                      className="gallery-thumb-img w-full h-12 sm:h-14 md:h-16 object-cover rounded-lg block"
-                      loading="lazy"
-                    />
-                  );
-                })()}
+                <img
+                  {...thumbAttrs(image.src)}
+                  alt={`Thumbnail: ${image.alt || image.caption || `Image ${idx + 1}`}`}
+                  className="gallery-thumb-img w-full h-12 sm:h-14 md:h-16 object-cover rounded-lg block"
+                  loading="lazy"
+                />
               </div>
             ))}
           </div>

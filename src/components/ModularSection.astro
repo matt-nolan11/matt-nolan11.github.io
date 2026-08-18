@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import { markdown } from '../utils/markdown';
 import ProjectGallery from './ProjectGallery';
 import ModelViewer from './ModelViewer';
@@ -42,6 +42,81 @@ if (!columns || columns.length === 0) {
 // `width` still drives SSR/no-JS/mobile; the client just refines it from there.
 const canBalance = autoBalance !== false && columns.length === 2;
 const [balanceMin, balanceMax] = balanceRange;
+
+/*
+ * Gallery images are optimised here, at build time, rather than inside
+ * ProjectGallery.
+ *
+ * ProjectGallery is a React island, so it cannot reach Astro's image pipeline
+ * and used to rebuild optimised URLs by hand from `ImageMetadata.src`. That
+ * only ever matched Vite's *dev* URL shape (`/@fs/…?orig…`); in a production
+ * build `src` is already `/_astro/name.hash.jpg`, so every gallery fell through
+ * to the untouched original. Two consequences, both fixed by resolving real
+ * `getImage()` results here:
+ *
+ *   - the full-size source JPEGs shipped to visitors (187 MB across this site,
+ *     against 0.7 MB for the `<Image>`-rendered ones), and
+ *   - those URLs exist only as strings inside the island's serialised props, so
+ *     Vite had no reason to emit the originals at all. Whether one survived was
+ *     incidental, and an image whose every other use was optimised 404'd.
+ */
+
+// Below 1024px the section collapses to a single column and a gallery is
+// full-bleed; above it the gallery sits in a column authored at roughly 40-60%
+// of a page that is itself `100vw - 6rem`. 60vw is the safe side of that range:
+// overestimating costs a little bandwidth, underestimating renders soft.
+const GALLERY_SIZES = '(max-width: 1023px) 100vw, 60vw';
+const SLIDE_WIDTHS = [640, 1024, 1600];
+// Thumbnails render at ~120px CSS; one 2x encode covers every screen.
+const THUMB_WIDTH = 240;
+
+/** Ladder for one image, never upscaling past the source. */
+function slideWidths(width?: number): number[] {
+  const cap = SLIDE_WIDTHS[SLIDE_WIDTHS.length - 1];
+  const max = width ?? cap;
+  return [...new Set([...SLIDE_WIDTHS.filter((w) => w < max), Math.min(max, cap)])];
+}
+
+async function optimizeGalleryImage(image: any) {
+  const src = image?.src;
+  // Plain strings are remote or already-resolved URLs — nothing to transform.
+  if (!src || typeof src !== 'object') return image;
+
+  const widths = slideWidths(src.width);
+  const [slide, thumb] = await Promise.all([
+    // `width` is set explicitly: given only `widths`, Astro falls back to the
+    // source's own width and emits a full-size encode alongside the ladder.
+    getImage({ src, width: widths[widths.length - 1], widths, format: 'webp', quality: 80 }),
+    getImage({ src, width: Math.min(THUMB_WIDTH, src.width ?? THUMB_WIDTH), format: 'webp', quality: 70 }),
+  ]);
+
+  return {
+    ...image,
+    src: {
+      src: slide.src,
+      srcSet: slide.srcSet.attribute || undefined,
+      sizes: GALLERY_SIZES,
+      thumbSrc: thumb.src,
+      // Retained so the gallery can still derive its shape from the source.
+      width: src.width,
+      height: src.height,
+    },
+  };
+}
+
+async function optimizeBlock(block: any) {
+  if (block?.type !== 'gallery' || !Array.isArray(block.gallery)) return block;
+  return { ...block, gallery: await Promise.all(block.gallery.map(optimizeGalleryImage)) };
+}
+
+// Galleries can sit at column level or inside a `stack` column's items.
+const resolvedColumns = await Promise.all(
+  columns.map(async (column: any) =>
+    column?.type === 'stack' && Array.isArray(column.items)
+      ? { ...column, items: await Promise.all(column.items.map(optimizeBlock)) }
+      : optimizeBlock(column)
+  )
+);
 
 /**
  * Turn the authored `stackOrder` into one CSS `order` value per column.
@@ -844,7 +919,7 @@ function dedent(text: unknown): string {
       data-balance-min={canBalance ? String(balanceMin) : undefined}
       data-balance-max={canBalance ? String(balanceMax) : undefined}
     >
-      {columns.map((column: any, columnIndex: number) => {
+      {resolvedColumns.map((column: any, columnIndex: number) => {
         // Determine column class based on layout type
         let columnClass;
         if (columns.length === 1) {
