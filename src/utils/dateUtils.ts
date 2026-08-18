@@ -41,35 +41,3 @@ export function getSortableDate(date: Date | string): Date {
   return date;
 }
 
-/**
- * Calculates duration between two dates (handles mixed formats)
- * @param startDate - Start date (Date object or YYYY-MM string)
- * @param endDate - End date (Date object or YYYY-MM string)
- * @returns Human-readable duration string
- */
-export function calculateDuration(startDate: Date | string, endDate: Date | string): string {
-  const start = getSortableDate(startDate);
-  const end = getSortableDate(endDate);
-  
-  const diffTime = Math.abs(end.getTime() - start.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  // If either date is month-only, calculate in months
-  if (typeof startDate === 'string' || typeof endDate === 'string') {
-    const months = Math.round(diffDays / 30);
-    if (months === 0) return '< 1 month';
-    return `${months} month${months > 1 ? 's' : ''}`;
-  }
-  
-  // For exact dates, calculate more precisely
-  const months = Math.floor(diffDays / 30);
-  const days = diffDays % 30;
-  
-  if (months === 0) {
-    return `${days} day${days > 1 ? 's' : ''}`;
-  } else if (days === 0) {
-    return `${months} month${months > 1 ? 's' : ''}`;
-  } else {
-    return `${months} month${months > 1 ? 's' : ''} ${days} day${days > 1 ? 's' : ''}`;
-  }
-}

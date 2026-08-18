@@ -92,63 +92,62 @@ import miniV1Model from './3DModels/v1/mini-boi.glb';
 
 <ModularSection
   stackOrder="reverse"
+  autoBalance={false}
   columns={[
     {
-      type: "stack",
+      type: "content",
       width: 50,
-      items: [
-        {
-          type: "content",
-          title: "Overview",
-          content: `
-          mini boi is a miniaturized version of my 3lb robot spinny boiii, redesigned for the plastic antweight (PlAnt) class. Plastic antweights must be ≤1lb, and all custom parts must be 3D printed out of approved materials (view the full PlAnt rules [here](https://sparc.tools/SPARC_Robot_Construction_Specifications_v1.6.pdf#page=11)). This weight class simplifies some aspects of combat robotics, with much simpler manufacturing and lower cost, but it introduces some interesting design challenges in getting plastic parts to dish out and take damage effectively.
-          
-          The robot sports a beefy drum that is heavy for its weight class, and a simple direct-drive brushless drive system. The wheels use Lego 43.2x14 tires with custom 3D printed collet hubs. The hub's tapered thread core clamps onto the motor shaft as the nut is tightened, providing a high-friction connection without relying on set screws.
+      title: "Overview",
+      content: `
+        mini boi is a miniaturized version of my 3lb robot spinny boiii, redesigned for the plastic antweight (PlAnt) class. Plastic antweights must be ≤1lb, and all custom parts must be 3D printed out of approved materials (view the full PlAnt rules [here](https://sparc.tools/SPARC_Robot_Construction_Specifications_v1.6.pdf#page=11)). This weight class simplifies some aspects of combat robotics, with much simpler manufacturing and lower cost, but it introduces some interesting design challenges in getting plastic parts to dish out and take damage effectively.
 
-          The bot uses a 5-piece frame design that has proven easy to disassemble and repair. The frame is printed in Overture Super PLA+, which is a tough and durable material that can take a lot of abuse. The drum is printed in Duramic PLA+, which is stiffer and can take a lot of impacts without deforming. The 3D printed parts are generally printed with high infill and wall count, and at higher-than-normal print temperatures to maximize strength and layer adhesion. The robot has performed well in its first few competitions, but there are some issues that should be addressed in future versions.
-          `
-        },
-        {
-          type: "content",
-          title: "Issues",
-          content: `
-          This first version of the robot has performed fairly well overall, but it has some issues that should be addressed in future versions:
-          - The drum is heavier than it needs to be, resulting in high gyroscopic forces that make the robot tricky to control
-          - The drum teeth are too wide and don't have any edge relief, meaning a large number of impacts glance off the face of the teeth rather than hitting on the impacting edge. Narrower teeth, higher rake angle, and relief angles on the cutting edges would help the drum bite better and transfer more energy to the opponent
-          - At EVAC Monster Mash 2025, the weapon motor bearings broke in 2 separate fights. Better weapon support is needed, and possibly less weapon mass would help
-          - The weapon motor is longer than it needs to be. A smaller motor would allow more weight to be allocated to armor while still having enough power
-          - The back / side armor piece has thin sections that tend to crack, resulting in earlier failures. Though the part is cheap and easy to replace, it would be better if it was more robust
-          - The robot's weight is too far in front of its wheels, which means the drive feels sluggish and imprecise
-          `
-        }
-      ]
+        The robot sports a beefy drum that is heavy for its weight class, and a simple direct-drive brushless drive system. The wheels use Lego 43.2x14 tires with custom 3D printed collet hubs. The hub's tapered thread core clamps onto the motor shaft as the nut is tightened, providing a high-friction connection without relying on set screws.
+
+        The bot uses a 5-piece frame design that has proven easy to disassemble and repair. The frame is printed in Overture Super PLA+, which is a tough and durable material that can take a lot of abuse. The drum is printed in Duramic PLA+, which is stiffer and can take a lot of impacts without deforming. The 3D printed parts are generally printed with high infill and wall count, and at higher-than-normal print temperatures to maximize strength and layer adhesion. The robot has performed well in its first few competitions, but there are some issues that should be addressed in future versions.
+      `
     },
     {
-      type: "stack",
+      type: "model",
       width: 50,
-      items: [
-        {
-          type: "model",
-          modelSrc: miniV1Model,
-          modelAlt: "Interactive 3D model of mini boi, a 1lb plastic combat robot",
-          modelCaption: "mini boi, a 1lb plastic combat robot with an oversized drum and brushless drive",
-          modelOptions: {
-            aspectRatio: "4:3",
-            mobileAspectRatio: "1:1",
-            cameraControls: true,
-            autoRotate: true,
-            ar: true,
-            interactionPrompt: "auto"
-          } 
-        },
-        {
-          type: "video",
-          videoId: "uYc2Cgeb16g",
-          videoTitle: "mini boi vs Axolotl Questions at UCR Spring Fling 2025",
-          videoEager: true,
-          videoCaption: "mini boi fights Axolotl Questions at UCR Spring Fling 2025, taking the win after a hard-fought match"
-        }
-      ]
-    }   
+      modelSrc: miniV1Model,
+      modelAlt: "Interactive 3D model of mini boi, a 1lb plastic combat robot",
+      modelCaption: "mini boi, a 1lb plastic combat robot with an oversized drum and brushless drive",
+      modelOptions: {
+        aspectRatio: "4:3",
+        mobileAspectRatio: "1:1",
+        cameraControls: true,
+        autoRotate: true,
+        ar: true,
+        interactionPrompt: "auto"
+      }
+    }
+  ]}
+/>
+
+<ModularSection
+autoBalance={false}
+  columns={[
+    {
+      type: "content",
+      width: 50,
+      title: "Issues",
+      content: `
+        This first version of the robot has performed fairly well overall, but it has some issues that should be addressed in future versions:
+        - The drum is heavier than it needs to be, resulting in high gyroscopic forces that make the robot tricky to control
+        - The drum teeth are too wide and don't have any edge relief, meaning a large number of impacts glance off the face of the teeth rather than hitting on the impacting edge. Narrower teeth, higher rake angle, and relief angles on the cutting edges would help the drum bite better and transfer more energy to the opponent
+        - At EVAC Monster Mash 2025, the weapon motor bearings broke in 2 separate fights. Better weapon support is needed, and possibly less weapon mass would help
+        - The weapon motor is longer than it needs to be. A smaller motor would allow more weight to be allocated to armor while still having enough power
+        - The back / side armor piece has thin sections that tend to crack, resulting in earlier failures. Though the part is cheap and easy to replace, it would be better if it was more robust
+        - The robot's weight is too far in front of its wheels, which means the drive feels sluggish and imprecise
+      `
+    },
+    {
+      type: "video",
+      width: 50,
+      videoId: "uYc2Cgeb16g",
+      videoTitle: "mini boi vs Axolotl Questions at UCR Spring Fling 2025",
+      videoEager: true,
+      videoCaption: "mini boi fights Axolotl Questions at UCR Spring Fling 2025, taking the win after a hard-fought match"
+    }
   ]}
 />

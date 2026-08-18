@@ -1,5 +1,5 @@
 ---
-import { formatProjectDate, calculateDuration } from '../utils/dateUtils';
+import { formatProjectDate } from '../utils/dateUtils';
 import { placementBadgeClass, formatPlacement } from '../utils/placement';
 import { markdown } from '../utils/markdown';
 import { resolveLinks, type ProjectLink } from '../utils/linkButtons';
@@ -159,7 +159,6 @@ const hasRecords = competitions.some(comp => comp.record);
         <div class="flex items-center gap-4">
           <div class="tooltip tooltip-bottom tooltip-bottom-start" data-tip="This project is finished, and no new development is currently planned"><span class="badge status-badge badge-success">Completed</span></div>
           <span>{formatProjectDate(startDate)} → {formatProjectDate(endDate)}</span>
-          <span class="font-medium">({calculateDuration(startDate, endDate)})</span>
         </div>
       ) : status === 'in-progress' ? (
         <div class="flex items-center gap-4">
