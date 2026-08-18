@@ -42,46 +42,37 @@ import liveDataImage from './images/liveData.png';
       }
     },
     {
-      type: "stack",
+      type: "summary",
       width: 50,
-      items: [
-        {
-          type: "summary",
-            summaryTitle: "Smart RC Power Meter",
-            summaryDescription: "An RC power meter that measures voltage and current, and uses DSHOT to pull ESC telemetry, with motor control, live-plotting, and data logging using a web app",
-            startDate: "2025-06",
-            status: "in-progress",
-            headerTitleSize: "2xl",
-            showTags: true,
-            metrics: {
-              sectionTitle: "Quick Facts",
-              customFields: [
-                { label: "Voltage Range", value: "6-60V" },
-                { label: "Current Range", value: "0-150A" },
-                { label: "ESC Control Protocols", value: "PWM, DSHOT" },
-                { label: "Microcontroller", value: "RP2040" },
-                { label: "Web App", value: "React + Typescript + Vite" },
-                { label: "Data Rate", value: "100Hz" }
-              ]
-            },
-            links: [
-              { url: "https://github.com/matt-nolan11/Smart-RC-Power-Meter", label: "GitHub", color: "neutral" },
-              { url: "https://matt-nolan11.github.io/Power-Meter-Web-App/", label: "Web App", color: "blue", icon: "external" }
-            ]
-        },
-        {
-          type: "content",
-          content: `
-          ## Overview
-          This Smart RC Power Meter is designed to provide real-time telemetry and control for bench-testing RC vehicles. It measures voltage and current directly, and can control RC devices using PWM or DSHOT protocols. When using DSHOT with supported ESCs, it can pull telemetry data from supported ESCs, providing access to further information such as motor RPM, ESC temperature, and more. The device uses Bluetooth to communicate with a web app, providing ESC configuration, throttle control, live data plotting, and data logging.
-          `
-        }
+      summaryTitle: "Smart RC Power Meter",
+      summaryDescription: "An RC power meter that measures voltage and current, and uses DSHOT to pull ESC telemetry, with motor control, live-plotting, and data logging using a web app",
+      startDate: "2025-06",
+      status: "in-progress",
+      headerTitleSize: "2xl",
+      showTags: true,
+      metrics: {
+        sectionTitle: "Quick Facts",
+        customFields: [
+          { label: "Voltage Range", value: "6-60V" },
+          { label: "Current Range", value: "0-150A" },
+          { label: "ESC Control Protocols", value: "PWM, DSHOT" },
+          { label: "Microcontroller", value: "RP2040" },
+          { label: "Web App", value: "React + Typescript + Vite" },
+          { label: "Data Rate", value: "100Hz" }
+        ]
+      },
+      links: [
+        { url: "https://github.com/matt-nolan11/Smart-RC-Power-Meter", label: "GitHub", color: "neutral" },
+        { url: "https://matt-nolan11.github.io/Power-Meter-Web-App/", label: "Web App", color: "blue", icon: "external" }
       ]
     }
   ]}  
 />
 
-This project arose from my experience using [cheap RC power meters](https://a.co/d/0e0ee2rX) that measure voltage and current. These meters are inexpensive and simple, but they have no data logging, no plotting, and no way to control the ESC throttle. Most modern ESC's also have internally tracked telemetry for voltage, current, temperature, and RPM estimation based on back-EMF (this RPM estimation is actually the basis for most sensorless motor control strategies, and the ESC relies on it to commutate correctly). I wanted a smarter solution that could provide real-time telemetry and data logging.
+### Overview
+This Smart RC Power Meter is designed to provide real-time telemetry and control for bench-testing RC vehicles. It measures voltage and current directly, and can control RC devices using PWM or DSHOT protocols. When using DSHOT with supported ESCs, it can pull telemetry data from supported ESCs, providing access to further information such as motor RPM, ESC temperature, and more. The device uses Bluetooth to communicate with a web app, providing ESC configuration, throttle control, live data plotting, and data logging.
+
+This project arose from my experience using [cheap RC power meters](https://a.co/d/0e0ee2rX) that measure voltage and current. These meters are inexpensive and simple, but they have no data logging, no plotting, and no way to control the ESC throttle. Most modern ESC's also have internally tracked telemetry for voltage, current, temperature, and RPM estimation based on back-EMF (this RPM estimation is actually the basis for most sensorless motor control strategies, and the ESC relies on it to commutate correctly). I wanted a smarter solution that could access this information while providing real-time telemetry and data logging.
 
 <ProjectVersionsSection 
   sectionTitle="Development"

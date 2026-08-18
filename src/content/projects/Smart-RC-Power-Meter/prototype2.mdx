@@ -9,7 +9,8 @@ import ModularSection from '../../../components/ModularSection.astro';
   columns={[
     {
       type: "summary",
-      summaryTitle: "Prototype 2 - Integrated PCB + 3D Printed Case",
+      headerTitleSize: "lg",
+      summaryTitle: "Prototype 2",
       summaryDescription: "The second prototype of the Smart RC Power Meter will feature a custom PCB to integrate all the components into a single board, with an updated 3D printed case for protection and mounting",
       startDate: "2026-11",
       status: "planning",
@@ -17,4 +18,4 @@ import ModularSection from '../../../components/ModularSection.astro';
   ]}
 />
 
-Before starting PCB design the main decision to make is whether to stick with the hall effect current sensor or switch to a shunt resistor. More research is needed to determine which option will provide the best combination of accuracy, efficiency, and cost for this application. Once that decision is made, the PCB design can begin, and the 3D printed case can be updated to accommodate the new board layout.
+Before starting PCB design the main decision to make is whether to stick with the hall effect current sensor or switch to a shunt resistor. More research is needed to determine which option will provide the best combination of accuracy, efficiency, and cost for this application. Once that decision is made, the PCB design can begin, and the 3D printed case can be updated to accommodate the new board layout. I expect the largest challenge will be accommodating very large currents (up to 150A ideally) while keeping the board size and noise levels reasonably low.
