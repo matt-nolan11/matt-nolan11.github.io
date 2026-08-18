@@ -98,6 +98,19 @@ const metricFields = (metrics?.customFields ?? []).map((field) => ({
   ) as string,
 }));
 
+// The widest tier normally goes to 3 columns, but a count like 8 leaves a
+// dangling 3+3+2 with an empty cell. Picking whichever of 2 or 3 columns
+// divides the tile count more evenly avoids that gap; ties favour 3 (more
+// compact) to match the common divisible-by-3 case. Deliberately capped at
+// 3 — a 4th tier would need a container width past the 768px cap on
+// .summary-content, which the ModularSection height balancer below can
+// never actually resolve to (see max-w-3xl on .summary-content).
+const wideColumns = (() => {
+  const n = metricFields.length;
+  const emptyCells = (cols: number) => (cols - (n % cols)) % cols;
+  return emptyCells(3) <= emptyCells(2) ? 3 : 2;
+})();
+
 // Calculate competitions to show
 const maxDisplay = competitionsOptions?.maxDisplay ?? 3;
 const competitionsToShow = maxDisplay === 0 ? competitions : competitions?.slice(0, maxDisplay);
@@ -186,7 +199,7 @@ const hasRecords = competitions.some(comp => comp.record);
           The column count must keep increasing with width — the balancer solves
           for the width where the two columns' heights meet, and it can only do
           that if height actually responds to width. */}
-      <div class="grid grid-cols-1 @xs:grid-cols-2 @2xl:grid-cols-3 gap-2">
+      <div class={`grid grid-cols-1 @xs:grid-cols-2 @2xl:grid-cols-${wideColumns} gap-2`}>
         {metricFields.map((field) => (
           <div class="stat-tile">
             <div class="stat-tile-label">{field.label}</div>

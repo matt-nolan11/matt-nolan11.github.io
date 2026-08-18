@@ -245,6 +245,14 @@
   .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+/* Ensure the container-query grid-cols classes are available for Summary's
+   stat-tile grid, whose widest tier is a dynamic class string keyed off the
+   metric count (2 or 3 columns — see wideColumns in Summary.astro). */
+@container (min-width: 42rem) {
+  .\@2xl\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .\@2xl\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 /* Pagefind UI Overrides */
   .pagefind-ui {
     --pagefind-ui-scale: 0.75;

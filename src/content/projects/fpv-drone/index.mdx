@@ -1,0 +1,58 @@
+---
+title: "Custom FPV Drone"
+description: "An FPV drone with a self-designed and manufactured frame"
+startDate: "2020-08"
+endDate: "2022-01"
+status: "completed"
+tags: ["3d printing", "cnc", "electronics", "embedded systems"]
+cover: ./images/v2/actionCam.jpg
+---
+
+import ModularSection from '../../../components/ModularSection.astro';
+import ProjectVersionsSection from '../../../components/ProjectVersionsSection.astro';
+
+import v2actionCamImage from './images/v2/actionCam.jpg';
+
+<ModularSection
+  columns={[
+    {
+      type: "image",
+      width: 50,
+      image: v2actionCamImage,
+      imageAlt: "Custom FPV drone with an action camera mounted on the front",
+      imageCaption: "Custom FPV drone with an action camera mounted on the front"
+    },
+    {
+      type: "summary",
+      width: 50,
+      summaryTitle: "Custom FPV Drone",
+      status: "completed",
+      showTags: true,
+      startDate: "2020-08",
+      endDate: "2022-01",
+      metrics: {
+        sectionTitle: "Specifications",
+        customFields: [
+          { label: "Prop Size", value: "5in" },
+          { label: "Frame Size", value: "240mm"},
+          { label: "Battery", value: "4s 1500mAh" },
+          { label: "Video Transmission", value: "5.8GHz analog" },
+          { label: "Camera", value: "Runcam Owl Plus" },
+          { label: "Flight Stack", value: "Diatone Mamba F405 Mk2 FC + F40 ESC" },
+          { label: "Motors", value: "DYS Samguk Wei 2600kv" },
+          { label: "VTX", value: "RDQ Mach 3"}
+        ]
+      },
+    }
+  ]}
+/>
+
+<ProjectVersionsSection 
+  sectionTitle="Design Iterations"
+  titleDepth={1}
+  tabStyle="bordered"
+  tabWidth="100px"
+  tabHeight="24px"
+  fontSize="1rem"
+  className="mt-12" 
+/>
