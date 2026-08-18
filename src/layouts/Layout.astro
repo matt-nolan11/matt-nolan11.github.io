@@ -136,8 +136,15 @@ const getPageStyles = (type: string) => {
       <Navbar />
 
       <!-- Main page content -->
+      <!-- w-full is load-bearing: `mx-auto` sets auto side margins, which
+           suppresses the cross-axis stretch this would otherwise get as an item
+           of the column flexbox above. Without an explicit width, main is then
+           sized shrink-to-fit from its content's max-content width, so a page
+           whose content happens to be narrow (a project whose default version
+           tab holds only a short banner, say) renders main narrower than
+           --page-max-width and its margins stop lining up with the navbar. -->
       <main 
-        class="flex-1 mx-auto"
+        class="flex-1 mx-auto w-full"
         style={`max-width: ${customMaxWidth || 'var(--page-max-width)'}; padding-left: var(--page-px); padding-right: var(--page-px); padding-top: var(--page-py); padding-bottom: var(--page-py);`}
       >
         <slot />

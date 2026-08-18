@@ -2,9 +2,16 @@ import type { CollectionEntry } from 'astro:content';
 import { isMainEntry, sortProjectsOngoingFirst } from './contentUtils';
 
 /**
+ * How many project cards the homepage shows. Change this one number to grow or
+ * shrink the featured grid — `featuredOrder` values in project frontmatter must
+ * stay within 1..FEATURED_PROJECT_COUNT.
+ */
+export const FEATURED_PROJECT_COUNT = 3;
+
+/**
  * Gets featured projects for the homepage display
  * @param projects - Array of all projects
- * @param maxCount - Maximum number of projects to return (default: 6)
+ * @param maxCount - Maximum number of projects to return (default: FEATURED_PROJECT_COUNT)
  * @returns Array of projects for homepage display
  *
  * Projects with `featured: true` in frontmatter are prioritized. If fewer than maxCount are manually featured,
@@ -12,7 +19,7 @@ import { isMainEntry, sortProjectsOngoingFirst } from './contentUtils';
  */
 export function getFeaturedProjects(
   projects: CollectionEntry<'projects'>[],
-  maxCount: number = 6
+  maxCount: number = FEATURED_PROJECT_COUNT
 ): CollectionEntry<'projects'>[] {
   const mainProjects = projects.filter(isMainEntry);
 

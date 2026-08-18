@@ -1,3 +1,91 @@
 ---
 tabTitle: "v2"
 ---
+
+import ModularSection from '../../../components/ModularSection.astro';
+
+import assembled1Image from './images/v2/assembled1.jpg';
+import actionCamImage from './images/v2/actionCam.jpg';
+import armsImage from './images/v2/arms.jpg';
+
+import v2Model from './3DModels/v2carbon.glb';
+
+<ModularSection
+  columns={[
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+            type: "summary",
+            summaryTitle: "Version 2 - Moving toward Carbon Fiber",
+            status: "completed",
+            showTags: true,
+            startDate: "2020-08",
+            endDate: "2020-11",
+            metrics: {
+              sectionTitle: "Details",
+              customFields: [
+                { label: "Frame Material", value: "Carbon Fiber" },
+                { label: "Frame Pieces", value: "10"},
+                { label: "ESC Firmware", value: "Bluejay" },
+                { label: "Action Cam Support", value: "Yes (TPU Mount)" }
+              ]
+            },
+        },
+        {
+          type: "content",
+          content: `
+          ### Redesign
+          After crashing and breaking the v1 frame twice, I wanted to move to a design that would allow me to easily replace the arms if they broke. I also wanted to make the main body more dense while improving airflow over the electronics, so I moved to a more traditional design using a flat top plate and standoffs. However, I made custom camera mounting / guard rails, and a rear plate for a panel-mount XT-60 connector. I laser-cut these flat pieces out of HDPE, and they've had no issues. The VTX still mounts to the underside of the main body to keep the video signal away from the high-power electronics in an attempt to reduce noise. Since the arms were the most likely to break, I cut them out of a 3mm carbon fiber sheet using a CNC router.
+          ### Iteration
+          Initially, I still wanted to 3D print the central frame piece, so I added stiffening ribs to the underside and printed it out of a few different materials. I tried HDPE, but it was not stiff enough, and the drone suffered from severe vibrations that made it impossible to fly. I then tried PC-CF (carbon fiber reinforced polycarbonate), which was plenty stiff, but it was relatively brittle, and it cracked at an arm mounting area during a somewhat hard landing. In replacing the arms with carbon fiber, I had moved the failure point to the main body. In the end, I capitulated and made a carbon fiber main body, which was stiff, light, and strong.
+          ### Other Improvements
+          - Flashed the open-source Bluejay firmware to the ESCs, which allowed me to turn on RPM gyro filtering
+            - Adds dynamic notch filtering based on the RPM of each motor, reducing IMU noise
+          - Added a TPU mount for an action camera, which allows me to record high quality footage of my flights
+          - Added TPU bumpers under each motor to act as landing skids
+          - Replaced VTX antenna with a more compact, higher performance option
+          `
+        }
+      ]
+    },
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "model",
+          modelSrc: v2Model,
+          modelAlt: "Interactive 3D model of the v2 FPV drone",
+          modelCaption: "The 3-piece printed frame: a thick main X piece carrying the components, a top cover over the flight controller stack, and a bottom cover enclosing the VTX",
+          modelOptions: {
+            aspectRatio: "4:3",
+            mobileAspectRatio: "1:1",
+            cameraControls: true,
+            autoRotate: true,
+            ar: true,
+            interactionPrompt: "auto"
+          }
+        },
+        {
+          type: "gallery",
+          gallery: [
+            {
+              src: assembled1Image,
+              caption: "v2 fully assembled, with its carbon fiber frame and enclosed electronics"
+            },
+            {
+              src: armsImage,
+              caption: "I cut the v2 arms out of 3mm carbon fiber sheet using a CNC router. Each arm mounts to the main body with 2 M3 screws, and are easily replaceable if they break"
+            },
+            {
+              src: actionCamImage,
+              caption: "The v2 frame has a TPU mount for an action camera, which allows me to record high quality footage of my flights"
+            }
+          ]
+        }
+      ]
+    }
+  ]}
+/>

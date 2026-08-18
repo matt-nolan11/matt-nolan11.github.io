@@ -8,7 +8,7 @@ import { getFeaturedProjects } from '../utils/homepageUtils';
 
 const projects = await getCollection('projects');
 // getFeaturedProjects already filters to index.mdx, but keep inputs broad
-const displayProjects = getFeaturedProjects(projects, 6);
+const displayProjects = getFeaturedProjects(projects);
 
 const posts = await getCollection('posts');
 const recentPosts = posts

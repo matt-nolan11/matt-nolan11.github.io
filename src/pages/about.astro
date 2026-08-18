@@ -39,8 +39,8 @@ import aboutImage from '../assets/about.png';
         </div>
         
         <!-- Primary action -->
-        <div class="mb-6">
-          <a href="https://drive.google.com/file/d/1_QjzLQc4aC5qWoHgaJZuJlkForWcZr5a/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
+        <div>
+          <a href="https://drive.google.com/file/d/1pLtZKAUzTiEj2cCbZBZ0tLcUR0CMyjWf/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -74,76 +74,77 @@ import aboutImage from '../assets/about.png';
     </div>
 
     <!-- Content Sections -->
-    <ModularSection columns={[
-      {
-        type: 'content',
-        title: 'What I Do',
-        content: `
-My work spans across multiple domains of engineering. I'm particularly interested in:
+    <div class="space-y-12">
+      <ModularSection columns={[
+        {
+          type: 'content',
+          title: 'What I Do',
+          content: `
+  My work spans across multiple domains of engineering. I'm particularly interested in:
 
-- **Autonomous Robotics**: Developing intelligent systems that can operate in complex environments
-- **Integrated Systems**: Combining mechanical, electrical, and software components to create cohesive systems
-- **Making & Prototyping**: Building physical prototypes and exploring fabrication technologies
-- **Embedded Systems**: Designing and developing smart, connected devices
-        `
-      }
-    ]} />
+  - **Autonomous Robotics**: Developing intelligent systems that can operate in complex environments
+  - **Integrated Systems**: Combining mechanical, electrical, and software components to create cohesive systems
+  - **Making & Prototyping**: Building physical prototypes and exploring fabrication technologies
+  - **Embedded Systems**: Designing and developing smart, connected devices
+          `
+        }
+      ]} />
 
-    <ModularSection columns={[
-      {
-        type: 'content',
-        title: 'My Approach',
-        content: `
-I strongly believe in learning by doing. Whether it's building a new robot from scratch, spinning up new smart devices, or diving deep into the mechanics of robotic systems, I approach each project with curiosity and a commitment to understanding the fundamentals while getting my hands dirty.
+      <ModularSection columns={[
+        {
+          type: 'content',
+          title: 'My Approach',
+          content: `
+  I strongly believe in learning by doing. Whether it's building a new robot from scratch, spinning up new smart devices, or diving deep into the mechanics of robotic systems, I approach each project with curiosity and a commitment to understanding the fundamentals while getting my hands dirty.
 
-This portfolio / blog serves as both a documentation of my projects and a place to share insights that might help other makers and engineers on their own journeys.
-        `
-      }
-    ]} />
+  This portfolio / blog serves as both a documentation of my projects and a place to share insights that might help other makers and engineers on their own journeys.
+          `
+        }
+      ]} />
 
-    <ModularSection columns={[
-      {
-        type: 'content',
-        title: 'Beyond Engineering',
-        content: `
-When I'm not at work, you'll find me building and fighting combat robots, playing chess and piano, hiking, reading, and spending time with friends and family.
-        `
-      }
-    ]} />
+      <ModularSection columns={[
+        {
+          type: 'content',
+          title: 'Beyond Engineering',
+          content: `
+  When I'm not at work, you'll find me building and fighting combat robots, playing chess and piano, hiking, reading, haunting local coffee shops, and spending time with friends and family.
+          `
+        }
+      ]} />
 
-    <ModularSection columns={[
-      {
-        type: 'content',
-        title: 'Contact Me',
-        content: `
-If you'd like to get in touch, please use the contact form, reach out to me on LinkedIn, or email me directly. I'm always open to discussing new and current projects, collaborations, or just sharing ideas about robotics and engineering!
+      <ModularSection columns={[
+        {
+          type: 'content',
+          title: 'Contact Me',
+          content: `
+  If you'd like to get in touch, please use the contact form, reach out to me on LinkedIn, or email me directly. I'm always open to discussing new and current projects, collaborations, or just talking shop.
 
-You can also find me on [Github](https://github.com/matt-nolan11), and [YouTube](https://youtube.com/@matt-nolan11).
-        `
-      },
-      {
-        type: 'content',
-        content: `
-<div id="contact-form-root" class="not-prose">
-  <form
-    id="contact-form"
-    action="https://formspree.io/f/xjkrjkrp"
-    method="POST"
-    class="bg-base-200 rounded-2xl shadow-lg flex flex-col gap-6 p-6 w-full"
-    autocomplete="off"
-  >
-    <div class="form-control w-full">
-      <label for="name" class="label">
-        <span class="label-text font-semibold">Name</span>
-      </label>
-      <input
-        type="text"
-        id="name"
-        name="name"
-        class="input input-bordered w-full"
-        required
-        autocomplete="name"
-      />
+  You can also find me on [Github](https://github.com/matt-nolan11), and [YouTube](https://youtube.com/@matt-nolan11).
+          `
+        },
+        {
+          type: 'content',
+          content: `
+  <div id="contact-form-root" class="not-prose">
+    <form
+      id="contact-form"
+      action="https://formspree.io/f/xjkrjkrp"
+      method="POST"
+      class="bg-base-200 rounded-2xl shadow-lg flex flex-col gap-6 p-6 w-full"
+      autocomplete="off"
+    >
+      <div class="form-control w-full">
+        <label for="name" class="label">
+          <span class="label-text font-semibold">Name</span>
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="input input-bordered w-full"
+          required
+          autocomplete="name"
+        />
     </div>
     <div class="form-control w-full">
       <label for="email" class="label">
@@ -177,6 +178,7 @@ You can also find me on [Github](https://github.com/matt-nolan11), and [YouTube]
         `
       }
     ]} />
+    </div>
   </div>
 </Layout>
 

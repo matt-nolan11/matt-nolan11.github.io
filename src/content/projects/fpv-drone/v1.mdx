@@ -1,3 +1,87 @@
 ---
 tabTitle: "v1"
 ---
+
+import ModularSection from '../../../components/ModularSection.astro';
+
+import assembled1Image from './images/v1/assembled1.jpg';
+import electronicsDoneImage from './images/v1/electronicsDone.jpg';
+import escStartImage from './images/v1/escStart.jpg';
+
+import v1Model from './3DModels/v1.glb';
+
+<ModularSection
+  columns={[
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+            type: "summary",
+            summaryTitle: "Version 1 - Fully 3D Printed",
+            status: "completed",
+            showTags: true,
+            startDate: "2020-08",
+            endDate: "2020-11",
+            metrics: {
+              sectionTitle: "Details",
+              customFields: [
+                { label: "Frame Material", value: "Polymaker CoPa" },
+                { label: "Frame Pieces", value: "3"},
+                { label: "ESC Firmware", value: "BlHeli_S" },
+                { label: "Action Cam Support", value: "No" }
+              ]
+            },
+        },
+        {
+          type: "content",
+          content: `
+          ### Background
+          Shortly after finishing my custom 3d printer, I was looking for new projects I could use it for. When I stumbled across FPV drone footage on YouTube, I was hooked. Rather than purchasing a pre-built frame, I was determined to design mine from scratch. In general, the FPV community advises against fully 3D printed frames, as they are typically not rigid enough to prevent vibrations from affecting the flight controller, and they don't handle crashes well. However, I wanted to try anyways, with some newer FDM materials that I had not seen other people try.
+          ### Approach
+          I designed a 3-piece frame, with a thick main X piece that mounted all the components, a top cover to enclose the flight controller, ESC, and reciever, and a bottom cover to enclose the VTX. The frame featured struts underneath each arm to increase the stiffness. I used [Polymaker CoPa](https://shop.polymaker.com/products/polymide-copa), a copolymer of nylon 6 and nylon 6/6, which is marketed as a high-strength engineering material.
+          ### Performance
+          In terms of flight performance, the drone was very stable and responsive. The frame was sufficiently rigid to prevent significant vibrations from affecting the flight controls, and it was fast. However, my piloting skills were a limiting factor, and when I inevitably crashed, one of the arms broke. This happened twice before I decided to move on to a new design that prioritized repairability.
+          `
+        }
+      ]
+    },
+    {
+      type: "stack",
+      width: 50,
+      items: [
+        {
+          type: "model",
+          modelSrc: v1Model,
+          modelAlt: "Interactive 3D model of the v1 fully 3D printed FPV drone",
+          modelCaption: "The 3-piece printed frame: a thick main X piece carrying the components, a top cover over the flight controller stack, and a bottom cover enclosing the VTX. The battery is mounted to the top of the canopy with velcro straps",
+          modelOptions: {
+            aspectRatio: "4:3",
+            mobileAspectRatio: "1:1",
+            cameraControls: true,
+            autoRotate: true,
+            ar: true,
+            interactionPrompt: "auto"
+          }
+        },
+        {
+          type: "gallery",
+          gallery: [
+            {
+              src: assembled1Image,
+              caption: "v1 fully assembled, with its 3D printed frame and enclosed electronics"
+            },
+            {
+              src: escStartImage,
+              caption: "Starting work on the electronics with the ESC wiring"
+            },
+            {
+              src: electronicsDoneImage,
+              caption: "Flight controller is mounted on top of the ESC, and the VTX is mounted underneath the main frame piece"
+            }
+          ]
+        }
+      ]
+    }
+  ]}
+/>
