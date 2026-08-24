@@ -363,17 +363,23 @@ function compareSemverDesc(a: number[], b: number[]): number {
      version needs its own :nth-of-type pair and the count is not known until
      the versions are loaded. */
 
-  /* Hover effects */
-  .version-tabs .tab-buttons .tab-button:hover {
-    background-color: rgba(0, 130, 206, 0.1);
-    border-color: rgba(0, 130, 206, 0.3);
-  }
+  /* Hover effects. Gated on a real hovering pointer: on touch devices the
+     :hover state sticks to the last-tapped element, so an ungated rule left the
+     tab you just selected wearing the faint hover fill instead of the solid
+     active fill. The business rules also drop !important for the same reason —
+     with it, hover outranked the generated active-tab rule. */
+  @media (hover: hover) and (pointer: fine) {
+    .version-tabs .tab-buttons .tab-button:hover {
+      background-color: rgba(0, 130, 206, 0.1);
+      border-color: rgba(0, 130, 206, 0.3);
+    }
 
-  [data-theme="business"] .version-tabs .tab-buttons .tab-button:hover,
-  html[data-theme="business"] .version-tabs .tab-buttons .tab-button:hover,
-  :root[data-theme="business"] .version-tabs .tab-buttons .tab-button:hover {
-    background-color: rgba(28, 78, 127, 0.1) !important;
-    border-color: rgba(28, 78, 127, 0.3) !important;
+    [data-theme="business"] .version-tabs .tab-buttons .tab-button:hover,
+    html[data-theme="business"] .version-tabs .tab-buttons .tab-button:hover,
+    :root[data-theme="business"] .version-tabs .tab-buttons .tab-button:hover {
+      background-color: rgba(28, 78, 127, 0.1);
+      border-color: rgba(28, 78, 127, 0.3);
+    }
   }
 
   /* Tab content styling */
