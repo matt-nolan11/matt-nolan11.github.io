@@ -36,5 +36,10 @@
 - Draco-compress every model before committing — raw exports are 10-20x larger
   and ship to visitors in full. See `docs/3d-model-compression.md`.
 
+## Analytics
+- Cloudflare Web Analytics, cookieless, no consent banner needed.
+- Set the token in `src/config/analytics.ts`; empty = fully disabled.
+- Production-only, so `astro dev` never reports itself. See `docs/analytics.md`.
+
 ## Theming
 - `business` (dark) / `corporate` (light). Managed by `src/scripts/themeController.ts`.

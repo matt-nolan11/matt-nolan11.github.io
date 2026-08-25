@@ -1,0 +1,37 @@
+---
+/**
+ * Cloudflare Web Analytics beacon.
+ *
+ * Cookieless and fingerprint-free, so it needs no consent banner: a visit is
+ * identified by a same-day hash of IP + User-Agent that Cloudflare cannot
+ * reverse and that changes at midnight UTC.
+ */
+import { cloudflareAnalyticsToken } from '../config/analytics';
+
+// Gated on PROD so `astro dev` does not report itself. Every hot reload would
+// otherwise land in the same dashboard as real traffic, and local page loads
+// would drown out a low-traffic portfolio's actual numbers.
+const enabled = import.meta.env.PROD && cloudflareAnalyticsToken !== '';
+---
+
+{
+  enabled && (
+    /* is:inline is load-bearing. Without it Astro takes ownership of the tag
+       and drops attributes it does not recognise — including data-cf-beacon,
+       which is the only thing telling the beacon which site it is reporting
+       for.
+
+       type="module" (rather than defer) mirrors the snippet Cloudflare hands
+       out. The bundle is currently a self-contained IIFE that would run either
+       way, but if it ever ships real module syntax a classic-script load would
+       fail silently — and analytics that quietly stop reporting are analytics
+       nobody notices are broken. Modules are deferred by default, so this
+       keeps the non-blocking behaviour. */
+    <script
+      is:inline
+      type="module"
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={JSON.stringify({ token: cloudflareAnalyticsToken })}
+    />
+  )
+}
